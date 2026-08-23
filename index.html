@@ -653,8 +653,8 @@
   .health-section-gym { grid-area: gym; }
   .health-section-weight { grid-area: weight; }
   .health-section-sleep { grid-area: sleep; }
-  .health-quadrant { display: flex; flex-direction: column; gap: 12px; }
-  .health-quadrant .card { margin: 0; }
+  .health-quadrant { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .health-quadrant .card { margin: 0; min-width: 0; }
   .health-subtitle {
     font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
     color: var(--text-tertiary); margin-bottom: 10px;
@@ -807,6 +807,85 @@
   }
   .health-disabled-title { font-size: 13.5px; font-weight: 700; color: var(--text-secondary); }
   .health-disabled-sub { font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px; }
+
+  /* ---------- Component: Weight & progress ---------- */
+
+  .weight-log-form { display: flex; flex-direction: column; gap: 12px; }
+  .weight-log-photo-picker {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 120px;
+    border: 1.5px dashed rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .weight-log-photo-picker:hover { border-color: rgba(255, 255, 255, 0.28); }
+  .weight-log-photo-placeholder { font-size: 12.5px; font-weight: 600; color: var(--text-tertiary); }
+  .weight-log-photo-preview { width: 100%; height: 100%; object-fit: cover; }
+  .weight-log-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .weight-log-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .weight-log-field input { width: 100%; min-width: 0; }
+  .weight-log-field span {
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  .weight-log-field input {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 7px 9px;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color-scheme: dark;
+  }
+  .weight-log-field input:focus { outline: none; border-color: var(--accent-blue); }
+  .weight-log-save-btn {
+    background: var(--accent-blue); border: none; color: #06131f;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 700;
+    padding: 9px 14px; border-radius: 10px; cursor: pointer;
+  }
+  .weight-log-save-btn:disabled { opacity: 0.6; cursor: default; }
+  .weight-log-status { font-size: 11px; color: var(--text-tertiary); min-height: 14px; }
+  .weight-log-status.is-error { color: var(--danger); }
+
+  .weight-timeline { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+  .weight-timeline-item {
+    flex: none; width: 96px;
+    display: flex; flex-direction: column; gap: 6px;
+    position: relative;
+  }
+  .weight-timeline-photo-wrap { position: relative; width: 96px; height: 96px; border-radius: 10px; overflow: hidden; background: rgba(255,255,255,0.04); }
+  .weight-timeline-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .weight-timeline-badge {
+    position: absolute; top: 5px; left: 5px;
+    background: var(--accent-blue); color: #06131f;
+    font-size: 8.5px; font-weight: 800; letter-spacing: 0.04em;
+    padding: 2px 6px; border-radius: 999px;
+  }
+  .weight-timeline-weight { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; color: var(--text-primary); }
+  .weight-timeline-date { font-size: 10px; color: var(--text-tertiary); margin-top: -4px; }
+  .weight-timeline-actions { display: flex; gap: 4px; }
+  .weight-pick-btn {
+    flex: 1; font-size: 9.5px; font-weight: 700; padding: 4px 0;
+    border-radius: 6px; cursor: pointer;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-tertiary);
+  }
+  .weight-pick-btn:hover { color: var(--text-secondary); }
+  .weight-pick-btn.is-active { background: var(--accent-blue); border-color: var(--accent-blue); color: #06131f; }
+
+  .weight-compare-view { display: none; }
+  .weight-compare-view.has-both {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .weight-compare-summary { grid-column: 1 / -1; text-align: center; font-size: 12.5px; color: var(--text-secondary); margin-bottom: 2px; }
+  .weight-compare-summary strong { color: var(--text-primary); font-family: var(--font-mono); }
+  .weight-compare-panel { display: flex; flex-direction: column; gap: 6px; }
+  .weight-compare-photo { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 12px; background: rgba(255,255,255,0.04); }
+  .weight-compare-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); }
+  .weight-compare-weight { font-family: var(--font-mono); font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .weight-compare-date { font-size: 10.5px; color: var(--text-tertiary); }
 </style>
 </head>
 <body>
@@ -946,8 +1025,40 @@
 
     <div class="health-quadrant health-section-weight">
       <div class="section-title">Gewicht &amp; Progressie</div>
+
       <div class="card">
-        <div class="health-empty health-empty-static">Nog niet gekoppeld — volgt hierna.</div>
+        <div class="health-subtitle">Nieuwe meting toevoegen</div>
+        <form id="weightLogForm" class="weight-log-form">
+          <label class="weight-log-photo-picker" id="weightPhotoPicker" for="weightPhotoInput">
+            <input type="file" id="weightPhotoInput" accept="image/*" required hidden>
+            <span class="weight-log-photo-placeholder" id="weightPhotoPlaceholder">+ Foto</span>
+            <img class="weight-log-photo-preview" id="weightPhotoPreview" style="display:none" alt="">
+          </label>
+          <div class="weight-log-fields">
+            <label class="weight-log-field">
+              <span>Gewicht (kg)</span>
+              <input type="number" id="weightInput" step="0.1" min="0" required>
+            </label>
+            <label class="weight-log-field">
+              <span>Datum</span>
+              <input type="date" id="weightDateInput" required>
+            </label>
+          </div>
+          <button type="submit" id="weightSaveBtn" class="weight-log-save-btn">Opslaan</button>
+          <div class="weight-log-status" id="weightLogStatus"></div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="health-subtitle">Tijdlijn</div>
+        <div class="weight-timeline" id="weightTimeline"></div>
+        <div class="health-empty" id="weightTimelineEmpty">Nog geen metingen.</div>
+      </div>
+
+      <div class="card">
+        <div class="health-subtitle">Voor / na</div>
+        <div class="weight-compare-view" id="weightCompareView"></div>
+        <div class="health-empty" id="weightCompareEmpty">Kies twee punten in de tijdlijn hierboven (Voor / Na) om te vergelijken.</div>
       </div>
     </div>
 
@@ -2181,6 +2292,234 @@
     renderHealthCharts();
   }
 
+  /* ---------- health tab: weight & progress ---------- */
+
+  const PROGRESS_PHOTOS_BUCKET = 'progress-photos';
+
+  let weightLog = [];
+  const weightCompareSelection = { before: null, after: null };
+
+  function weightPhotoUrl(path) {
+    return supabaseClient.storage.from(PROGRESS_PHOTOS_BUCKET).getPublicUrl(path).data.publicUrl;
+  }
+
+  function formatShortDate(dateStr) {
+    const parts = dateStr.split('-').map(Number);
+    const dt = new Date(parts[0], parts[1] - 1, parts[2]);
+    return dt.getDate() + ' ' + dt.toLocaleDateString('nl-NL', { month: 'short' });
+  }
+
+  async function loadWeightLog() {
+    try {
+      const { data, error } = await supabaseClient
+        .from('weight_log')
+        .select('*')
+        .order('entry_date', { ascending: true });
+      if (error) { console.error('Supabase weight_log load failed', error); return; }
+
+      weightLog = (data || []).map(function (row) {
+        return {
+          id: row.id,
+          entry_date: row.entry_date,
+          weight_kg: row.weight_kg,
+          photo_path: row.photo_path,
+          photoUrl: weightPhotoUrl(row.photo_path)
+        };
+      });
+      const validIds = weightLog.map(function (w) { return w.id; });
+      if (weightCompareSelection.before && validIds.indexOf(weightCompareSelection.before) === -1) weightCompareSelection.before = null;
+      if (weightCompareSelection.after && validIds.indexOf(weightCompareSelection.after) === -1) weightCompareSelection.after = null;
+
+      renderWeightTimeline();
+      renderWeightCompare();
+    } catch (e) {
+      console.error('Supabase weight_log load failed', e);
+    }
+  }
+
+  function renderWeightTimeline() {
+    const el = document.getElementById('weightTimeline');
+    const emptyEl = document.getElementById('weightTimelineEmpty');
+    el.innerHTML = '';
+    emptyEl.style.display = weightLog.length ? 'none' : '';
+
+    weightLog.forEach(function (w) {
+      const item = document.createElement('div');
+      item.className = 'weight-timeline-item';
+
+      const photoWrap = document.createElement('div');
+      photoWrap.className = 'weight-timeline-photo-wrap';
+      const img = document.createElement('img');
+      img.className = 'weight-timeline-photo';
+      img.src = w.photoUrl;
+      img.alt = '';
+      photoWrap.appendChild(img);
+
+      const role = weightCompareSelection.before === w.id ? 'VOOR' : weightCompareSelection.after === w.id ? 'NA' : null;
+      if (role) {
+        const badge = document.createElement('span');
+        badge.className = 'weight-timeline-badge';
+        badge.textContent = role;
+        photoWrap.appendChild(badge);
+      }
+      item.appendChild(photoWrap);
+
+      const weightEl = document.createElement('div');
+      weightEl.className = 'weight-timeline-weight';
+      weightEl.textContent = Number(w.weight_kg).toFixed(1) + ' kg';
+      item.appendChild(weightEl);
+
+      const dateEl = document.createElement('div');
+      dateEl.className = 'weight-timeline-date';
+      dateEl.textContent = formatShortDate(w.entry_date);
+      item.appendChild(dateEl);
+
+      const actions = document.createElement('div');
+      actions.className = 'weight-timeline-actions';
+
+      const beforeBtn = document.createElement('button');
+      beforeBtn.type = 'button';
+      beforeBtn.className = 'weight-pick-btn' + (weightCompareSelection.before === w.id ? ' is-active' : '');
+      beforeBtn.textContent = 'Voor';
+      beforeBtn.addEventListener('click', function () {
+        weightCompareSelection.before = weightCompareSelection.before === w.id ? null : w.id;
+        renderWeightTimeline();
+        renderWeightCompare();
+      });
+
+      const afterBtn = document.createElement('button');
+      afterBtn.type = 'button';
+      afterBtn.className = 'weight-pick-btn' + (weightCompareSelection.after === w.id ? ' is-active' : '');
+      afterBtn.textContent = 'Na';
+      afterBtn.addEventListener('click', function () {
+        weightCompareSelection.after = weightCompareSelection.after === w.id ? null : w.id;
+        renderWeightTimeline();
+        renderWeightCompare();
+      });
+
+      actions.appendChild(beforeBtn);
+      actions.appendChild(afterBtn);
+      item.appendChild(actions);
+
+      el.appendChild(item);
+    });
+  }
+
+  function buildComparePanel(label, entry) {
+    const panel = document.createElement('div');
+    panel.className = 'weight-compare-panel';
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'weight-compare-label';
+    labelEl.textContent = label;
+    panel.appendChild(labelEl);
+
+    const img = document.createElement('img');
+    img.className = 'weight-compare-photo';
+    img.src = entry.photoUrl;
+    img.alt = '';
+    panel.appendChild(img);
+
+    const weightEl = document.createElement('div');
+    weightEl.className = 'weight-compare-weight';
+    weightEl.textContent = Number(entry.weight_kg).toFixed(1) + ' kg';
+    panel.appendChild(weightEl);
+
+    const dateEl = document.createElement('div');
+    dateEl.className = 'weight-compare-date';
+    dateEl.textContent = formatShortDate(entry.entry_date);
+    panel.appendChild(dateEl);
+
+    return panel;
+  }
+
+  function renderWeightCompare() {
+    const view = document.getElementById('weightCompareView');
+    const emptyEl = document.getElementById('weightCompareEmpty');
+    view.innerHTML = '';
+
+    const before = weightLog.filter(function (w) { return w.id === weightCompareSelection.before; })[0];
+    const after = weightLog.filter(function (w) { return w.id === weightCompareSelection.after; })[0];
+
+    if (!before || !after) {
+      view.classList.remove('has-both');
+      emptyEl.style.display = '';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    view.classList.add('has-both');
+
+    const days = Math.round((new Date(after.entry_date) - new Date(before.entry_date)) / (24 * 3600 * 1000));
+    const delta = after.weight_kg - before.weight_kg;
+
+    const summary = document.createElement('div');
+    summary.className = 'weight-compare-summary';
+    summary.appendChild(document.createTextNode(days + ' dagen ertussen · '));
+    const strong = document.createElement('strong');
+    strong.textContent = (delta > 0 ? '+' : '') + delta.toFixed(1) + ' kg';
+    summary.appendChild(strong);
+    view.appendChild(summary);
+
+    view.appendChild(buildComparePanel('Voor', before));
+    view.appendChild(buildComparePanel('Na', after));
+  }
+
+  const weightPhotoInput = document.getElementById('weightPhotoInput');
+  const weightPhotoPreview = document.getElementById('weightPhotoPreview');
+  const weightPhotoPlaceholder = document.getElementById('weightPhotoPlaceholder');
+  weightPhotoInput.addEventListener('change', function () {
+    const file = weightPhotoInput.files[0];
+    if (!file) return;
+    weightPhotoPreview.src = URL.createObjectURL(file);
+    weightPhotoPreview.style.display = 'block';
+    weightPhotoPlaceholder.style.display = 'none';
+  });
+
+  document.getElementById('weightDateInput').value = getActiveDateString();
+
+  document.getElementById('weightLogForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const file = weightPhotoInput.files[0];
+    const weightVal = parseFloat(document.getElementById('weightInput').value);
+    const dateVal = document.getElementById('weightDateInput').value;
+    const statusEl = document.getElementById('weightLogStatus');
+    const saveBtn = document.getElementById('weightSaveBtn');
+    if (!file || !weightVal || !dateVal) return;
+
+    saveBtn.disabled = true;
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Bezig met opslaan…';
+
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = dateVal + '-' + Date.now() + '.' + ext;
+
+    supabaseClient.storage.from(PROGRESS_PHOTOS_BUCKET).upload(path, file, { cacheControl: '3600', upsert: false })
+      .then(function (uploadRes) {
+        if (uploadRes.error) throw uploadRes.error;
+        return supabaseClient.from('weight_log').insert({ entry_date: dateVal, weight_kg: weightVal, photo_path: path });
+      })
+      .then(function (insertRes) {
+        if (insertRes.error) throw insertRes.error;
+        statusEl.textContent = 'Opgeslagen!';
+        document.getElementById('weightLogForm').reset();
+        weightPhotoPreview.style.display = 'none';
+        weightPhotoPreview.src = '';
+        weightPhotoPlaceholder.style.display = '';
+        document.getElementById('weightDateInput').value = getActiveDateString();
+        saveBtn.disabled = false;
+        return loadWeightLog();
+      })
+      .then(function () {
+        setTimeout(function () { statusEl.textContent = ''; }, 2500);
+      })
+      .catch(function (err) {
+        console.error('Weight log opslaan mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Opslaan mislukt — probeer opnieuw.';
+        saveBtn.disabled = false;
+      });
+  });
+
   /* ---------- init ---------- */
 
   function initGoalsUI() {
@@ -2218,6 +2557,7 @@
   setInterval(updateDayBar, 60 * 1000);
 
   loadHealthData();
+  loadWeightLog();
 
   loadStoreFromSupabase()
     .then(migrateLocalStorageIfNeeded)

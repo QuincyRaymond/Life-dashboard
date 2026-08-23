@@ -708,28 +708,134 @@
   const SUPABASE_KEY = 'sb_publishable_5BL3gNtUjmCqxgKpYt6qFg_K88jbiAh';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  /* ---------- storage helpers ---------- */
+  /* ---------- storage helpers (Supabase-backed) ---------- */
+
+  const GOALS_TABLE = 'goals';
+  const STREAK_TABLE = 'goal_streak';
+
+  let goalsCache = {};
+  let streakCache = { count: 0, lastProcessedDate: null };
+  const pendingGoalWrites = {};
 
   function storeGet(key) {
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) { return null; }
+    if (key === STREAK_KEY) return streakCache;
+    if (key.indexOf('goals:') === 0) return goalsCache[key] || null;
+    return null;
   }
   function storeSet(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    if (key === STREAK_KEY) {
+      streakCache = value;
+      supabaseClient.from(STREAK_TABLE).upsert({
+        id: true,
+        count: value.count || 0,
+        last_processed_date: value.lastProcessedDate || null
+      }).then(function (res) {
+        if (res.error) console.error('Supabase streak save failed', res.error);
+      });
+      return;
+    }
     if (key.indexOf('goals:') === 0) {
+      goalsCache[key] = value;
+      syncGoalsToSupabase(key.slice('goals:'.length), value);
       window.dispatchEvent(new CustomEvent('goals-changed'));
     }
   }
-  function storeDelete(key) { localStorage.removeItem(key); }
-  function storeListKeys(prefix) {
-    const keys = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k && k.indexOf(prefix) === 0) keys.push(k);
+  function storeDelete(key) {
+    if (key.indexOf('goals:') === 0) {
+      delete goalsCache[key];
+      syncGoalsToSupabase(key.slice('goals:'.length), []);
     }
-    return keys;
+  }
+  function storeListKeys(prefix) {
+    return Object.keys(goalsCache).filter(function (k) { return k.indexOf(prefix) === 0; });
+  }
+
+  function syncGoalsToSupabase(dateStr, goals) {
+    const prev = pendingGoalWrites[dateStr] || Promise.resolve();
+    const next = prev.then(function () {
+      return supabaseClient.from(GOALS_TABLE).delete().eq('date', dateStr).then(function (res) {
+        if (res.error) { console.error('Supabase goal save failed', res.error); return; }
+        if (!goals.length) return;
+        const rows = goals.map(function (g, i) {
+          return {
+            date: dateStr,
+            text: g.text,
+            done: !!g.done,
+            done_at: g.doneAt ? new Date(g.doneAt).toISOString() : null,
+            queued: !!g.queued,
+            position: i
+          };
+        });
+        return supabaseClient.from(GOALS_TABLE).insert(rows).then(function (res2) {
+          if (res2.error) console.error('Supabase goal save failed', res2.error);
+        });
+      });
+    }).catch(function (e) { console.error('Supabase goal save failed', e); });
+    pendingGoalWrites[dateStr] = next;
+    return next;
+  }
+
+  async function loadStoreFromSupabase() {
+    const [goalsRes, streakRes] = await Promise.all([
+      supabaseClient.from(GOALS_TABLE).select('*').order('date', { ascending: true }).order('position', { ascending: true }),
+      supabaseClient.from(STREAK_TABLE).select('*').eq('id', true).maybeSingle()
+    ]);
+    goalsCache = {};
+    if (goalsRes.error) {
+      console.error('Supabase goals load failed', goalsRes.error);
+    } else {
+      (goalsRes.data || []).forEach(function (row) {
+        const key = 'goals:' + row.date;
+        if (!goalsCache[key]) goalsCache[key] = [];
+        const goal = { text: row.text, done: row.done, queued: row.queued };
+        if (row.done_at) goal.doneAt = new Date(row.done_at).getTime();
+        goalsCache[key].push(goal);
+      });
+    }
+    if (streakRes.error) {
+      console.error('Supabase streak load failed', streakRes.error);
+    } else if (streakRes.data) {
+      streakCache = { count: streakRes.data.count || 0, lastProcessedDate: streakRes.data.last_processed_date || null };
+    }
+  }
+
+  async function migrateLocalStorageIfNeeded() {
+    try {
+      if (Object.keys(goalsCache).length > 0) return;
+      const localKeys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf('goals:') === 0) localKeys.push(k);
+      }
+      const tasks = [];
+      localKeys.forEach(function (k) {
+        let goals = null;
+        try { goals = JSON.parse(localStorage.getItem(k)); } catch (e) { /* ignore */ }
+        if (goals && goals.length) {
+          goalsCache[k] = goals;
+          tasks.push(syncGoalsToSupabase(k.slice('goals:'.length), goals));
+        }
+      });
+      const rawStreak = localStorage.getItem(STREAK_KEY);
+      if (rawStreak) {
+        try {
+          const streak = JSON.parse(rawStreak);
+          if (streak && (streak.count || streak.lastProcessedDate)) {
+            streakCache = streak;
+            tasks.push(supabaseClient.from(STREAK_TABLE).upsert({
+              id: true,
+              count: streak.count || 0,
+              last_processed_date: streak.lastProcessedDate || null
+            }));
+          }
+        } catch (e) { /* ignore */ }
+      }
+      await Promise.all(tasks);
+      localKeys.forEach(function (k) { localStorage.removeItem(k); });
+      if (rawStreak) localStorage.removeItem(STREAK_KEY);
+    } catch (e) {
+      console.error('localStorage migration failed', e);
+    }
   }
 
   /* ---------- date helpers ---------- */
@@ -1317,37 +1423,47 @@
 
   /* ---------- init ---------- */
 
-  runStreakCheck();
-  runRollover();
+  function initGoalsUI() {
+    runStreakCheck();
+    runRollover();
 
-  document.getElementById('todayLabel').textContent = 'Today — ' + formatDate(getActiveDateString());
-  document.getElementById('tomorrowLabel').textContent = 'Plan tomorrow — ' + formatDate(getTomorrowDateString());
+    document.getElementById('todayLabel').textContent = 'Today — ' + formatDate(getActiveDateString());
+    document.getElementById('tomorrowLabel').textContent = 'Plan tomorrow — ' + formatDate(getTomorrowDateString());
 
-  makeAddHandlers(
-    document.getElementById('goalInput'),
-    document.getElementById('goalAddBtn'),
-    document.getElementById('goalPolishBtn'),
-    todayKey(),
-    document.getElementById('polishStatus'),
-    loadToday
-  );
-  makeAddHandlers(
-    document.getElementById('tomorrowInput'),
-    document.getElementById('tomorrowAddBtn'),
-    document.getElementById('tomorrowPolishBtn'),
-    tomorrowKey(),
-    document.getElementById('tomorrowStatus'),
-    loadTomorrow
-  );
+    makeAddHandlers(
+      document.getElementById('goalInput'),
+      document.getElementById('goalAddBtn'),
+      document.getElementById('goalPolishBtn'),
+      todayKey(),
+      document.getElementById('polishStatus'),
+      loadToday
+    );
+    makeAddHandlers(
+      document.getElementById('tomorrowInput'),
+      document.getElementById('tomorrowAddBtn'),
+      document.getElementById('tomorrowPolishBtn'),
+      tomorrowKey(),
+      document.getElementById('tomorrowStatus'),
+      loadTomorrow
+    );
 
-  loadToday();
-  loadTomorrow();
-  renderStreak();
+    loadToday();
+    loadTomorrow();
+    renderStreak();
+
+    startTicker();
+  }
 
   updateDayBar();
   setInterval(updateDayBar, 60 * 1000);
 
-  startTicker();
+  loadStoreFromSupabase()
+    .then(migrateLocalStorageIfNeeded)
+    .then(initGoalsUI)
+    .catch(function (e) {
+      console.error('Supabase init failed, starting with empty goals', e);
+      initGoalsUI();
+    });
 })();
 </script>
 </body>

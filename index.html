@@ -695,11 +695,18 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function () {
   'use strict';
 
   const ANTHROPIC_API_KEY = '';
+
+  /* ---------- supabase ---------- */
+
+  const SUPABASE_URL = 'https://atsusphjcgrxgfeejhex.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_5BL3gNtUjmCqxgKpYt6qFg_K88jbiAh';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   /* ---------- storage helpers ---------- */
 

@@ -315,6 +315,69 @@
     .day-ring-status { font-size: 13px; }
   }
 
+  /* ---------- Component: Agenda ---------- */
+
+  .agenda-header { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .agenda-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .agenda-nav-btn {
+    width: 30px; height: 30px; border-radius: 8px; flex: none;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary); font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .agenda-nav-btn:hover { background: rgba(255, 255, 255, 0.09); }
+  .agenda-range { font-size: 13.5px; font-weight: 700; color: var(--text-primary); text-align: center; flex: 1; }
+  .agenda-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .agenda-today-btn {
+    font-size: 11px; font-weight: 700; color: var(--text-tertiary);
+    background: none; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;
+    padding: 5px 10px; cursor: pointer;
+  }
+  .agenda-today-btn:hover { color: var(--text-secondary); }
+  .agenda-view-toggle { display: flex; background: rgba(255, 255, 255, 0.04); border-radius: 8px; padding: 2px; gap: 2px; }
+  .agenda-view-btn {
+    font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 6px; border: none;
+    background: none; color: var(--text-tertiary); cursor: pointer;
+  }
+  .agenda-view-btn.is-active { background: var(--accent-blue); color: #06131f; }
+
+  .agenda-week-day { padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+  .agenda-week-day:first-child { border-top: none; padding-top: 0; }
+  .agenda-week-day-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11.5px; font-weight: 700; color: var(--text-tertiary); margin-bottom: 8px;
+  }
+  .agenda-week-day.is-today .agenda-week-day-label { color: var(--accent-blue); }
+  .agenda-week-day-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-blue); display: none; }
+  .agenda-week-day.is-today .agenda-week-day-dot { display: inline-block; }
+  .agenda-event-row { display: flex; gap: 10px; padding: 6px 0; }
+  .agenda-event-time { flex: none; width: 60px; font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
+  .agenda-event-main { flex: 1; min-width: 0; }
+  .agenda-event-summary { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .agenda-event-location { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+  .agenda-week-empty { font-size: 12px; color: var(--text-tertiary); padding: 2px 0; }
+
+  .agenda-month-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 6px; }
+  .agenda-month-weekdays span {
+    text-align: center; font-size: 9.5px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase;
+  }
+  .agenda-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .agenda-month-cell {
+    aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: 8px; cursor: pointer; gap: 3px;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .agenda-month-cell:hover { background: rgba(255, 255, 255, 0.06); }
+  .agenda-month-cell.is-outside { opacity: 0.3; }
+  .agenda-month-cell.is-today { background: rgba(58, 150, 255, 0.16); }
+  .agenda-month-cell-num { font-size: 12px; font-weight: 600; color: var(--text-primary); font-family: var(--font-mono); }
+  .agenda-month-cell-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent-blue); visibility: hidden; }
+  .agenda-month-cell.has-events .agenda-month-cell-dot { visibility: visible; }
+
+  .agenda-status { font-size: 11px; color: var(--text-tertiary); margin-top: 10px; min-height: 14px; }
+  .agenda-status.is-error { color: var(--danger); }
+  .agenda-status:empty { display: none; }
+
   /* ---------- Component 4: To Do List ---------- */
 
   .section { display: flex; flex-direction: column; }
@@ -932,6 +995,28 @@
       <div class="day-ring-status" id="dayRingStatus">😴 Still sleeping</div>
       <div class="day-ring-remaining" id="dayRingRemaining">—</div>
       <div class="day-ring-hours">8:00 AM – 12:00 AM</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Agenda</div>
+    <div class="card agenda-card" id="agendaCard">
+      <div class="agenda-header">
+        <div class="agenda-nav">
+          <button class="agenda-nav-btn" id="agendaPrevBtn" type="button" aria-label="Vorige">‹</button>
+          <div class="agenda-range" id="agendaRange">…</div>
+          <button class="agenda-nav-btn" id="agendaNextBtn" type="button" aria-label="Volgende">›</button>
+        </div>
+        <div class="agenda-controls">
+          <button class="agenda-today-btn" id="agendaTodayBtn" type="button">Vandaag</button>
+          <div class="agenda-view-toggle">
+            <button class="agenda-view-btn is-active" id="agendaWeekBtn" type="button">Week</button>
+            <button class="agenda-view-btn" id="agendaMonthBtn" type="button">Maand</button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-body" id="agendaBody"></div>
+      <div class="agenda-status" id="agendaStatus">Laden…</div>
     </div>
   </div>
 
@@ -2520,6 +2605,244 @@
       });
   });
 
+  /* ---------- agenda ---------- */
+
+  let agendaViewMode = 'week';
+  let agendaAnchor = new Date();
+  let agendaEvents = [];
+  let agendaLoadToken = 0;
+
+  function toISODate(d) {
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  function agendaRangeForWeek(anchor) {
+    const start = getWeekStart(anchor);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+    return { start: start, end: end };
+  }
+
+  function agendaRangeForMonth(anchor) {
+    const start = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+    const end = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 1);
+    return { start: start, end: end };
+  }
+
+  function eventsForDay(dateObj) {
+    const dayStr = toISODate(dateObj);
+    return agendaEvents.filter(function (e) {
+      const evDateStr = e.allDay ? e.start : toISODate(new Date(e.start));
+      return evDateStr === dayStr;
+    });
+  }
+
+  function formatEventTime(e) {
+    if (e.allDay) return 'Hele dag';
+    const d = new Date(e.start);
+    return pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+
+  function renderAgendaRangeLabel() {
+    const el = document.getElementById('agendaRange');
+    if (agendaViewMode === 'week') {
+      const range = agendaRangeForWeek(agendaAnchor);
+      const lastDay = new Date(range.end);
+      lastDay.setDate(lastDay.getDate() - 1);
+      const sameMonth = range.start.getMonth() === lastDay.getMonth();
+      const startStr = range.start.getDate() + (sameMonth ? '' : ' ' + range.start.toLocaleDateString('nl-NL', { month: 'short' }));
+      const endStr = lastDay.getDate() + ' ' + lastDay.toLocaleDateString('nl-NL', { month: 'short' });
+      el.textContent = startStr + ' – ' + endStr;
+    } else {
+      const label = agendaAnchor.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' });
+      el.textContent = label.charAt(0).toUpperCase() + label.slice(1);
+    }
+  }
+
+  function renderAgendaWeek() {
+    const body = document.getElementById('agendaBody');
+    body.innerHTML = '';
+    const range = agendaRangeForWeek(agendaAnchor);
+    const todayStr = toISODate(new Date());
+    const dayNames = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(range.start);
+      d.setDate(d.getDate() + i);
+      const dStr = toISODate(d);
+      const isToday = dStr === todayStr;
+
+      const dayEl = document.createElement('div');
+      dayEl.className = 'agenda-week-day' + (isToday ? ' is-today' : '');
+
+      const label = document.createElement('div');
+      label.className = 'agenda-week-day-label';
+      const dot = document.createElement('span');
+      dot.className = 'agenda-week-day-dot';
+      label.appendChild(dot);
+      label.appendChild(document.createTextNode(dayNames[i] + ' ' + d.getDate() + ' ' + d.toLocaleDateString('nl-NL', { month: 'short' })));
+      dayEl.appendChild(label);
+
+      const dayEvents = eventsForDay(d);
+      if (!dayEvents.length) {
+        const empty = document.createElement('div');
+        empty.className = 'agenda-week-empty';
+        empty.textContent = 'Geen afspraken';
+        dayEl.appendChild(empty);
+      } else {
+        dayEvents.forEach(function (e) {
+          const row = document.createElement('div');
+          row.className = 'agenda-event-row';
+          const time = document.createElement('div');
+          time.className = 'agenda-event-time';
+          time.textContent = formatEventTime(e);
+          const main = document.createElement('div');
+          main.className = 'agenda-event-main';
+          const summary = document.createElement('div');
+          summary.className = 'agenda-event-summary';
+          summary.textContent = e.summary;
+          main.appendChild(summary);
+          if (e.location) {
+            const loc = document.createElement('div');
+            loc.className = 'agenda-event-location';
+            loc.textContent = e.location;
+            main.appendChild(loc);
+          }
+          row.appendChild(time);
+          row.appendChild(main);
+          dayEl.appendChild(row);
+        });
+      }
+      body.appendChild(dayEl);
+    }
+  }
+
+  function renderAgendaMonth() {
+    const body = document.getElementById('agendaBody');
+    body.innerHTML = '';
+
+    const weekdaysEl = document.createElement('div');
+    weekdaysEl.className = 'agenda-month-weekdays';
+    ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'].forEach(function (n) {
+      const s = document.createElement('span');
+      s.textContent = n;
+      weekdaysEl.appendChild(s);
+    });
+    body.appendChild(weekdaysEl);
+
+    const gridEl = document.createElement('div');
+    gridEl.className = 'agenda-month-grid';
+
+    const monthStart = new Date(agendaAnchor.getFullYear(), agendaAnchor.getMonth(), 1);
+    const monthEnd = new Date(agendaAnchor.getFullYear(), agendaAnchor.getMonth() + 1, 0);
+    const gridStart = getWeekStart(monthStart);
+    const gridEnd = new Date(monthEnd);
+    const endDay = gridEnd.getDay();
+    gridEnd.setDate(gridEnd.getDate() + (endDay === 0 ? 0 : 7 - endDay));
+    const totalDays = Math.round((gridEnd - gridStart) / (24 * 3600 * 1000)) + 1;
+    const todayStr = toISODate(new Date());
+
+    for (let i = 0; i < totalDays; i++) {
+      const d = new Date(gridStart);
+      d.setDate(d.getDate() + i);
+      const dStr = toISODate(d);
+      const outside = d.getMonth() !== agendaAnchor.getMonth();
+      const count = eventsForDay(d).length;
+
+      const cell = document.createElement('div');
+      cell.className = 'agenda-month-cell' +
+        (outside ? ' is-outside' : '') +
+        (dStr === todayStr ? ' is-today' : '') +
+        (count ? ' has-events' : '');
+
+      const num = document.createElement('div');
+      num.className = 'agenda-month-cell-num';
+      num.textContent = d.getDate();
+      const dot = document.createElement('div');
+      dot.className = 'agenda-month-cell-dot';
+      cell.appendChild(num);
+      cell.appendChild(dot);
+
+      cell.addEventListener('click', function () {
+        agendaAnchor = d;
+        agendaViewMode = 'week';
+        updateAgendaViewButtons();
+        renderAgendaRangeLabel();
+        loadAgenda();
+      });
+      gridEl.appendChild(cell);
+    }
+    body.appendChild(gridEl);
+  }
+
+  function renderAgenda() {
+    renderAgendaRangeLabel();
+    if (agendaViewMode === 'week') renderAgendaWeek();
+    else renderAgendaMonth();
+  }
+
+  function updateAgendaViewButtons() {
+    document.getElementById('agendaWeekBtn').classList.toggle('is-active', agendaViewMode === 'week');
+    document.getElementById('agendaMonthBtn').classList.toggle('is-active', agendaViewMode === 'month');
+  }
+
+  async function loadAgenda() {
+    const statusEl = document.getElementById('agendaStatus');
+    const range = agendaViewMode === 'week' ? agendaRangeForWeek(agendaAnchor) : agendaRangeForMonth(agendaAnchor);
+    const myToken = ++agendaLoadToken;
+    statusEl.textContent = 'Laden…';
+    statusEl.classList.remove('is-error');
+    try {
+      const params = new URLSearchParams({ start: toISODate(range.start), end: toISODate(range.end) });
+      const res = await fetch('/api/calendar-events?' + params.toString());
+      const data = await res.json();
+      if (myToken !== agendaLoadToken) return;
+      if (!res.ok) throw new Error(data.error || 'Onbekende fout');
+      agendaEvents = data.events || [];
+      statusEl.textContent = '';
+      renderAgenda();
+    } catch (e) {
+      if (myToken !== agendaLoadToken) return;
+      console.error('Agenda laden mislukt', e);
+      agendaEvents = [];
+      renderAgenda();
+      statusEl.textContent = 'Agenda laden mislukt.';
+      statusEl.classList.add('is-error');
+    }
+  }
+
+  document.getElementById('agendaPrevBtn').addEventListener('click', function () {
+    if (agendaViewMode === 'week') agendaAnchor.setDate(agendaAnchor.getDate() - 7);
+    else agendaAnchor.setMonth(agendaAnchor.getMonth() - 1);
+    renderAgendaRangeLabel();
+    loadAgenda();
+  });
+  document.getElementById('agendaNextBtn').addEventListener('click', function () {
+    if (agendaViewMode === 'week') agendaAnchor.setDate(agendaAnchor.getDate() + 7);
+    else agendaAnchor.setMonth(agendaAnchor.getMonth() + 1);
+    renderAgendaRangeLabel();
+    loadAgenda();
+  });
+  document.getElementById('agendaTodayBtn').addEventListener('click', function () {
+    agendaAnchor = new Date();
+    renderAgendaRangeLabel();
+    loadAgenda();
+  });
+  document.getElementById('agendaWeekBtn').addEventListener('click', function () {
+    if (agendaViewMode === 'week') return;
+    agendaViewMode = 'week';
+    updateAgendaViewButtons();
+    renderAgendaRangeLabel();
+    loadAgenda();
+  });
+  document.getElementById('agendaMonthBtn').addEventListener('click', function () {
+    if (agendaViewMode === 'month') return;
+    agendaViewMode = 'month';
+    updateAgendaViewButtons();
+    renderAgendaRangeLabel();
+    loadAgenda();
+  });
+
   /* ---------- init ---------- */
 
   function initGoalsUI() {
@@ -2558,6 +2881,8 @@
 
   loadHealthData();
   loadWeightLog();
+  renderAgendaRangeLabel();
+  loadAgenda();
 
   loadStoreFromSupabase()
     .then(migrateLocalStorageIfNeeded)

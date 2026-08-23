@@ -15,6 +15,7 @@
     --success: #6BE3A4;
     --warning: #F2C063;
     --danger: #FF6B6B;
+    --accent-blue: #3A96FF;
     --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
@@ -65,7 +66,7 @@
     z-index: 2;
     max-width: 1100px;
     margin: 0 auto;
-    padding: max(32px, env(safe-area-inset-top)) 20px 60px;
+    padding: max(32px, env(safe-area-inset-top)) 20px calc(84px + env(safe-area-inset-bottom));
   }
 
   .card {
@@ -595,10 +596,136 @@
 
   .gm-polish-status { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; min-height: 14px; }
   .gm-polish-status.is-error { color: var(--danger); }
+
+  /* ---------- Component: Tab bar ---------- */
+
+  .tab-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    padding: 8px 16px max(8px, env(safe-area-inset-bottom));
+    background: rgba(10, 10, 11, 0.72);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .tab-bar-inner { display: flex; width: 100%; max-width: 420px; gap: 4px; }
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 4px;
+    background: none;
+    border: none;
+    border-radius: 12px;
+    color: var(--text-tertiary);
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .tab-btn-icon { font-size: 19px; line-height: 1; }
+  .tab-btn:hover { color: var(--text-secondary); }
+  .tab-btn.is-active { color: var(--text-primary); background: rgba(255, 255, 255, 0.06); }
+
+  /* ---------- Component: Health tab ---------- */
+
+  .health-score-row { display: flex; align-items: center; gap: 20px; }
+  .health-score-ring-wrap { position: relative; width: 108px; height: 108px; flex: none; }
+  .health-score-ring { width: 108px; height: 108px; }
+  .health-score-track { fill: none; stroke: rgba(255, 255, 255, 0.06); stroke-width: 8; }
+  .health-score-fill {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: rotate(-90deg);
+    transition: stroke 0.6s cubic-bezier(0.22, 1, 0.36, 1), stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .health-score-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    pointer-events: none;
+  }
+  .health-score-num { font-family: var(--font-mono); font-size: 28px; font-weight: 800; letter-spacing: -0.03em; }
+  .health-score-label {
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-tertiary); margin-top: 4px;
+  }
+  .health-score-detail { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+
+  .health-activity-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .health-activity-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+  }
+  .health-activity-icon { font-size: 17px; width: 22px; text-align: center; flex: none; }
+  .health-activity-main { flex: 1; min-width: 0; }
+  .health-activity-name {
+    font-size: 13.5px; font-weight: 600; color: var(--text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .health-activity-date { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+  .health-activity-stats { text-align: right; flex: none; font-family: var(--font-mono); }
+  .health-activity-distance { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .health-activity-time { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
+  .health-empty { display: none; font-size: 12.5px; color: var(--text-tertiary); padding: 6px 2px; }
+
+  .health-chart-wrap { position: relative; }
+  .health-chart { width: 100%; height: 150px; display: block; overflow: visible; }
+  .health-chart-bar { fill: var(--accent-blue); }
+  .health-chart-bar-cur { fill: #7EC1FF; }
+  .health-chart-gridline { stroke: rgba(255, 255, 255, 0.07); stroke-width: 1; }
+  .health-chart-axis-label { fill: var(--text-tertiary); font-size: 8.5px; font-family: var(--font-sans); }
+  .health-chart-value-label { fill: var(--text-secondary); font-size: 9.5px; font-family: var(--font-mono); font-weight: 700; }
+  .health-chart-line { fill: none; stroke: var(--accent-blue); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .health-chart-area { fill: var(--accent-blue); opacity: 0.10; }
+  .health-chart-dot { fill: var(--accent-blue); stroke: #050506; stroke-width: 2; }
+  .health-chart-hit { fill: transparent; }
+  .health-chart-hit:hover { fill: rgba(255, 255, 255, 0.03); }
+
+  .health-tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: rgba(15, 15, 17, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 8px;
+    padding: 6px 9px;
+    white-space: nowrap;
+    transform: translate(-50%, -115%);
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    z-index: 60;
+  }
+  .health-tooltip.is-visible { opacity: 1; }
+  .health-tooltip-title { font-size: 10px; color: var(--text-tertiary); margin-bottom: 2px; }
+  .health-tooltip-value { font-size: 12px; font-family: var(--font-mono); font-weight: 700; color: var(--text-primary); }
+
+  .health-disabled-card { opacity: 0.55; }
+  .health-disabled-body { display: flex; align-items: center; gap: 14px; }
+  .health-disabled-icon {
+    width: 38px; height: 38px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 16px;
+  }
+  .health-disabled-title { font-size: 13.5px; font-weight: 700; color: var(--text-secondary); }
+  .health-disabled-sub { font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px; }
 </style>
 </head>
 <body>
-<div class="page">
+<div class="page" id="tabHome">
 
   <h1 class="dash-title">Quincy's Dashboard</h1>
 
@@ -697,6 +824,86 @@
   </div>
 
 </div>
+
+<div class="page" id="tabHealth" style="display:none">
+
+  <h1 class="dash-title">Health</h1>
+
+  <div class="section">
+    <div class="section-title">Afgelopen 7 dagen</div>
+    <div class="card">
+      <div class="health-score-row">
+        <div class="health-score-ring-wrap">
+          <svg class="health-score-ring" viewBox="0 0 108 108">
+            <circle class="health-score-track" cx="54" cy="54" r="46"></circle>
+            <circle class="health-score-fill" id="healthScoreFill" cx="54" cy="54" r="46"></circle>
+          </svg>
+          <div class="health-score-overlay">
+            <div class="health-score-num" id="healthScoreNum">—</div>
+            <div class="health-score-label" id="healthScoreLabel">Laden</div>
+          </div>
+        </div>
+        <div class="health-score-detail" id="healthScoreDetail">Bezig met laden van je Strava-data…</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Laatste trainingen</div>
+    <div class="card">
+      <ul class="health-activity-list" id="healthActivityList"></ul>
+      <div class="health-empty" id="healthActivityEmpty">Nog geen trainingen gesynchroniseerd.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Afstand per week (km)</div>
+    <div class="card health-chart-wrap">
+      <svg class="health-chart" id="healthDistanceChart"></svg>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Trainingstijd per week (uur)</div>
+    <div class="card health-chart-wrap">
+      <svg class="health-chart" id="healthTimeChart"></svg>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Trainingsfrequentie</div>
+    <div class="card health-chart-wrap">
+      <svg class="health-chart" id="healthFreqChart"></svg>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Koppelingen</div>
+    <div class="card health-disabled-card">
+      <div class="health-disabled-body">
+        <span class="health-disabled-icon">⏸</span>
+        <div>
+          <div class="health-disabled-title">Whoop — nog niet gekoppeld</div>
+          <div class="health-disabled-sub">Deze integratie wordt later geactiveerd.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn is-active" id="tabBtnHome" type="button">
+      <span class="tab-btn-icon">🏠</span>
+      <span>Home</span>
+    </button>
+    <button class="tab-btn" id="tabBtnHealth" type="button">
+      <span class="tab-btn-icon">❤️</span>
+      <span>Health</span>
+    </button>
+  </div>
+</nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -1424,6 +1631,353 @@
     }
   }
 
+  /* ---------- tabs ---------- */
+
+  let activeTab = 'home';
+
+  function showTab(name) {
+    activeTab = name;
+    document.getElementById('tabHome').style.display = name === 'home' ? '' : 'none';
+    document.getElementById('tabHealth').style.display = name === 'health' ? '' : 'none';
+    document.getElementById('tabBtnHome').classList.toggle('is-active', name === 'home');
+    document.getElementById('tabBtnHealth').classList.toggle('is-active', name === 'health');
+    if (name === 'health' && healthData) renderHealthUI();
+  }
+
+  document.getElementById('tabBtnHome').addEventListener('click', function () { showTab('home'); });
+  document.getElementById('tabBtnHealth').addEventListener('click', function () { showTab('health'); });
+
+  window.addEventListener('resize', function () {
+    if (activeTab === 'health' && healthData) renderHealthCharts();
+  });
+
+  /* ---------- health tab: data ---------- */
+
+  let healthData = null;
+
+  const HEALTH_SESSION_TARGET = 4;
+  const HEALTH_MINUTES_TARGET = 180;
+
+  const ACTIVITY_ICONS = {
+    Run: '🏃', Ride: '🚴', VirtualRide: '🚴', Swim: '🏊', Walk: '🚶',
+    Hike: '🥾', WeightTraining: '🏋️', Yoga: '🧘', Workout: '💪', Rowing: '🚣'
+  };
+
+  function getWeekStart(d) {
+    const date = new Date(d);
+    date.setHours(0, 0, 0, 0);
+    const day = date.getDay();
+    const diff = (day === 0 ? -6 : 1) - day;
+    date.setDate(date.getDate() + diff);
+    return date;
+  }
+
+  function buildWeekBuckets(activities) {
+    const currentWeekStart = getWeekStart(new Date());
+    const weeks = [];
+    for (let i = 7; i >= 0; i--) {
+      const start = new Date(currentWeekStart);
+      start.setDate(start.getDate() - i * 7);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 7);
+      weeks.push({ start: start, end: end, distanceKm: 0, hours: 0, count: 0 });
+    }
+    activities.forEach(function (a) {
+      const d = new Date(a.start_date);
+      const bucket = weeks.filter(function (w) { return d >= w.start && d < w.end; })[0];
+      if (bucket) {
+        bucket.distanceKm += (a.distance || 0) / 1000;
+        bucket.hours += (a.moving_time || 0) / 3600;
+        bucket.count += 1;
+      }
+    });
+    return weeks;
+  }
+
+  function computeHealthScore(activities) {
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
+    const last7 = activities.filter(function (a) { return new Date(a.start_date) >= sevenDaysAgo; });
+    const sessions = last7.length;
+    const minutes = last7.reduce(function (sum, a) { return sum + (a.moving_time || 0); }, 0) / 60;
+
+    const sessionScore = Math.min(sessions / HEALTH_SESSION_TARGET, 1);
+    const minuteScore = Math.min(minutes / HEALTH_MINUTES_TARGET, 1);
+    const score = Math.round((sessionScore * 0.5 + minuteScore * 0.5) * 100);
+
+    let band, label;
+    if (score >= 75) { band = 'good'; label = 'Sterk bezig'; }
+    else if (score >= 40) { band = 'ok'; label = 'Redelijk op schema'; }
+    else { band = 'low'; label = 'Kan beter'; }
+
+    const detail = sessions + (sessions === 1 ? ' training' : ' trainingen') + ' · ' +
+      Math.round(minutes) + ' min deze week (doel: ' + HEALTH_SESSION_TARGET + 'x / ' + HEALTH_MINUTES_TARGET + ' min)';
+
+    return { score: score, band: band, label: label, detail: detail };
+  }
+
+  async function loadHealthData() {
+    try {
+      const { data, error } = await supabaseClient
+        .from('strava_activities')
+        .select('*')
+        .order('start_date', { ascending: false })
+        .limit(300);
+      if (error) { console.error('Supabase strava load failed', error); return; }
+
+      const activities = data || [];
+      healthData = {
+        activities: activities,
+        weeks: buildWeekBuckets(activities),
+        scoreInfo: computeHealthScore(activities)
+      };
+      if (activeTab === 'health') renderHealthUI();
+    } catch (e) {
+      console.error('Supabase strava load failed', e);
+    }
+  }
+
+  /* ---------- health tab: render ---------- */
+
+  function renderHealthScoreUI() {
+    const info = healthData.scoreInfo;
+    const RING_C = 2 * Math.PI * 46;
+    const fill = document.getElementById('healthScoreFill');
+    fill.style.strokeDasharray = RING_C;
+    fill.style.strokeDashoffset = RING_C * (1 - Math.max(0, Math.min(100, info.score)) / 100);
+    fill.style.stroke = info.band === 'good' ? 'var(--success)' : info.band === 'ok' ? 'var(--warning)' : 'var(--danger)';
+    document.getElementById('healthScoreNum').textContent = info.score;
+    document.getElementById('healthScoreLabel').textContent = info.label;
+    document.getElementById('healthScoreDetail').textContent = info.detail;
+  }
+
+  function renderHealthActivityList() {
+    const listEl = document.getElementById('healthActivityList');
+    const emptyEl = document.getElementById('healthActivityEmpty');
+    listEl.innerHTML = '';
+    const recent = healthData.activities.slice(0, 8);
+    emptyEl.style.display = recent.length ? 'none' : '';
+
+    recent.forEach(function (a) {
+      const li = document.createElement('li');
+      li.className = 'health-activity-row';
+
+      const icon = document.createElement('span');
+      icon.className = 'health-activity-icon';
+      icon.textContent = ACTIVITY_ICONS[a.type] || '⚡';
+      li.appendChild(icon);
+
+      const main = document.createElement('div');
+      main.className = 'health-activity-main';
+      const name = document.createElement('div');
+      name.className = 'health-activity-name';
+      name.textContent = a.name || a.type || 'Training';
+      const date = document.createElement('div');
+      date.className = 'health-activity-date';
+      date.textContent = new Date(a.start_date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
+      main.appendChild(name);
+      main.appendChild(date);
+      li.appendChild(main);
+
+      const stats = document.createElement('div');
+      stats.className = 'health-activity-stats';
+      const distance = document.createElement('div');
+      distance.className = 'health-activity-distance';
+      distance.textContent = ((a.distance || 0) / 1000).toFixed(1) + ' km';
+      const time = document.createElement('div');
+      time.className = 'health-activity-time';
+      time.textContent = formatDuration((a.moving_time || 0) / 3600);
+      stats.appendChild(distance);
+      stats.appendChild(time);
+      li.appendChild(stats);
+
+      listEl.appendChild(li);
+    });
+  }
+
+  let chartTooltipEl = null;
+  function ensureChartTooltip() {
+    if (!chartTooltipEl) {
+      chartTooltipEl = document.createElement('div');
+      chartTooltipEl.className = 'health-tooltip';
+      const titleEl = document.createElement('div');
+      titleEl.className = 'health-tooltip-title';
+      const valueEl = document.createElement('div');
+      valueEl.className = 'health-tooltip-value';
+      chartTooltipEl.appendChild(titleEl);
+      chartTooltipEl.appendChild(valueEl);
+      document.body.appendChild(chartTooltipEl);
+    }
+    return chartTooltipEl;
+  }
+  function showChartTooltip(e, title, value) {
+    const el = ensureChartTooltip();
+    el.firstChild.textContent = title;
+    el.lastChild.textContent = value;
+    el.classList.add('is-visible');
+    moveChartTooltip(e);
+  }
+  function moveChartTooltip(e) {
+    if (!chartTooltipEl) return;
+    chartTooltipEl.style.left = e.clientX + 'px';
+    chartTooltipEl.style.top = e.clientY + 'px';
+  }
+  function hideChartTooltip() {
+    if (chartTooltipEl) chartTooltipEl.classList.remove('is-visible');
+  }
+
+  function weekLabel(w) {
+    return w.start.getDate() + '/' + (w.start.getMonth() + 1);
+  }
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  function svgEl(tag, attrs) {
+    const el = document.createElementNS(SVG_NS, tag);
+    Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+    return el;
+  }
+
+  function renderBarChart(svg, weeks, opts) {
+    const width = svg.parentElement.clientWidth;
+    if (!width) return;
+    const height = 150;
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+    svg.innerHTML = '';
+
+    const padL = 30, padR = 8, padT = 20, padB = 22;
+    const plotW = width - padL - padR;
+    const plotH = height - padT - padB;
+
+    const values = weeks.map(opts.value);
+    const realMax = Math.max.apply(null, values);
+    const niceMax = (realMax > 0 ? realMax : opts.emptyMax) * 1.2;
+
+    const slot = plotW / weeks.length;
+    const barW = Math.min(24, slot * 0.6);
+
+    [0, 0.5, 1].forEach(function (t) {
+      const y = padT + plotH * (1 - t);
+      svg.appendChild(svgEl('line', { x1: padL, x2: width - padR, y1: y, y2: y, class: 'health-chart-gridline' }));
+      const label = svgEl('text', { x: padL - 6, y: y + 3, 'text-anchor': 'end', class: 'health-chart-axis-label' });
+      label.textContent = opts.formatAxis(niceMax * t);
+      svg.appendChild(label);
+    });
+
+    weeks.forEach(function (w, i) {
+      const val = opts.value(w);
+      const x = padL + slot * i + (slot - barW) / 2;
+      const barH = Math.max(2, (val / niceMax) * plotH);
+      const y = padT + plotH - barH;
+      const isLast = i === weeks.length - 1;
+
+      svg.appendChild(svgEl('rect', {
+        x: x, y: y, width: barW, height: barH, rx: 4,
+        class: 'health-chart-bar' + (isLast ? ' health-chart-bar-cur' : '')
+      }));
+
+      if (isLast) {
+        const valLabel = svgEl('text', { x: x + barW / 2, y: y - 6, 'text-anchor': 'middle', class: 'health-chart-value-label' });
+        valLabel.textContent = opts.formatValue(val);
+        svg.appendChild(valLabel);
+      }
+
+      const axisLabel = svgEl('text', { x: padL + slot * i + slot / 2, y: height - 6, 'text-anchor': 'middle', class: 'health-chart-axis-label' });
+      axisLabel.textContent = weekLabel(w);
+      svg.appendChild(axisLabel);
+
+      const hit = svgEl('rect', { x: padL + slot * i, y: padT, width: slot, height: plotH, class: 'health-chart-hit' });
+      hit.addEventListener('pointerenter', function (e) { showChartTooltip(e, 'Week van ' + weekLabel(w), opts.formatValue(val)); });
+      hit.addEventListener('pointermove', moveChartTooltip);
+      hit.addEventListener('pointerleave', hideChartTooltip);
+      svg.appendChild(hit);
+    });
+  }
+
+  function renderLineChart(svg, weeks, opts) {
+    const width = svg.parentElement.clientWidth;
+    if (!width) return;
+    const height = 150;
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+    svg.innerHTML = '';
+
+    const padL = 22, padR = 10, padT = 20, padB = 22;
+    const plotW = width - padL - padR;
+    const plotH = height - padT - padB;
+
+    const values = weeks.map(opts.value);
+    const realMax = Math.max.apply(null, values);
+    const niceMax = (realMax > 0 ? realMax : opts.emptyMax) * 1.25;
+    const stepX = weeks.length > 1 ? plotW / (weeks.length - 1) : 0;
+
+    [0, 0.5, 1].forEach(function (t) {
+      const y = padT + plotH * (1 - t);
+      svg.appendChild(svgEl('line', { x1: padL, x2: width - padR, y1: y, y2: y, class: 'health-chart-gridline' }));
+      const label = svgEl('text', { x: padL - 6, y: y + 3, 'text-anchor': 'end', class: 'health-chart-axis-label' });
+      label.textContent = opts.formatAxis(niceMax * t);
+      svg.appendChild(label);
+    });
+
+    const points = weeks.map(function (w, i) {
+      const val = opts.value(w);
+      return { x: padL + stepX * i, y: padT + plotH - (val / niceMax) * plotH, w: w, val: val };
+    });
+
+    const areaPath = 'M' + points.map(function (p) { return p.x + ',' + p.y; }).join(' L') +
+      ' L' + points[points.length - 1].x + ',' + (padT + plotH) +
+      ' L' + points[0].x + ',' + (padT + plotH) + ' Z';
+    svg.appendChild(svgEl('path', { d: areaPath, class: 'health-chart-area' }));
+
+    const linePath = 'M' + points.map(function (p) { return p.x + ',' + p.y; }).join(' L');
+    svg.appendChild(svgEl('path', { d: linePath, class: 'health-chart-line' }));
+
+    points.forEach(function (p, i) {
+      svg.appendChild(svgEl('circle', { cx: p.x, cy: p.y, r: 4, class: 'health-chart-dot' }));
+
+      if (i === points.length - 1) {
+        const valLabel = svgEl('text', { x: p.x, y: p.y - 10, 'text-anchor': 'end', class: 'health-chart-value-label' });
+        valLabel.textContent = opts.formatValue(p.val);
+        svg.appendChild(valLabel);
+      }
+
+      const axisLabel = svgEl('text', { x: p.x, y: height - 6, 'text-anchor': 'middle', class: 'health-chart-axis-label' });
+      axisLabel.textContent = weekLabel(p.w);
+      svg.appendChild(axisLabel);
+
+      const hit = svgEl('circle', { cx: p.x, cy: p.y, r: 14, class: 'health-chart-hit' });
+      hit.addEventListener('pointerenter', function (e) { showChartTooltip(e, 'Week van ' + weekLabel(p.w), opts.formatValue(p.val)); });
+      hit.addEventListener('pointermove', moveChartTooltip);
+      hit.addEventListener('pointerleave', hideChartTooltip);
+      svg.appendChild(hit);
+    });
+  }
+
+  function renderHealthCharts() {
+    renderBarChart(document.getElementById('healthDistanceChart'), healthData.weeks, {
+      value: function (w) { return w.distanceKm; },
+      formatValue: function (v) { return v.toFixed(1) + ' km'; },
+      formatAxis: function (v) { return Math.round(v); },
+      emptyMax: 5
+    });
+    renderBarChart(document.getElementById('healthTimeChart'), healthData.weeks, {
+      value: function (w) { return w.hours; },
+      formatValue: function (v) { return v.toFixed(1) + ' u'; },
+      formatAxis: function (v) { return v.toFixed(0); },
+      emptyMax: 2
+    });
+    renderLineChart(document.getElementById('healthFreqChart'), healthData.weeks, {
+      value: function (w) { return w.count; },
+      formatValue: function (v) { return v + 'x'; },
+      formatAxis: function (v) { return Math.round(v); },
+      emptyMax: 3
+    });
+  }
+
+  function renderHealthUI() {
+    renderHealthScoreUI();
+    renderHealthActivityList();
+    renderHealthCharts();
+  }
+
   /* ---------- init ---------- */
 
   function initGoalsUI() {
@@ -1459,6 +2013,8 @@
 
   updateDayBar();
   setInterval(updateDayBar, 60 * 1000);
+
+  loadHealthData();
 
   loadStoreFromSupabase()
     .then(migrateLocalStorageIfNeeded)

@@ -688,12 +688,15 @@
   .health-score-detail { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
 
   .health-activity-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-  .health-activity-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 12px;
+  .health-activity-item {
     background: rgba(255, 255, 255, 0.035);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 12px;
+  }
+  .health-activity-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    cursor: pointer;
   }
   .health-activity-icon { font-size: 17px; width: 22px; text-align: center; flex: none; }
   .health-activity-main { flex: 1; min-width: 0; }
@@ -705,6 +708,62 @@
   .health-activity-stats { text-align: right; flex: none; font-family: var(--font-mono); }
   .health-activity-distance { font-size: 13px; font-weight: 700; color: var(--text-primary); }
   .health-activity-time { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
+  .health-activity-note-toggle {
+    flex: none; width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-tertiary);
+  }
+  .health-activity-note-toggle svg { width: 15px; height: 15px; }
+  .health-activity-item.has-note .health-activity-note-toggle { color: var(--accent-blue); }
+  .health-activity-note-toggle svg { transition: transform 0.2s ease; }
+  .health-activity-item.is-open .health-activity-note-toggle svg { transform: rotate(180deg); }
+
+  .health-activity-notes {
+    display: none;
+    padding: 0 12px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 0;
+    padding-top: 10px;
+  }
+  .health-activity-item.is-open .health-activity-notes { display: block; }
+
+  .health-note-view-line { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; white-space: pre-wrap; }
+  .health-note-view-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); margin: 8px 0 3px; }
+  .health-note-view-label:first-child { margin-top: 0; }
+  .health-note-edit-btn {
+    margin-top: 8px;
+    background: none; border: 1px dashed rgba(255, 255, 255, 0.14);
+    border-radius: 8px; color: var(--text-tertiary);
+    font-size: 11px; font-family: var(--font-sans); font-weight: 600;
+    padding: 5px 10px; cursor: pointer;
+  }
+  .health-note-edit-btn:hover { color: var(--text-secondary); border-color: rgba(255, 255, 255, 0.22); }
+
+  .health-note-form { display: flex; flex-direction: column; gap: 8px; }
+  .health-note-form label {
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-tertiary); display: block; margin-bottom: 4px;
+  }
+  .health-note-form textarea {
+    width: 100%; resize: vertical; min-height: 44px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 7px 9px;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .health-note-form textarea:focus { outline: none; border-color: var(--accent-blue); }
+  .health-note-form-actions { display: flex; gap: 8px; margin-top: 2px; }
+  .health-note-save-btn, .health-note-cancel-btn {
+    font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+    padding: 6px 14px; border-radius: 8px; cursor: pointer;
+  }
+  .health-note-save-btn { background: var(--accent-blue); border: none; color: #06131f; }
+  .health-note-cancel-btn { background: none; border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-tertiary); }
+
   .health-empty { display: none; font-size: 12.5px; color: var(--text-tertiary); padding: 6px 2px; }
 
   .health-chart-wrap { position: relative; }
@@ -1775,17 +1834,21 @@
 
   async function loadHealthData() {
     try {
-      const { data, error } = await supabaseClient
-        .from('strava_activities')
-        .select('*')
-        .order('start_date', { ascending: false })
-        .limit(300);
-      if (error) { console.error('Supabase strava load failed', error); return; }
+      const [actRes, notesRes] = await Promise.all([
+        supabaseClient.from('strava_activities').select('*').order('start_date', { ascending: false }).limit(300),
+        supabaseClient.from('workout_notes').select('*')
+      ]);
+      if (actRes.error) { console.error('Supabase strava load failed', actRes.error); return; }
+      if (notesRes.error) console.error('Supabase workout notes load failed', notesRes.error);
 
-      const activities = data || [];
+      const activities = actRes.data || [];
+      const notesMap = {};
+      (notesRes.data || []).forEach(function (n) { notesMap[n.strava_activity_id] = n; });
+
       const runActivities = activities.filter(isRunActivity);
       const gymActivities = activities.filter(function (a) { return !isRunActivity(a); });
       healthData = {
+        notesMap: notesMap,
         run: { activities: runActivities, weeks: buildWeekBuckets(runActivities), scoreInfo: computeHealthScore(runActivities) },
         gym: { activities: gymActivities, weeks: buildWeekBuckets(gymActivities), scoreInfo: computeHealthScore(gymActivities) }
       };
@@ -1793,6 +1856,19 @@
     } catch (e) {
       console.error('Supabase strava load failed', e);
     }
+  }
+
+  async function saveWorkoutNote(stravaId, note, exercises) {
+    const payload = {
+      strava_activity_id: stravaId,
+      note: note ? note.trim() : null,
+      exercises: exercises ? exercises.trim() : null,
+      updated_at: new Date().toISOString()
+    };
+    const { error } = await supabaseClient.from('workout_notes').upsert(payload, { onConflict: 'strava_activity_id' });
+    if (error) throw error;
+    healthData.notesMap[stravaId] = payload;
+    return payload;
   }
 
   /* ---------- health tab: render ---------- */
@@ -1808,6 +1884,120 @@
     document.getElementById(prefix + 'ScoreDetail').textContent = info.detail;
   }
 
+  function hasNoteContent(n) {
+    return !!(n && ((n.note && n.note.trim()) || (n.exercises && n.exercises.trim())));
+  }
+
+  function renderNoteView(container, activity) {
+    container.innerHTML = '';
+    const n = healthData.notesMap[activity.strava_id];
+
+    if (hasNoteContent(n)) {
+      if (n.note && n.note.trim()) {
+        const label = document.createElement('div');
+        label.className = 'health-note-view-label';
+        label.textContent = 'Notitie';
+        const line = document.createElement('div');
+        line.className = 'health-note-view-line';
+        line.textContent = n.note;
+        container.appendChild(label);
+        container.appendChild(line);
+      }
+      if (n.exercises && n.exercises.trim()) {
+        const label = document.createElement('div');
+        label.className = 'health-note-view-label';
+        label.textContent = 'Oefeningen & gewichten';
+        const line = document.createElement('div');
+        line.className = 'health-note-view-line';
+        line.textContent = n.exercises;
+        container.appendChild(label);
+        container.appendChild(line);
+      }
+    } else {
+      const line = document.createElement('div');
+      line.className = 'health-note-view-line';
+      line.style.color = 'var(--text-tertiary)';
+      line.textContent = 'Nog geen notitie.';
+      container.appendChild(line);
+    }
+
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'health-note-edit-btn';
+    editBtn.textContent = hasNoteContent(n) ? '✎ Bewerken' : '+ Notitie toevoegen';
+    editBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      renderNoteForm(container, activity);
+    });
+    container.appendChild(editBtn);
+  }
+
+  function renderNoteForm(container, activity) {
+    container.innerHTML = '';
+    const n = healthData.notesMap[activity.strava_id];
+
+    const form = document.createElement('div');
+    form.className = 'health-note-form';
+
+    const noteLabel = document.createElement('label');
+    noteLabel.textContent = 'Notitie';
+    const noteInput = document.createElement('textarea');
+    noteInput.value = (n && n.note) || '';
+    noteInput.placeholder = 'Hoe voelde de training?';
+
+    const exLabel = document.createElement('label');
+    exLabel.textContent = 'Oefeningen & gewichten';
+    const exInput = document.createElement('textarea');
+    exInput.value = (n && n.exercises) || '';
+    exInput.placeholder = 'Bijv. Bench press 3x8 @ 60kg\nSquat 3x5 @ 80kg';
+
+    const actions = document.createElement('div');
+    actions.className = 'health-note-form-actions';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
+    saveBtn.className = 'health-note-save-btn';
+    saveBtn.textContent = 'Opslaan';
+    saveBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Opslaan…';
+      saveWorkoutNote(activity.strava_id, noteInput.value, exInput.value)
+        .then(function () {
+          const item = container.closest('.health-activity-item');
+          if (item) item.classList.toggle('has-note', hasNoteContent(healthData.notesMap[activity.strava_id]));
+          renderNoteView(container, activity);
+        })
+        .catch(function (err) {
+          console.error('Opslaan van notitie mislukt', err);
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Opslaan';
+        });
+    });
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'health-note-cancel-btn';
+    cancelBtn.textContent = 'Annuleren';
+    cancelBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      renderNoteView(container, activity);
+    });
+
+    actions.appendChild(saveBtn);
+    actions.appendChild(cancelBtn);
+
+    form.appendChild(noteLabel);
+    form.appendChild(noteInput);
+    form.appendChild(exLabel);
+    form.appendChild(exInput);
+    form.appendChild(actions);
+    container.appendChild(form);
+
+    noteInput.addEventListener('click', function (e) { e.stopPropagation(); });
+    exInput.addEventListener('click', function (e) { e.stopPropagation(); });
+  }
+
   function renderHealthActivityList(prefix, activities) {
     const listEl = document.getElementById(prefix + 'ActivityList');
     const emptyEl = document.getElementById(prefix + 'ActivityEmpty');
@@ -1816,13 +2006,16 @@
     emptyEl.style.display = recent.length ? 'none' : '';
 
     recent.forEach(function (a) {
-      const li = document.createElement('li');
-      li.className = 'health-activity-row';
+      const item = document.createElement('li');
+      item.className = 'health-activity-item' + (hasNoteContent(healthData.notesMap[a.strava_id]) ? ' has-note' : '');
+
+      const row = document.createElement('div');
+      row.className = 'health-activity-row';
 
       const icon = document.createElement('span');
       icon.className = 'health-activity-icon';
       icon.textContent = ACTIVITY_ICONS[a.type] || '⚡';
-      li.appendChild(icon);
+      row.appendChild(icon);
 
       const main = document.createElement('div');
       main.className = 'health-activity-main';
@@ -1834,7 +2027,7 @@
       date.textContent = new Date(a.start_date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
       main.appendChild(name);
       main.appendChild(date);
-      li.appendChild(main);
+      row.appendChild(main);
 
       const stats = document.createElement('div');
       stats.className = 'health-activity-stats';
@@ -1846,9 +2039,24 @@
       time.textContent = formatDuration((a.moving_time || 0) / 3600);
       stats.appendChild(distance);
       stats.appendChild(time);
-      li.appendChild(stats);
+      row.appendChild(stats);
 
-      listEl.appendChild(li);
+      const toggle = document.createElement('span');
+      toggle.className = 'health-activity-note-toggle';
+      toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+      row.appendChild(toggle);
+
+      const notes = document.createElement('div');
+      notes.className = 'health-activity-notes';
+      renderNoteView(notes, a);
+
+      row.addEventListener('click', function () {
+        item.classList.toggle('is-open');
+      });
+
+      item.appendChild(row);
+      item.appendChild(notes);
+      listEl.appendChild(item);
     });
   }
 

@@ -234,12 +234,51 @@
   /* ---------- Component 3: Day Ring ---------- */
 
   .day-ring-card {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 26px;
     flex-wrap: wrap;
     margin-bottom: 18px;
   }
+
+  .day-ring-settings-btn {
+    position: absolute; top: 14px; right: 14px;
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-tertiary); cursor: pointer;
+  }
+  .day-ring-settings-btn:hover { color: var(--text-secondary); background: rgba(255, 255, 255, 0.09); }
+  .day-ring-settings-btn svg { width: 15px; height: 15px; }
+
+  .day-ring-settings-panel {
+    flex: 1 1 100%;
+    margin-top: 4px; padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .day-ring-settings-fields { display: flex; gap: 12px; margin-bottom: 10px; }
+  .day-ring-settings-fields label {
+    flex: 1; display: flex; flex-direction: column; gap: 4px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  .day-ring-settings-fields input {
+    background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 8px;
+    padding: 7px 9px; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; color-scheme: dark;
+  }
+  .day-ring-settings-fields input:focus { outline: none; border-color: var(--accent-blue); }
+  .day-ring-settings-actions { display: flex; gap: 8px; }
+  .day-settings-save-btn {
+    background: var(--accent-blue); border: none; color: #06131f;
+    font-family: var(--font-sans); font-size: 12px; font-weight: 700; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+  }
+  .day-settings-cancel-btn {
+    background: none; border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-tertiary);
+    font-family: var(--font-sans); font-size: 12px; font-weight: 700; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+  }
+  .day-settings-status { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; min-height: 14px; }
+  .day-settings-status.is-error { color: var(--danger); }
 
   .day-ring-left {
     position: relative;
@@ -971,6 +1010,12 @@
   </div>
 
   <div class="card day-ring-card" id="dayRingCard">
+    <button class="day-ring-settings-btn" id="dayRingSettingsBtn" type="button" aria-label="Wek- en slaaptijd instellen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
     <div class="day-ring-left">
       <svg class="day-ring-svg" viewBox="0 0 120 120">
         <defs>
@@ -994,7 +1039,23 @@
     <div class="day-ring-right">
       <div class="day-ring-status" id="dayRingStatus">😴 Still sleeping</div>
       <div class="day-ring-remaining" id="dayRingRemaining">—</div>
-      <div class="day-ring-hours">8:00 AM – 12:00 AM</div>
+      <div class="day-ring-hours" id="dayRingHours">8:00 AM – 12:00 AM</div>
+    </div>
+
+    <div class="day-ring-settings-panel" id="dayRingSettingsPanel" style="display:none">
+      <div class="day-ring-settings-fields">
+        <label>Wektijd
+          <input type="time" id="wakeTimeInput">
+        </label>
+        <label>Slaaptijd
+          <input type="time" id="sleepTimeInput">
+        </label>
+      </div>
+      <div class="day-ring-settings-actions">
+        <button type="button" id="daySettingsSaveBtn" class="day-settings-save-btn">Opslaan</button>
+        <button type="button" id="daySettingsCancelBtn" class="day-settings-cancel-btn">Annuleren</button>
+      </div>
+      <div class="day-settings-status" id="daySettingsStatus"></div>
     </div>
   </div>
 
@@ -1846,8 +1907,7 @@
 
   /* ---------- day ring ---------- */
 
-  const WAKE_HOUR = 8;
-  const SLEEP_HOUR = 24;
+  let daySettings = { wakeTime: '08:00', sleepTime: '00:00' };
   const RING_R = 52;
   const RING_C = 2 * Math.PI * RING_R;
 
@@ -1894,12 +1954,55 @@
     return h + 'h ' + m + 'm';
   }
 
+  function parseTimeToHours(timeStr) {
+    const parts = (timeStr || '0:0').split(':').map(Number);
+    return parts[0] + (parts[1] || 0) / 60;
+  }
+
+  function formatTimeStr(timeStr) {
+    const parts = (timeStr || '0:0').split(':').map(Number);
+    const d = new Date();
+    d.setHours(parts[0], parts[1] || 0, 0, 0);
+    return formatClock(d);
+  }
+
   const fillCircle = document.getElementById('dayRingFill');
   fillCircle.style.strokeDasharray = RING_C;
 
+  function updateDaySettingsDisplay() {
+    document.getElementById('dayRingHours').textContent =
+      formatTimeStr(daySettings.wakeTime) + ' – ' + formatTimeStr(daySettings.sleepTime);
+  }
+
+  async function loadDaySettings() {
+    try {
+      const { data, error } = await supabaseClient.from('user_settings').select('*').eq('id', true).maybeSingle();
+      if (error) { console.error('Instellingen laden mislukt', error); return; }
+      if (data) daySettings = { wakeTime: data.wake_time, sleepTime: data.sleep_time };
+      updateDaySettingsDisplay();
+      updateDayBar();
+    } catch (e) {
+      console.error('Instellingen laden mislukt', e);
+    }
+  }
+
+  async function saveDaySettings(wakeTime, sleepTime) {
+    const { error } = await supabaseClient.from('user_settings').upsert({
+      id: true,
+      wake_time: wakeTime,
+      sleep_time: sleepTime,
+      updated_at: new Date().toISOString()
+    });
+    if (error) throw error;
+    daySettings = { wakeTime: wakeTime, sleepTime: sleepTime };
+    updateDaySettingsDisplay();
+    updateDayBar();
+  }
+
   function updateDayBar() {
     const now = new Date();
-    const hours = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+    const wakeHour = parseTimeToHours(daySettings.wakeTime);
+    const sleepHour = parseTimeToHours(daySettings.sleepTime);
 
     const percentEl = document.getElementById('dayRingPercent');
     const phaseEl = document.getElementById('dayRingPhase');
@@ -1909,15 +2012,14 @@
 
     clockEl.textContent = formatClock(now);
 
-    if (hours < WAKE_HOUR) {
-      fillCircle.style.stroke = '#4D4B47';
-      fillCircle.style.strokeDashoffset = RING_C;
-      percentEl.textContent = '—';
-      phaseEl.textContent = 'SLEEPING';
-      statusEl.textContent = '😴 Still sleeping';
-      remainingEl.textContent = formatDuration(WAKE_HOUR - hours) + ' until wake-up';
-    } else if (hours < SLEEP_HOUR) {
-      const percent = (hours - WAKE_HOUR) / (SLEEP_HOUR - WAKE_HOUR) * 100;
+    let duration = sleepHour - wakeHour;
+    if (duration <= 0) duration += 24;
+    const hours = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+    let sinceWake = hours - wakeHour;
+    if (sinceWake < 0) sinceWake += 24;
+
+    if (sinceWake < duration) {
+      const percent = sinceWake / duration * 100;
       fillCircle.style.stroke = interpColor(percent);
       fillCircle.style.strokeDashoffset = RING_C * (1 - percent / 100);
       percentEl.textContent = Math.round(percent) + '%';
@@ -1929,16 +2031,73 @@
       else { phase = 'BEDTIME'; status = '🌙 Bedtime soon'; }
       phaseEl.textContent = phase;
       statusEl.textContent = status;
-      remainingEl.textContent = formatDuration(SLEEP_HOUR - hours) + ' awake time left';
+      remainingEl.textContent = formatDuration(duration - sinceWake) + ' awake time left';
     } else {
-      fillCircle.style.stroke = '#E25D7A';
-      fillCircle.style.strokeDashoffset = 0;
-      percentEl.textContent = '100%';
-      phaseEl.textContent = 'PAST BEDTIME';
-      statusEl.textContent = '⚠️ Past bedtime';
-      remainingEl.textContent = 'Sleep!';
+      const sinceBedtime = sinceWake - duration;
+      if (sinceBedtime < 1) {
+        fillCircle.style.stroke = '#E25D7A';
+        fillCircle.style.strokeDashoffset = 0;
+        percentEl.textContent = '100%';
+        phaseEl.textContent = 'PAST BEDTIME';
+        statusEl.textContent = '⚠️ Past bedtime';
+        remainingEl.textContent = 'Sleep!';
+      } else {
+        fillCircle.style.stroke = '#4D4B47';
+        fillCircle.style.strokeDashoffset = RING_C;
+        percentEl.textContent = '—';
+        phaseEl.textContent = 'SLEEPING';
+        statusEl.textContent = '😴 Still sleeping';
+        remainingEl.textContent = formatDuration(24 - sinceWake) + ' until wake-up';
+      }
     }
   }
+
+  const dayRingSettingsBtn = document.getElementById('dayRingSettingsBtn');
+  const dayRingSettingsPanel = document.getElementById('dayRingSettingsPanel');
+  const wakeTimeInput = document.getElementById('wakeTimeInput');
+  const sleepTimeInput = document.getElementById('sleepTimeInput');
+
+  dayRingSettingsBtn.addEventListener('click', function () {
+    const opening = dayRingSettingsPanel.style.display === 'none';
+    if (opening) {
+      wakeTimeInput.value = daySettings.wakeTime;
+      sleepTimeInput.value = daySettings.sleepTime;
+      document.getElementById('daySettingsStatus').textContent = '';
+    }
+    dayRingSettingsPanel.style.display = opening ? '' : 'none';
+  });
+
+  document.getElementById('daySettingsCancelBtn').addEventListener('click', function () {
+    dayRingSettingsPanel.style.display = 'none';
+  });
+
+  document.getElementById('daySettingsSaveBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('daySettingsStatus');
+    const saveBtn = document.getElementById('daySettingsSaveBtn');
+    if (!wakeTimeInput.value || !sleepTimeInput.value) {
+      statusEl.classList.add('is-error');
+      statusEl.textContent = 'Vul beide tijden in.';
+      return;
+    }
+    saveBtn.disabled = true;
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Opslaan…';
+    saveDaySettings(wakeTimeInput.value, sleepTimeInput.value)
+      .then(function () {
+        statusEl.textContent = 'Opgeslagen!';
+        saveBtn.disabled = false;
+        setTimeout(function () {
+          dayRingSettingsPanel.style.display = 'none';
+          statusEl.textContent = '';
+        }, 900);
+      })
+      .catch(function (err) {
+        console.error('Instellingen opslaan mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Opslaan mislukt — probeer opnieuw.';
+        saveBtn.disabled = false;
+      });
+  });
 
   /* ---------- tabs ---------- */
 
@@ -2876,8 +3035,10 @@
     startTicker();
   }
 
+  updateDaySettingsDisplay();
   updateDayBar();
   setInterval(updateDayBar, 60 * 1000);
+  loadDaySettings();
 
   loadHealthData();
   loadWeightLog();

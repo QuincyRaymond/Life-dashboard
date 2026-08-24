@@ -833,7 +833,7 @@
   }
   .health-activity-date { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
   .health-activity-stats { text-align: right; flex: none; font-family: var(--font-mono); }
-  .health-activity-distance { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .health-activity-primary-stat { font-size: 13px; font-weight: 700; color: var(--text-primary); }
   .health-activity-time { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
   .health-activity-note-toggle {
     flex: none; width: 20px; height: 20px;
@@ -2302,12 +2302,10 @@
     return { band: 'low', label: 'Kan beter' };
   }
 
-  function computeRunScore(activities, kmGoal) {
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
-    const last7 = activities.filter(function (a) { return new Date(a.start_date) >= sevenDaysAgo; });
-    const sessions = last7.length;
-    const km = last7.reduce(function (sum, a) { return sum + (a.distance || 0); }, 0) / 1000;
+  function computeRunScore(weeks, kmGoal) {
+    const current = weeks[weeks.length - 1];
+    const sessions = current.count;
+    const km = current.distanceKm;
 
     const sessionScore = Math.min(sessions / RUN_SESSION_TARGET, 1);
     const kmScore = Math.min(km / kmGoal, 1);
@@ -2320,12 +2318,10 @@
     return { score: score, band: bandInfo.band, label: bandInfo.label, detail: detail };
   }
 
-  function computeGymScore(activities, sessionsGoal, minutesGoal) {
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
-    const last7 = activities.filter(function (a) { return new Date(a.start_date) >= sevenDaysAgo; });
-    const sessions = last7.length;
-    const minutes = last7.reduce(function (sum, a) { return sum + (a.moving_time || 0); }, 0) / 60;
+  function computeGymScore(weeks, sessionsGoal, minutesGoal) {
+    const current = weeks[weeks.length - 1];
+    const sessions = current.count;
+    const minutes = current.hours * 60;
 
     const sessionScore = Math.min(sessions / sessionsGoal, 1);
     const minuteScore = Math.min(minutes / minutesGoal, 1);
@@ -2504,7 +2500,7 @@
     exInput.addEventListener('click', function (e) { e.stopPropagation(); });
   }
 
-  function renderHealthActivityList(prefix, activities) {
+  function renderHealthActivityList(prefix, activities, primaryStat) {
     const listEl = document.getElementById(prefix + 'ActivityList');
     const emptyEl = document.getElementById(prefix + 'ActivityEmpty');
     listEl.innerHTML = '';
@@ -2537,13 +2533,15 @@
 
       const stats = document.createElement('div');
       stats.className = 'health-activity-stats';
-      const distance = document.createElement('div');
-      distance.className = 'health-activity-distance';
-      distance.textContent = ((a.distance || 0) / 1000).toFixed(1) + ' km';
+      const primary = document.createElement('div');
+      primary.className = 'health-activity-primary-stat';
+      primary.textContent = primaryStat === 'calories'
+        ? (a.calories != null ? Math.round(a.calories) : '—') + ' kcal'
+        : ((a.distance || 0) / 1000).toFixed(1) + ' km';
       const time = document.createElement('div');
       time.className = 'health-activity-time';
       time.textContent = formatDuration((a.moving_time || 0) / 3600);
-      stats.appendChild(distance);
+      stats.appendChild(primary);
       stats.appendChild(time);
       row.appendChild(stats);
 
@@ -2680,10 +2678,10 @@
   }
 
   function renderHealthUI() {
-    renderHealthScoreUI('run', computeRunScore(healthData.run.activities, daySettings.runKmGoal));
-    renderHealthScoreUI('gym', computeGymScore(healthData.gym.activities, daySettings.gymSessionsGoal, daySettings.gymMinutesGoal));
-    renderHealthActivityList('run', healthData.run.activities);
-    renderHealthActivityList('gym', healthData.gym.activities);
+    renderHealthScoreUI('run', computeRunScore(healthData.run.weeks, daySettings.runKmGoal));
+    renderHealthScoreUI('gym', computeGymScore(healthData.gym.weeks, daySettings.gymSessionsGoal, daySettings.gymMinutesGoal));
+    renderHealthActivityList('run', healthData.run.activities, 'distance');
+    renderHealthActivityList('gym', healthData.gym.activities, 'calories');
     renderHealthCharts();
   }
 

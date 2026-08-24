@@ -60,6 +60,22 @@ async function fetchActivities(accessToken) {
   return res.json();
 }
 
+async function fetchCalories(activityId, accessToken) {
+  // The summary activities list doesn't include calories — only the
+  // per-activity detail endpoint does, so this costs one extra request
+  // per activity on every sync run.
+  try {
+    const res = await fetch('https://www.strava.com/api/v3/activities/' + activityId, {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    if (!res.ok) return null;
+    const detail = await res.json();
+    return detail.calories != null ? detail.calories : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function upsertActivities(activities) {
   if (!activities.length) return;
   const rows = activities.map(function (a) {
@@ -72,7 +88,8 @@ async function upsertActivities(activities) {
       elapsed_time: a.elapsed_time,
       total_elevation_gain: a.total_elevation_gain,
       start_date: a.start_date,
-      average_speed: a.average_speed
+      average_speed: a.average_speed,
+      calories: a.calories != null ? a.calories : null
     };
   });
   const res = await fetch(SUPABASE_URL + '/rest/v1/strava_activities?on_conflict=strava_id', {
@@ -107,9 +124,14 @@ module.exports = async function handler(req, res) {
     }
 
     const activities = await fetchActivities(tokens.access_token);
-    await upsertActivities(activities);
+    const withCalories = await Promise.all(activities.map(function (a) {
+      return fetchCalories(a.id, tokens.access_token).then(function (calories) {
+        return Object.assign({}, a, { calories: calories });
+      });
+    }));
+    await upsertActivities(withCalories);
 
-    res.status(200).json({ synced: activities.length });
+    res.status(200).json({ synced: withCalories.length });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: e.message });

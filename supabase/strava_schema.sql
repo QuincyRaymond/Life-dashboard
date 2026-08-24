@@ -18,6 +18,10 @@ alter table strava_tokens enable row level security;
 -- strava_activities mirrors your recent Strava activities. Read is public
 -- (so the dashboard can display it with the anon key); only the service
 -- role can insert/update, so only the sync function can write to it.
+--
+-- If you already ran an earlier version of this file (before the calories
+-- column existed), run supabase/strava_calories_migration.sql instead to
+-- add it to your existing table.
 create table if not exists strava_activities (
   id bigint generated always as identity primary key,
   strava_id bigint not null unique,
@@ -29,6 +33,7 @@ create table if not exists strava_activities (
   total_elevation_gain real,
   start_date timestamptz,
   average_speed real,
+  calories real,
   synced_at timestamptz not null default now()
 );
 

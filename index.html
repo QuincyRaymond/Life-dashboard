@@ -737,6 +737,31 @@
 
   /* ---------- Component: Health tab ---------- */
 
+  .health-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .health-title-row .dash-title { margin: 0; }
+  .health-goals-btn {
+    width: 32px; height: 32px; border-radius: 9px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-tertiary); cursor: pointer;
+  }
+  .health-goals-btn:hover { color: var(--text-secondary); background: rgba(255, 255, 255, 0.09); }
+  .health-goals-btn svg { width: 16px; height: 16px; }
+
+  .health-goals-panel { margin-bottom: 20px; }
+  .health-goals-fields { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .health-goals-fields label {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  .health-goals-fields input {
+    background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 8px;
+    padding: 7px 9px; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px;
+  }
+  .health-goals-fields input:focus { outline: none; border-color: var(--accent-blue); }
+  .health-goals-actions { display: flex; gap: 8px; }
+
   .health-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -1137,7 +1162,34 @@
 
 <div class="page" id="tabHealth" style="display:none">
 
-  <h1 class="dash-title">Health</h1>
+  <div class="health-title-row">
+    <h1 class="dash-title">Health</h1>
+    <button class="health-goals-btn" id="healthGoalsBtn" type="button" aria-label="Weekdoelen instellen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="card health-goals-panel" id="healthGoalsPanel" style="display:none">
+    <div class="health-goals-fields">
+      <label>Hardlopen doel (km/week)
+        <input type="number" id="runKmGoalInput" min="0" step="0.5">
+      </label>
+      <label>Gym doel (trainingen/week)
+        <input type="number" id="gymSessionsGoalInput" min="0" step="1">
+      </label>
+      <label>Gym doel (minuten/week)
+        <input type="number" id="gymMinutesGoalInput" min="0" step="5">
+      </label>
+    </div>
+    <div class="health-goals-actions">
+      <button type="button" id="healthGoalsSaveBtn" class="day-settings-save-btn">Opslaan</button>
+      <button type="button" id="healthGoalsCancelBtn" class="day-settings-cancel-btn">Annuleren</button>
+    </div>
+    <div class="day-settings-status" id="healthGoalsStatus"></div>
+  </div>
 
   <div class="health-grid">
 
@@ -1907,7 +1959,7 @@
 
   /* ---------- day ring ---------- */
 
-  let daySettings = { wakeTime: '08:00', sleepTime: '00:00' };
+  let daySettings = { wakeTime: '08:00', sleepTime: '00:00', runKmGoal: 25, gymSessionsGoal: 4, gymMinutesGoal: 180 };
   const RING_R = 52;
   const RING_C = 2 * Math.PI * RING_R;
 
@@ -1974,29 +2026,55 @@
       formatTimeStr(daySettings.wakeTime) + ' – ' + formatTimeStr(daySettings.sleepTime);
   }
 
+  function refreshHealthUIIfVisible() {
+    if (activeTab === 'health' && healthData) renderHealthUI();
+  }
+
   async function loadDaySettings() {
     try {
       const { data, error } = await supabaseClient.from('user_settings').select('*').eq('id', true).maybeSingle();
       if (error) { console.error('Instellingen laden mislukt', error); return; }
-      if (data) daySettings = { wakeTime: data.wake_time, sleepTime: data.sleep_time };
+      if (data) {
+        daySettings = {
+          wakeTime: data.wake_time,
+          sleepTime: data.sleep_time,
+          runKmGoal: data.run_km_goal != null ? Number(data.run_km_goal) : daySettings.runKmGoal,
+          gymSessionsGoal: data.gym_sessions_goal != null ? data.gym_sessions_goal : daySettings.gymSessionsGoal,
+          gymMinutesGoal: data.gym_minutes_goal != null ? data.gym_minutes_goal : daySettings.gymMinutesGoal
+        };
+      }
       updateDaySettingsDisplay();
       updateDayBar();
+      refreshHealthUIIfVisible();
     } catch (e) {
       console.error('Instellingen laden mislukt', e);
     }
   }
 
-  async function saveDaySettings(wakeTime, sleepTime) {
+  async function persistSettings(overrides) {
+    const next = Object.assign({}, daySettings, overrides);
     const { error } = await supabaseClient.from('user_settings').upsert({
       id: true,
-      wake_time: wakeTime,
-      sleep_time: sleepTime,
+      wake_time: next.wakeTime,
+      sleep_time: next.sleepTime,
+      run_km_goal: next.runKmGoal,
+      gym_sessions_goal: next.gymSessionsGoal,
+      gym_minutes_goal: next.gymMinutesGoal,
       updated_at: new Date().toISOString()
     });
     if (error) throw error;
-    daySettings = { wakeTime: wakeTime, sleepTime: sleepTime };
+    daySettings = next;
+  }
+
+  async function saveDaySettings(wakeTime, sleepTime) {
+    await persistSettings({ wakeTime: wakeTime, sleepTime: sleepTime });
     updateDaySettingsDisplay();
     updateDayBar();
+  }
+
+  async function saveHealthGoals(runKmGoal, gymSessionsGoal, gymMinutesGoal) {
+    await persistSettings({ runKmGoal: runKmGoal, gymSessionsGoal: gymSessionsGoal, gymMinutesGoal: gymMinutesGoal });
+    refreshHealthUIIfVisible();
   }
 
   function updateDayBar() {
@@ -2119,20 +2197,73 @@
     if (activeTab === 'health' && healthData) renderHealthCharts();
   });
 
+  /* ---------- health tab: goal settings ---------- */
+
+  const healthGoalsBtn = document.getElementById('healthGoalsBtn');
+  const healthGoalsPanel = document.getElementById('healthGoalsPanel');
+  const runKmGoalInput = document.getElementById('runKmGoalInput');
+  const gymSessionsGoalInput = document.getElementById('gymSessionsGoalInput');
+  const gymMinutesGoalInput = document.getElementById('gymMinutesGoalInput');
+
+  healthGoalsBtn.addEventListener('click', function () {
+    const opening = healthGoalsPanel.style.display === 'none';
+    if (opening) {
+      runKmGoalInput.value = daySettings.runKmGoal;
+      gymSessionsGoalInput.value = daySettings.gymSessionsGoal;
+      gymMinutesGoalInput.value = daySettings.gymMinutesGoal;
+      document.getElementById('healthGoalsStatus').textContent = '';
+    }
+    healthGoalsPanel.style.display = opening ? '' : 'none';
+  });
+
+  document.getElementById('healthGoalsCancelBtn').addEventListener('click', function () {
+    healthGoalsPanel.style.display = 'none';
+  });
+
+  document.getElementById('healthGoalsSaveBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('healthGoalsStatus');
+    const saveBtn = document.getElementById('healthGoalsSaveBtn');
+    const runKmGoal = parseFloat(runKmGoalInput.value);
+    const gymSessionsGoal = parseInt(gymSessionsGoalInput.value, 10);
+    const gymMinutesGoal = parseInt(gymMinutesGoalInput.value, 10);
+    if (!runKmGoal || !gymSessionsGoal || !gymMinutesGoal) {
+      statusEl.classList.add('is-error');
+      statusEl.textContent = 'Vul alle doelen in (groter dan 0).';
+      return;
+    }
+    saveBtn.disabled = true;
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Opslaan…';
+    saveHealthGoals(runKmGoal, gymSessionsGoal, gymMinutesGoal)
+      .then(function () {
+        statusEl.textContent = 'Opgeslagen!';
+        saveBtn.disabled = false;
+        setTimeout(function () {
+          healthGoalsPanel.style.display = 'none';
+          statusEl.textContent = '';
+        }, 900);
+      })
+      .catch(function (err) {
+        console.error('Doelen opslaan mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Opslaan mislukt — probeer opnieuw.';
+        saveBtn.disabled = false;
+      });
+  });
+
   /* ---------- health tab: data ---------- */
 
   let healthData = null;
 
-  const HEALTH_SESSION_TARGET = 4;
-  const HEALTH_MINUTES_TARGET = 180;
+  const RUN_SESSION_TARGET = 4;
 
   const ACTIVITY_ICONS = {
     Run: '🏃', Ride: '🚴', VirtualRide: '🚴', Swim: '🏊', Walk: '🚶',
     Hike: '🥾', WeightTraining: '🏋️', Yoga: '🧘', Workout: '💪', Rowing: '🚣'
   };
 
-  const RUN_TYPES = ['Run', 'TrailRun', 'VirtualRun'];
-  function isRunActivity(a) { return RUN_TYPES.indexOf(a.type) !== -1; }
+  const GYM_TYPES = ['WeightTraining', 'Workout'];
+  function isGymActivity(a) { return GYM_TYPES.indexOf(a.type) !== -1; }
 
   function getWeekStart(d) {
     const date = new Date(d);
@@ -2165,26 +2296,46 @@
     return weeks;
   }
 
-  function computeHealthScore(activities) {
+  function scoreBand(score) {
+    if (score >= 75) return { band: 'good', label: 'Sterk bezig' };
+    if (score >= 40) return { band: 'ok', label: 'Redelijk op schema' };
+    return { band: 'low', label: 'Kan beter' };
+  }
+
+  function computeRunScore(activities, kmGoal) {
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
+    const last7 = activities.filter(function (a) { return new Date(a.start_date) >= sevenDaysAgo; });
+    const sessions = last7.length;
+    const km = last7.reduce(function (sum, a) { return sum + (a.distance || 0); }, 0) / 1000;
+
+    const sessionScore = Math.min(sessions / RUN_SESSION_TARGET, 1);
+    const kmScore = Math.min(km / kmGoal, 1);
+    const score = Math.round((sessionScore * 0.5 + kmScore * 0.5) * 100);
+    const bandInfo = scoreBand(score);
+
+    const detail = sessions + (sessions === 1 ? ' training' : ' trainingen') + ' · ' +
+      km.toFixed(1) + ' km deze week (doel: ' + RUN_SESSION_TARGET + 'x / ' + kmGoal + ' km)';
+
+    return { score: score, band: bandInfo.band, label: bandInfo.label, detail: detail };
+  }
+
+  function computeGymScore(activities, sessionsGoal, minutesGoal) {
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
     const last7 = activities.filter(function (a) { return new Date(a.start_date) >= sevenDaysAgo; });
     const sessions = last7.length;
     const minutes = last7.reduce(function (sum, a) { return sum + (a.moving_time || 0); }, 0) / 60;
 
-    const sessionScore = Math.min(sessions / HEALTH_SESSION_TARGET, 1);
-    const minuteScore = Math.min(minutes / HEALTH_MINUTES_TARGET, 1);
+    const sessionScore = Math.min(sessions / sessionsGoal, 1);
+    const minuteScore = Math.min(minutes / minutesGoal, 1);
     const score = Math.round((sessionScore * 0.5 + minuteScore * 0.5) * 100);
-
-    let band, label;
-    if (score >= 75) { band = 'good'; label = 'Sterk bezig'; }
-    else if (score >= 40) { band = 'ok'; label = 'Redelijk op schema'; }
-    else { band = 'low'; label = 'Kan beter'; }
+    const bandInfo = scoreBand(score);
 
     const detail = sessions + (sessions === 1 ? ' training' : ' trainingen') + ' · ' +
-      Math.round(minutes) + ' min deze week (doel: ' + HEALTH_SESSION_TARGET + 'x / ' + HEALTH_MINUTES_TARGET + ' min)';
+      Math.round(minutes) + ' min deze week (doel: ' + sessionsGoal + 'x / ' + minutesGoal + ' min)';
 
-    return { score: score, band: band, label: label, detail: detail };
+    return { score: score, band: bandInfo.band, label: bandInfo.label, detail: detail };
   }
 
   async function loadHealthData() {
@@ -2200,12 +2351,12 @@
       const notesMap = {};
       (notesRes.data || []).forEach(function (n) { notesMap[n.strava_activity_id] = n; });
 
-      const runActivities = activities.filter(isRunActivity);
-      const gymActivities = activities.filter(function (a) { return !isRunActivity(a); });
+      const gymActivities = activities.filter(isGymActivity);
+      const runActivities = activities.filter(function (a) { return !isGymActivity(a); });
       healthData = {
         notesMap: notesMap,
-        run: { activities: runActivities, weeks: buildWeekBuckets(runActivities), scoreInfo: computeHealthScore(runActivities) },
-        gym: { activities: gymActivities, weeks: buildWeekBuckets(gymActivities), scoreInfo: computeHealthScore(gymActivities) }
+        run: { activities: runActivities, weeks: buildWeekBuckets(runActivities) },
+        gym: { activities: gymActivities, weeks: buildWeekBuckets(gymActivities) }
       };
       if (activeTab === 'health') renderHealthUI();
     } catch (e) {
@@ -2529,8 +2680,8 @@
   }
 
   function renderHealthUI() {
-    renderHealthScoreUI('run', healthData.run.scoreInfo);
-    renderHealthScoreUI('gym', healthData.gym.scoreInfo);
+    renderHealthScoreUI('run', computeRunScore(healthData.run.activities, daySettings.runKmGoal));
+    renderHealthScoreUI('gym', computeGymScore(healthData.gym.activities, daySettings.gymSessionsGoal, daySettings.gymMinutesGoal));
     renderHealthActivityList('run', healthData.run.activities);
     renderHealthActivityList('gym', healthData.gym.activities);
     renderHealthCharts();

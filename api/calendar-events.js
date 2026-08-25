@@ -66,6 +66,38 @@ async function saveTokens(tokens) {
   });
 }
 
+const CALENDARS = [
+  { id: 'primary', source: 'primary' },
+  { id: '0os5tsn2lof229n70nku0rnl1qh8lc6t@import.calendar.google.com', source: 'school' }
+];
+
+async function fetchCalendarEvents(calendarId, source, accessToken, start, end) {
+  const params = new URLSearchParams({
+    timeMin: start.toISOString(),
+    timeMax: end.toISOString(),
+    singleEvents: 'true',
+    orderBy: 'startTime',
+    maxResults: '250'
+  });
+  const res = await fetch(
+    'https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent(calendarId) + '/events?' + params.toString(),
+    { headers: { Authorization: 'Bearer ' + accessToken } }
+  );
+  if (!res.ok) throw new Error('Google Calendar fetch failed (' + calendarId + '): ' + await res.text());
+  const data = await res.json();
+  return (data.items || []).map(function (e) {
+    return {
+      id: source + ':' + e.id,
+      summary: e.summary || '(geen titel)',
+      location: e.location || null,
+      start: e.start.dateTime || e.start.date,
+      end: e.end.dateTime || e.end.date,
+      allDay: !e.start.dateTime,
+      calendar: source
+    };
+  });
+}
+
 module.exports = async function handler(req, res) {
   try {
     let start, end;
@@ -89,29 +121,14 @@ module.exports = async function handler(req, res) {
       await saveTokens(tokens);
     }
 
-    const params = new URLSearchParams({
-      timeMin: start.toISOString(),
-      timeMax: end.toISOString(),
-      singleEvents: 'true',
-      orderBy: 'startTime',
-      maxResults: '250'
-    });
-    const evRes = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?' + params.toString(), {
-      headers: { Authorization: 'Bearer ' + tokens.access_token }
-    });
-    if (!evRes.ok) throw new Error('Google Calendar fetch failed: ' + await evRes.text());
-    const data = await evRes.json();
+    const perCalendar = await Promise.all(CALENDARS.map(function (cal) {
+      return fetchCalendarEvents(cal.id, cal.source, tokens.access_token, start, end).catch(function (err) {
+        console.error('Calendar fetch failed for ' + cal.id, err);
+        return [];
+      });
+    }));
 
-    const events = (data.items || []).map(function (e) {
-      return {
-        id: e.id,
-        summary: e.summary || '(geen titel)',
-        location: e.location || null,
-        start: e.start.dateTime || e.start.date,
-        end: e.end.dateTime || e.end.date,
-        allDay: !e.start.dateTime
-      };
-    });
+    const events = perCalendar.flat().sort(function (a, b) { return new Date(a.start) - new Date(b.start); });
 
     res.status(200).json({ start: start.toISOString(), end: end.toISOString(), events: events });
   } catch (e) {

@@ -389,12 +389,24 @@
   .agenda-week-day.is-today .agenda-week-day-label { color: var(--accent-blue); }
   .agenda-week-day-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-blue); display: none; }
   .agenda-week-day.is-today .agenda-week-day-dot { display: inline-block; }
-  .agenda-event-row { display: flex; gap: 10px; padding: 6px 0; }
+
+  .agenda-legend { display: flex; gap: 14px; margin-bottom: 12px; }
+  .agenda-legend-item { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 600; color: var(--text-tertiary); }
+  .agenda-legend-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+  .agenda-legend-dot.cal-primary { background: var(--accent-blue); }
+  .agenda-legend-dot.cal-school { background: var(--warning); }
+
+  .agenda-event-row {
+    display: flex; gap: 10px; padding: 6px 0 6px 8px;
+    border-left: 2px solid transparent;
+  }
+  .agenda-event-row.cal-primary { border-left-color: var(--accent-blue); }
+  .agenda-event-row.cal-school { border-left-color: var(--warning); }
   .agenda-event-time { flex: none; width: 60px; font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
   .agenda-event-main { flex: 1; min-width: 0; }
   .agenda-event-summary { font-size: 13px; font-weight: 600; color: var(--text-primary); }
   .agenda-event-location { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
-  .agenda-week-empty { font-size: 12px; color: var(--text-tertiary); padding: 2px 0; }
+  .agenda-week-empty { font-size: 12px; color: var(--text-tertiary); padding: 2px 0 2px 8px; }
 
   .agenda-month-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 6px; }
   .agenda-month-weekdays span {
@@ -410,8 +422,10 @@
   .agenda-month-cell.is-outside { opacity: 0.3; }
   .agenda-month-cell.is-today { background: rgba(58, 150, 255, 0.16); }
   .agenda-month-cell-num { font-size: 12px; font-weight: 600; color: var(--text-primary); font-family: var(--font-mono); }
-  .agenda-month-cell-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent-blue); visibility: hidden; }
-  .agenda-month-cell.has-events .agenda-month-cell-dot { visibility: visible; }
+  .agenda-month-cell-dots { display: flex; gap: 3px; height: 4px; }
+  .agenda-month-cell-dot { width: 4px; height: 4px; border-radius: 50%; }
+  .agenda-month-cell-dot.cal-primary { background: var(--accent-blue); }
+  .agenda-month-cell-dot.cal-school { background: var(--warning); }
 
   .agenda-status { font-size: 11px; color: var(--text-tertiary); margin-top: 10px; min-height: 14px; }
   .agenda-status.is-error { color: var(--danger); }
@@ -1100,6 +1114,10 @@
             <button class="agenda-view-btn" id="agendaMonthBtn" type="button">Maand</button>
           </div>
         </div>
+      </div>
+      <div class="agenda-legend">
+        <div class="agenda-legend-item"><span class="agenda-legend-dot cal-primary"></span>Hoofdagenda</div>
+        <div class="agenda-legend-item"><span class="agenda-legend-dot cal-school"></span>School</div>
       </div>
       <div class="agenda-body" id="agendaBody"></div>
       <div class="agenda-status" id="agendaStatus">Laden…</div>
@@ -3000,7 +3018,7 @@
       } else {
         dayEvents.forEach(function (e) {
           const row = document.createElement('div');
-          row.className = 'agenda-event-row';
+          row.className = 'agenda-event-row cal-' + (e.calendar || 'primary');
           const time = document.createElement('div');
           time.className = 'agenda-event-time';
           time.textContent = formatEventTime(e);
@@ -3055,21 +3073,33 @@
       d.setDate(d.getDate() + i);
       const dStr = toISODate(d);
       const outside = d.getMonth() !== agendaAnchor.getMonth();
-      const count = eventsForDay(d).length;
+      const dayEvents = eventsForDay(d);
+      const hasPrimary = dayEvents.some(function (e) { return (e.calendar || 'primary') === 'primary'; });
+      const hasSchool = dayEvents.some(function (e) { return e.calendar === 'school'; });
 
       const cell = document.createElement('div');
       cell.className = 'agenda-month-cell' +
         (outside ? ' is-outside' : '') +
-        (dStr === todayStr ? ' is-today' : '') +
-        (count ? ' has-events' : '');
+        (dStr === todayStr ? ' is-today' : '');
 
       const num = document.createElement('div');
       num.className = 'agenda-month-cell-num';
       num.textContent = d.getDate();
-      const dot = document.createElement('div');
-      dot.className = 'agenda-month-cell-dot';
       cell.appendChild(num);
-      cell.appendChild(dot);
+
+      const dots = document.createElement('div');
+      dots.className = 'agenda-month-cell-dots';
+      if (hasPrimary) {
+        const dot = document.createElement('span');
+        dot.className = 'agenda-month-cell-dot cal-primary';
+        dots.appendChild(dot);
+      }
+      if (hasSchool) {
+        const dot = document.createElement('span');
+        dot.className = 'agenda-month-cell-dot cal-school';
+        dots.appendChild(dot);
+      }
+      cell.appendChild(dots);
 
       cell.addEventListener('click', function () {
         agendaAnchor = d;

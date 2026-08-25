@@ -431,6 +431,15 @@
   .agenda-status.is-error { color: var(--danger); }
   .agenda-status:empty { display: none; }
 
+  .agenda-compact-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .agenda-compact-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .agenda-expand-btn, .agenda-collapse-btn {
+    font-size: 11px; font-weight: 700; color: var(--accent-blue);
+    background: none; border: none; cursor: pointer; padding: 0;
+  }
+  .agenda-expand-btn:hover, .agenda-collapse-btn:hover { color: var(--text-primary); }
+  .agenda-collapse-btn { margin-top: 12px; }
+
   /* ---------- Component 4: To Do List ---------- */
 
   .section { display: flex; flex-direction: column; }
@@ -776,26 +785,47 @@
   .health-goals-fields input:focus { outline: none; border-color: var(--accent-blue); }
   .health-goals-actions { display: flex; gap: 8px; }
 
-  .health-grid {
+  /* Generic 2x2 responsive grid — collapses to one column below 860px.
+     Reused across tabs; each instance supplies its own grid-template-areas
+     and each cell its own grid-area via a .quad-area-* class. */
+  .quad-grid {
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-areas: "run" "gym" "weight" "sleep";
     gap: 20px;
     margin-bottom: 20px;
   }
   @media (min-width: 860px) {
-    .health-grid {
-      grid-template-columns: 1fr 1fr;
-      grid-template-areas: "run weight" "gym sleep";
-      align-items: start;
-    }
+    .quad-grid { grid-template-columns: 1fr 1fr; align-items: start; }
   }
-  .health-section-run { grid-area: run; }
-  .health-section-gym { grid-area: gym; }
-  .health-section-weight { grid-area: weight; }
-  .health-section-sleep { grid-area: sleep; }
-  .health-quadrant { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-  .health-quadrant .card { margin: 0; min-width: 0; }
+  .quad-section { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .quad-section .card { margin: 0; min-width: 0; }
+
+  .quad-grid-health { grid-template-areas: "run" "gym" "weight" "sleep"; }
+  @media (min-width: 860px) {
+    .quad-grid-health { grid-template-areas: "run weight" "gym sleep"; }
+  }
+  .quad-area-run { grid-area: run; }
+  .quad-area-gym { grid-area: gym; }
+  .quad-area-weight { grid-area: weight; }
+  .quad-area-sleep { grid-area: sleep; }
+
+  .quad-grid-dash-top { grid-template-areas: "dayring" "future-top"; }
+  @media (min-width: 860px) {
+    .quad-grid-dash-top { grid-template-areas: "dayring future-top"; }
+  }
+  .quad-area-dayring { grid-area: dayring; }
+  .quad-area-future-top { grid-area: future-top; }
+
+  .quad-grid-dash-main { grid-template-areas: "todo" "agenda" "future-main-1" "future-main-2"; }
+  @media (min-width: 860px) {
+    .quad-grid-dash-main { grid-template-areas: "todo future-main-1" "agenda future-main-2"; }
+  }
+  .quad-area-todo { grid-area: todo; }
+  .quad-area-agenda { grid-area: agenda; }
+  .quad-area-future-main-1 { grid-area: future-main-1; }
+  .quad-area-future-main-2 { grid-area: future-main-2; }
+
+  .dash-placeholder-card { min-height: 120px; display: flex; align-items: center; justify-content: center; }
   .health-subtitle {
     font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
     color: var(--text-tertiary); margin-bottom: 10px;
@@ -1048,132 +1078,177 @@
     </div>
   </div>
 
-  <div class="card day-ring-card" id="dayRingCard">
-    <button class="day-ring-settings-btn" id="dayRingSettingsBtn" type="button" aria-label="Wek- en slaaptijd instellen">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"></circle>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-      </svg>
-    </button>
-    <div class="day-ring-left">
-      <svg class="day-ring-svg" viewBox="0 0 120 120">
-        <defs>
-          <filter id="ringGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2.2" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-        <circle class="day-ring-track" cx="60" cy="60" r="52"></circle>
-        <circle class="day-ring-fill" id="dayRingFill" cx="60" cy="60" r="52" filter="url(#ringGlow)"></circle>
-      </svg>
-      <div class="day-ring-overlay">
-        <div class="day-ring-percent" id="dayRingPercent">—</div>
-        <div class="day-ring-phase" id="dayRingPhase">SLEEPING</div>
-        <div class="day-ring-clock" id="dayRingClock">--:--</div>
-      </div>
-    </div>
-    <div class="day-ring-right">
-      <div class="day-ring-status" id="dayRingStatus">😴 Still sleeping</div>
-      <div class="day-ring-remaining" id="dayRingRemaining">—</div>
-      <div class="day-ring-hours" id="dayRingHours">8:00 AM – 12:00 AM</div>
-    </div>
+  <div class="quad-grid quad-grid-dash-top">
 
-    <div class="day-ring-settings-panel" id="dayRingSettingsPanel" style="display:none">
-      <div class="day-ring-settings-fields">
-        <label>Wektijd
-          <input type="time" id="wakeTimeInput">
-        </label>
-        <label>Slaaptijd
-          <input type="time" id="sleepTimeInput">
-        </label>
-      </div>
-      <div class="day-ring-settings-actions">
-        <button type="button" id="daySettingsSaveBtn" class="day-settings-save-btn">Opslaan</button>
-        <button type="button" id="daySettingsCancelBtn" class="day-settings-cancel-btn">Annuleren</button>
-      </div>
-      <div class="day-settings-status" id="daySettingsStatus"></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Agenda</div>
-    <div class="card agenda-card" id="agendaCard">
-      <div class="agenda-header">
-        <div class="agenda-nav">
-          <button class="agenda-nav-btn" id="agendaPrevBtn" type="button" aria-label="Vorige">‹</button>
-          <div class="agenda-range" id="agendaRange">…</div>
-          <button class="agenda-nav-btn" id="agendaNextBtn" type="button" aria-label="Volgende">›</button>
-        </div>
-        <div class="agenda-controls">
-          <button class="agenda-today-btn" id="agendaTodayBtn" type="button">Vandaag</button>
-          <div class="agenda-view-toggle">
-            <button class="agenda-view-btn is-active" id="agendaWeekBtn" type="button">Week</button>
-            <button class="agenda-view-btn" id="agendaMonthBtn" type="button">Maand</button>
+    <div class="quad-section quad-area-dayring">
+      <div class="card day-ring-card" id="dayRingCard">
+        <button class="day-ring-settings-btn" id="dayRingSettingsBtn" type="button" aria-label="Wek- en slaaptijd instellen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+        <div class="day-ring-left">
+          <svg class="day-ring-svg" viewBox="0 0 120 120">
+            <defs>
+              <filter id="ringGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="2.2" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <circle class="day-ring-track" cx="60" cy="60" r="52"></circle>
+            <circle class="day-ring-fill" id="dayRingFill" cx="60" cy="60" r="52" filter="url(#ringGlow)"></circle>
+          </svg>
+          <div class="day-ring-overlay">
+            <div class="day-ring-percent" id="dayRingPercent">—</div>
+            <div class="day-ring-phase" id="dayRingPhase">SLEEPING</div>
+            <div class="day-ring-clock" id="dayRingClock">--:--</div>
           </div>
         </div>
+        <div class="day-ring-right">
+          <div class="day-ring-status" id="dayRingStatus">😴 Still sleeping</div>
+          <div class="day-ring-remaining" id="dayRingRemaining">—</div>
+          <div class="day-ring-hours" id="dayRingHours">8:00 AM – 12:00 AM</div>
+        </div>
+
+        <div class="day-ring-settings-panel" id="dayRingSettingsPanel" style="display:none">
+          <div class="day-ring-settings-fields">
+            <label>Wektijd
+              <input type="time" id="wakeTimeInput">
+            </label>
+            <label>Slaaptijd
+              <input type="time" id="sleepTimeInput">
+            </label>
+          </div>
+          <div class="day-ring-settings-actions">
+            <button type="button" id="daySettingsSaveBtn" class="day-settings-save-btn">Opslaan</button>
+            <button type="button" id="daySettingsCancelBtn" class="day-settings-cancel-btn">Annuleren</button>
+          </div>
+          <div class="day-settings-status" id="daySettingsStatus"></div>
+        </div>
       </div>
-      <div class="agenda-legend">
-        <div class="agenda-legend-item"><span class="agenda-legend-dot cal-primary"></span>Hoofdagenda</div>
-        <div class="agenda-legend-item"><span class="agenda-legend-dot cal-school"></span>School</div>
-      </div>
-      <div class="agenda-body" id="agendaBody"></div>
-      <div class="agenda-status" id="agendaStatus">Laden…</div>
     </div>
+
+    <div class="quad-section quad-area-future-top">
+      <div class="section-title">Gereserveerd</div>
+      <div class="card dash-placeholder-card">
+        <div class="health-empty health-empty-static">Ruimte voor een toekomstige sectie.</div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="section">
-    <div class="section-title">To Do List</div>
+  <div class="quad-grid quad-grid-dash-main">
 
-    <div class="card gm-card" id="todayCard">
-      <div class="gm-header">
-        <div class="gm-header-left">
-          <div class="gm-eyebrow" id="todayLabel">Today — </div>
-          <div class="gm-progress-row">
-            <span class="gm-progress-num" id="gmProgressNum">0</span>
-            <span class="gm-progress-total" id="gmProgressTotal">/ 0</span>
-            <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
+    <div class="quad-section quad-area-todo">
+      <div class="section-title">To Do List</div>
+
+      <div class="card gm-card" id="todayCard">
+        <div class="gm-header">
+          <div class="gm-header-left">
+            <div class="gm-eyebrow" id="todayLabel">Today — </div>
+            <div class="gm-progress-row">
+              <span class="gm-progress-num" id="gmProgressNum">0</span>
+              <span class="gm-progress-total" id="gmProgressTotal">/ 0</span>
+              <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
+            </div>
+          </div>
+          <div class="gm-streak" id="gmStreak">
+            <span class="gm-streak-bolt">⚡</span>
+            <span class="gm-streak-num" id="gmStreakNum">0</span>
+            <span class="gm-streak-text">day streak</span>
           </div>
         </div>
-        <div class="gm-streak" id="gmStreak">
-          <span class="gm-streak-bolt">⚡</span>
-          <span class="gm-streak-num" id="gmStreakNum">0</span>
-          <span class="gm-streak-text">day streak</span>
+        <div class="gm-bar" id="gmBar"></div>
+        <ul class="goal-list gm-list" id="goalList"></ul>
+        <div class="empty-state" id="emptyState">No goals for today yet — add one below.</div>
+        <button class="gm-show-more" id="gmShowMore" style="display:none;"></button>
+        <button class="gm-push-btn" id="gmPushBtn" style="display:none;">Push remaining to tomorrow</button>
+        <div class="goal-input-wrap gm-input-wrap">
+          <input type="text" id="goalInput" placeholder="Add a goal for today…">
+          <button id="goalAddBtn" class="gm-add-btn">+ Add</button>
+          <button id="goalPolishBtn" class="gm-polish-btn">✨ Polish</button>
         </div>
+        <div class="gm-polish-status" id="polishStatus"></div>
       </div>
-      <div class="gm-bar" id="gmBar"></div>
-      <ul class="goal-list gm-list" id="goalList"></ul>
-      <div class="empty-state" id="emptyState">No goals for today yet — add one below.</div>
-      <button class="gm-show-more" id="gmShowMore" style="display:none;"></button>
-      <button class="gm-push-btn" id="gmPushBtn" style="display:none;">Push remaining to tomorrow</button>
-      <div class="goal-input-wrap gm-input-wrap">
-        <input type="text" id="goalInput" placeholder="Add a goal for today…">
-        <button id="goalAddBtn" class="gm-add-btn">+ Add</button>
-        <button id="goalPolishBtn" class="gm-polish-btn">✨ Polish</button>
+
+      <div class="card gm-card gm-card-tomorrow" id="tomorrowCard">
+        <div class="gm-header">
+          <div class="gm-header-left">
+            <div class="gm-eyebrow" id="tomorrowLabel">Plan tomorrow — </div>
+            <div class="gm-subtext">Write tonight, locked until 6 AM.</div>
+          </div>
+          <div class="gm-tomorrow-count" id="gmTomorrowCount">0 planned</div>
+        </div>
+        <ul class="goal-list gm-list" id="tomorrowList"></ul>
+        <div class="empty-state" id="tomorrowEmptyState">Nothing planned for tomorrow yet</div>
+        <button class="gm-show-more" id="gmTomorrowShowMore" style="display:none;"></button>
+        <div class="goal-input-wrap gm-input-wrap">
+          <input type="text" id="tomorrowInput" placeholder="Add a goal for tomorrow…">
+          <button id="tomorrowAddBtn" class="gm-add-btn">+ Add</button>
+          <button id="tomorrowPolishBtn" class="gm-polish-btn">✨ Polish</button>
+        </div>
+        <div class="gm-polish-status" id="tomorrowStatus"></div>
       </div>
-      <div class="gm-polish-status" id="polishStatus"></div>
     </div>
 
-    <div class="card gm-card gm-card-tomorrow" id="tomorrowCard">
-      <div class="gm-header">
-        <div class="gm-header-left">
-          <div class="gm-eyebrow" id="tomorrowLabel">Plan tomorrow — </div>
-          <div class="gm-subtext">Write tonight, locked until 6 AM.</div>
+    <div class="quad-section quad-area-agenda">
+      <div class="section-title">Agenda</div>
+
+      <div class="card agenda-compact-card" id="agendaCompactCard">
+        <div class="agenda-compact-header">
+          <div class="agenda-compact-title">Vandaag</div>
+          <button class="agenda-expand-btn" id="agendaExpandBtn" type="button">Volledige agenda ›</button>
         </div>
-        <div class="gm-tomorrow-count" id="gmTomorrowCount">0 planned</div>
+        <div class="agenda-legend">
+          <div class="agenda-legend-item"><span class="agenda-legend-dot cal-primary"></span>Hoofdagenda</div>
+          <div class="agenda-legend-item"><span class="agenda-legend-dot cal-school"></span>School</div>
+        </div>
+        <div class="agenda-body" id="agendaCompactBody"></div>
       </div>
-      <ul class="goal-list gm-list" id="tomorrowList"></ul>
-      <div class="empty-state" id="tomorrowEmptyState">Nothing planned for tomorrow yet</div>
-      <button class="gm-show-more" id="gmTomorrowShowMore" style="display:none;"></button>
-      <div class="goal-input-wrap gm-input-wrap">
-        <input type="text" id="tomorrowInput" placeholder="Add a goal for tomorrow…">
-        <button id="tomorrowAddBtn" class="gm-add-btn">+ Add</button>
-        <button id="tomorrowPolishBtn" class="gm-polish-btn">✨ Polish</button>
+
+      <div class="card agenda-card" id="agendaCard" style="display:none">
+        <div class="agenda-header">
+          <div class="agenda-nav">
+            <button class="agenda-nav-btn" id="agendaPrevBtn" type="button" aria-label="Vorige">‹</button>
+            <div class="agenda-range" id="agendaRange">…</div>
+            <button class="agenda-nav-btn" id="agendaNextBtn" type="button" aria-label="Volgende">›</button>
+          </div>
+          <div class="agenda-controls">
+            <button class="agenda-today-btn" id="agendaTodayBtn" type="button">Vandaag</button>
+            <div class="agenda-view-toggle">
+              <button class="agenda-view-btn is-active" id="agendaWeekBtn" type="button">Week</button>
+              <button class="agenda-view-btn" id="agendaMonthBtn" type="button">Maand</button>
+            </div>
+          </div>
+        </div>
+        <div class="agenda-legend">
+          <div class="agenda-legend-item"><span class="agenda-legend-dot cal-primary"></span>Hoofdagenda</div>
+          <div class="agenda-legend-item"><span class="agenda-legend-dot cal-school"></span>School</div>
+        </div>
+        <div class="agenda-body" id="agendaBody"></div>
+        <div class="agenda-status" id="agendaStatus">Laden…</div>
+        <button class="agenda-collapse-btn" id="agendaCollapseBtn" type="button">‹ Inklappen</button>
       </div>
-      <div class="gm-polish-status" id="tomorrowStatus"></div>
     </div>
+
+    <div class="quad-section quad-area-future-main-1">
+      <div class="section-title">Gereserveerd</div>
+      <div class="card dash-placeholder-card">
+        <div class="health-empty health-empty-static">Ruimte voor een toekomstige sectie.</div>
+      </div>
+    </div>
+
+    <div class="quad-section quad-area-future-main-2">
+      <div class="section-title">Gereserveerd</div>
+      <div class="card dash-placeholder-card">
+        <div class="health-empty health-empty-static">Ruimte voor een toekomstige sectie.</div>
+      </div>
+    </div>
+
   </div>
 
 </div>
@@ -1209,9 +1284,9 @@
     <div class="day-settings-status" id="healthGoalsStatus"></div>
   </div>
 
-  <div class="health-grid">
+  <div class="quad-grid quad-grid-health">
 
-    <div class="health-quadrant health-section-run">
+    <div class="quad-section quad-area-run">
       <div class="section-title">Hardlopen</div>
       <div class="card">
         <div class="health-score-row">
@@ -1239,7 +1314,7 @@
       </div>
     </div>
 
-    <div class="health-quadrant health-section-weight">
+    <div class="quad-section quad-area-weight">
       <div class="section-title">Gewicht &amp; Progressie</div>
 
       <div class="card">
@@ -1278,7 +1353,7 @@
       </div>
     </div>
 
-    <div class="health-quadrant health-section-gym">
+    <div class="quad-section quad-area-gym">
       <div class="section-title">Gym</div>
       <div class="card">
         <div class="health-score-row">
@@ -1306,7 +1381,7 @@
       </div>
     </div>
 
-    <div class="health-quadrant health-section-sleep">
+    <div class="quad-section quad-area-sleep">
       <div class="section-title">Slaap</div>
       <div class="card health-disabled-card">
         <div class="health-disabled-body">
@@ -2985,6 +3060,43 @@
     }
   }
 
+  function buildEventRow(e) {
+    const row = document.createElement('div');
+    row.className = 'agenda-event-row cal-' + (e.calendar || 'primary');
+    const time = document.createElement('div');
+    time.className = 'agenda-event-time';
+    time.textContent = formatEventTime(e);
+    const main = document.createElement('div');
+    main.className = 'agenda-event-main';
+    const summary = document.createElement('div');
+    summary.className = 'agenda-event-summary';
+    summary.textContent = e.summary;
+    main.appendChild(summary);
+    if (e.location) {
+      const loc = document.createElement('div');
+      loc.className = 'agenda-event-location';
+      loc.textContent = e.location;
+      main.appendChild(loc);
+    }
+    row.appendChild(time);
+    row.appendChild(main);
+    return row;
+  }
+
+  function renderAgendaCompact() {
+    const body = document.getElementById('agendaCompactBody');
+    body.innerHTML = '';
+    const todayEvents = eventsForDay(new Date());
+    if (!todayEvents.length) {
+      const empty = document.createElement('div');
+      empty.className = 'agenda-week-empty';
+      empty.textContent = 'Geen afspraken vandaag';
+      body.appendChild(empty);
+      return;
+    }
+    todayEvents.forEach(function (e) { body.appendChild(buildEventRow(e)); });
+  }
+
   function renderAgendaWeek() {
     const body = document.getElementById('agendaBody');
     body.innerHTML = '';
@@ -3016,28 +3128,7 @@
         empty.textContent = 'Geen afspraken';
         dayEl.appendChild(empty);
       } else {
-        dayEvents.forEach(function (e) {
-          const row = document.createElement('div');
-          row.className = 'agenda-event-row cal-' + (e.calendar || 'primary');
-          const time = document.createElement('div');
-          time.className = 'agenda-event-time';
-          time.textContent = formatEventTime(e);
-          const main = document.createElement('div');
-          main.className = 'agenda-event-main';
-          const summary = document.createElement('div');
-          summary.className = 'agenda-event-summary';
-          summary.textContent = e.summary;
-          main.appendChild(summary);
-          if (e.location) {
-            const loc = document.createElement('div');
-            loc.className = 'agenda-event-location';
-            loc.textContent = e.location;
-            main.appendChild(loc);
-          }
-          row.appendChild(time);
-          row.appendChild(main);
-          dayEl.appendChild(row);
-        });
+        dayEvents.forEach(function (e) { dayEl.appendChild(buildEventRow(e)); });
       }
       body.appendChild(dayEl);
     }
@@ -3117,6 +3208,7 @@
     renderAgendaRangeLabel();
     if (agendaViewMode === 'week') renderAgendaWeek();
     else renderAgendaMonth();
+    renderAgendaCompact();
   }
 
   function updateAgendaViewButtons() {
@@ -3176,6 +3268,20 @@
   document.getElementById('agendaMonthBtn').addEventListener('click', function () {
     if (agendaViewMode === 'month') return;
     agendaViewMode = 'month';
+    updateAgendaViewButtons();
+    renderAgendaRangeLabel();
+    loadAgenda();
+  });
+
+  document.getElementById('agendaExpandBtn').addEventListener('click', function () {
+    document.getElementById('agendaCompactCard').style.display = 'none';
+    document.getElementById('agendaCard').style.display = '';
+  });
+  document.getElementById('agendaCollapseBtn').addEventListener('click', function () {
+    document.getElementById('agendaCard').style.display = 'none';
+    document.getElementById('agendaCompactCard').style.display = '';
+    agendaAnchor = new Date();
+    agendaViewMode = 'week';
     updateAgendaViewButtons();
     renderAgendaRangeLabel();
     loadAgenda();

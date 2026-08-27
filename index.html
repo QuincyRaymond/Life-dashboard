@@ -1131,6 +1131,27 @@
   .breathing-circle.is-inhale { transform: scale(1.4); }
   .breathing-circle.is-exhale { transform: scale(1); }
   .breathing-label { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+
+  .coach-intro { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+
+  .coach-entry { padding: 12px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+  .coach-entry:first-child { border-top: none; padding-top: 0; }
+  .coach-entry-date { font-size: 10.5px; font-weight: 700; color: var(--text-tertiary); margin-bottom: 6px; }
+  .coach-entry-message { font-size: 13px; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; }
+  .coach-entry.is-concern {
+    background: rgba(255, 107, 107, 0.07);
+    border: 1px solid rgba(255, 107, 107, 0.25);
+    border-top: 1px solid rgba(255, 107, 107, 0.25);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .coach-entry.is-concern .coach-entry-message { color: var(--text-primary); }
+  .coach-help-link {
+    display: inline-block; margin-top: 10px;
+    background: var(--danger); color: #2a0a0a;
+    font-size: 12.5px; font-weight: 700; text-decoration: none;
+    padding: 8px 14px; border-radius: 8px;
+  }
 </style>
 </head>
 <body>
@@ -1529,6 +1550,22 @@
       <div class="health-subtitle">Eerdere entries</div>
       <div id="gratitudeHistory"></div>
       <div class="health-empty" id="gratitudeHistoryEmpty">Nog geen eerdere entries.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">AI Coach</div>
+    <div class="card">
+      <div class="coach-intro">Vraag een korte, warme reflectie op je dagboek, stemming en dankbaarheid van de afgelopen 14 dagen.</div>
+      <div class="journal-actions">
+        <button type="button" id="coachRequestBtn" class="journal-save-btn">Vraag om feedback</button>
+        <div class="journal-status" id="coachStatus"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="health-subtitle">Eerdere feedback</div>
+      <div id="coachHistory"></div>
+      <div class="health-empty" id="coachHistoryEmpty">Nog geen feedback gevraagd.</div>
     </div>
   </div>
 
@@ -3806,6 +3843,107 @@
     }
   });
 
+  /* ---------- mental health: AI coach ---------- */
+
+  let coachFeedback = [];
+
+  async function loadCoachHistory() {
+    try {
+      const { data, error } = await supabaseClient.from('coach_feedback').select('*').order('created_at', { ascending: false }).limit(20);
+      if (error) { console.error('Coach-geschiedenis laden mislukt', error); return; }
+      coachFeedback = data || [];
+      renderCoachUI();
+    } catch (e) {
+      console.error('Coach-geschiedenis laden mislukt', e);
+    }
+  }
+
+  function recentMentalData(days) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutoffStr = toISODate(cutoff);
+    return {
+      journal: journalEntries
+        .filter(function (e) { return e.entry_date >= cutoffStr && e.text && e.text.trim(); })
+        .map(function (e) { return { date: e.entry_date, text: e.text }; }),
+      mood: moodEntries
+        .filter(function (m) { return m.entry_date >= cutoffStr; })
+        .map(function (m) { return { date: m.entry_date, score: m.score }; }),
+      gratitude: gratitudeEntries
+        .filter(function (g) { return g.entry_date >= cutoffStr; })
+        .map(function (g) { return { date: g.entry_date, items: g.items }; })
+    };
+  }
+
+  function renderCoachUI() {
+    const listEl = document.getElementById('coachHistory');
+    const emptyEl = document.getElementById('coachHistoryEmpty');
+    listEl.innerHTML = '';
+    emptyEl.style.display = coachFeedback.length ? 'none' : '';
+
+    coachFeedback.forEach(function (f) {
+      const item = document.createElement('div');
+      item.className = 'coach-entry' + (f.concern ? ' is-concern' : '');
+
+      const date = document.createElement('div');
+      date.className = 'coach-entry-date';
+      const d = new Date(f.created_at);
+      date.textContent = d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' }) + ' · ' +
+        d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
+      const msg = document.createElement('div');
+      msg.className = 'coach-entry-message';
+      msg.textContent = f.message;
+
+      item.appendChild(date);
+      item.appendChild(msg);
+
+      if (f.concern) {
+        const help = document.createElement('a');
+        help.className = 'coach-help-link';
+        help.href = 'tel:08000113';
+        help.textContent = '📞 Bel 113 Zelfmoordpreventie — 0800-0113';
+        item.appendChild(help);
+      }
+
+      listEl.appendChild(item);
+    });
+  }
+
+  document.getElementById('coachRequestBtn').addEventListener('click', function () {
+    const btn = document.getElementById('coachRequestBtn');
+    const statusEl = document.getElementById('coachStatus');
+    btn.disabled = true;
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Bezig met nadenken…';
+
+    fetch('/api/mental-coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(recentMentalData(14))
+    })
+      .then(function (res) {
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+      })
+      .then(function (result) {
+        btn.disabled = false;
+        if (!result.ok) throw new Error(result.data.error || 'Onbekende fout');
+        if (result.data.cooldown) {
+          statusEl.textContent = 'Je hebt net al feedback gevraagd — probeer het over ' + result.data.retryAfterMinutes + ' minuten opnieuw.';
+          return;
+        }
+        statusEl.textContent = '';
+        coachFeedback.unshift({ created_at: new Date().toISOString(), concern: result.data.concern, message: result.data.message });
+        renderCoachUI();
+      })
+      .catch(function (err) {
+        console.error('Coach-feedback ophalen mislukt', err);
+        btn.disabled = false;
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Ophalen mislukt — probeer het later opnieuw.';
+      });
+  });
+
   /* ---------- init ---------- */
 
   function initGoalsUI() {
@@ -3849,6 +3987,7 @@
   renderAgendaRangeLabel();
   loadAgenda();
   loadMentalHealthData();
+  loadCoachHistory();
 
   loadStoreFromSupabase()
     .then(migrateLocalStorageIfNeeded)

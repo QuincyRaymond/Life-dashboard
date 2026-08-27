@@ -1057,6 +1057,80 @@
   .weight-compare-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); }
   .weight-compare-weight { font-family: var(--font-mono); font-size: 15px; font-weight: 700; color: var(--text-primary); }
   .weight-compare-date { font-size: 10.5px; color: var(--text-tertiary); }
+
+  /* ---------- Component: Mental health ---------- */
+
+  .journal-textarea {
+    width: 100%; min-height: 120px; resize: vertical;
+    background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 10px;
+    padding: 12px; color: var(--text-primary); font-family: var(--font-sans); font-size: 14px; line-height: 1.6;
+  }
+  .journal-textarea:focus { outline: none; border-color: var(--accent-blue); }
+  .journal-actions { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  .journal-save-btn {
+    background: var(--accent-blue); border: none; color: #06131f;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 700; padding: 8px 16px; border-radius: 8px; cursor: pointer;
+  }
+  .journal-save-btn:disabled { opacity: 0.6; cursor: default; }
+  .journal-status { font-size: 11px; color: var(--text-tertiary); }
+
+  .journal-entry { padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer; }
+  .journal-entry:first-child { border-top: none; padding-top: 0; }
+  .journal-entry-date { font-size: 11px; font-weight: 700; color: var(--text-tertiary); margin-bottom: 4px; }
+  .journal-entry-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; white-space: pre-wrap; }
+  .journal-entry-text.is-collapsed {
+    display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  .mood-picker { display: flex; justify-content: space-between; gap: 8px; }
+  .mood-btn {
+    flex: 1; font-size: 26px; line-height: 1;
+    background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px;
+    padding: 10px 0; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+  .mood-btn:hover { background: rgba(255, 255, 255, 0.08); }
+  .mood-btn.is-selected { border-color: var(--accent-blue); background: rgba(58, 150, 255, 0.14); transform: scale(1.08); }
+  .mood-status { font-size: 11.5px; color: var(--text-tertiary); margin-top: 12px; text-align: center; }
+
+  .gratitude-fields { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+  .gratitude-input {
+    background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 8px;
+    padding: 8px 10px; color: var(--text-primary); font-family: var(--font-sans); font-size: 13px;
+  }
+  .gratitude-input:focus { outline: none; border-color: var(--accent-blue); }
+
+  .gratitude-entry { padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+  .gratitude-entry:first-child { border-top: none; padding-top: 0; }
+  .gratitude-entry-date { font-size: 11px; font-weight: 700; color: var(--text-tertiary); margin-bottom: 5px; }
+  .gratitude-entry-list { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  .meditation-duration-row { display: flex; gap: 8px; margin-bottom: 18px; }
+  .meditation-duration-btn {
+    flex: 1; font-size: 12px; font-weight: 700; font-family: var(--font-sans); padding: 8px 0; border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-tertiary); cursor: pointer;
+  }
+  .meditation-duration-btn.is-active { background: var(--accent-blue); border-color: var(--accent-blue); color: #06131f; }
+  .meditation-display {
+    font-family: var(--font-mono); font-size: 44px; font-weight: 800; text-align: center;
+    color: var(--text-primary); margin-bottom: 18px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+  }
+  .meditation-controls { display: flex; gap: 8px; }
+  .meditation-btn { flex: 1; font-family: var(--font-sans); font-size: 13px; font-weight: 700; padding: 10px 0; border-radius: 10px; cursor: pointer; }
+  .meditation-btn.primary { background: var(--accent-blue); border: none; color: #06131f; }
+  .meditation-btn.secondary { background: none; border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-tertiary); }
+  .meditation-status { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 10px; min-height: 14px; }
+
+  .breathing-circle-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px 0 24px; }
+  .breathing-circle {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(58, 150, 255, 0.35), rgba(58, 150, 255, 0.06));
+    border: 2px solid var(--accent-blue);
+    transform: scale(1);
+    transition: transform 4s ease-in-out;
+  }
+  .breathing-circle.is-inhale { transform: scale(1.4); }
+  .breathing-circle.is-exhale { transform: scale(1); }
+  .breathing-label { font-size: 14px; font-weight: 700; color: var(--text-primary); }
 </style>
 </head>
 <body>
@@ -1400,6 +1474,94 @@
 
 </div>
 
+<div class="page" id="tabMental" style="display:none">
+
+  <h1 class="dash-title">Mental Health</h1>
+
+  <div class="section">
+    <div class="section-title">Journal</div>
+    <div class="card">
+      <textarea class="journal-textarea" id="journalInput" placeholder="Hoe was je dag? Schrijf vrijuit…"></textarea>
+      <div class="journal-actions">
+        <button type="button" id="journalSaveBtn" class="journal-save-btn">Opslaan</button>
+        <div class="journal-status" id="journalStatus"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="health-subtitle">Eerdere entries</div>
+      <div id="journalHistory"></div>
+      <div class="health-empty" id="journalHistoryEmpty">Nog geen eerdere entries.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Stemming</div>
+    <div class="card">
+      <div class="mood-picker" id="moodPicker">
+        <button type="button" class="mood-btn" data-score="1">😞</button>
+        <button type="button" class="mood-btn" data-score="2">😕</button>
+        <button type="button" class="mood-btn" data-score="3">😐</button>
+        <button type="button" class="mood-btn" data-score="4">🙂</button>
+        <button type="button" class="mood-btn" data-score="5">😄</button>
+      </div>
+      <div class="mood-status" id="moodStatus">Hoe voel je je vandaag?</div>
+    </div>
+    <div class="card health-chart-wrap">
+      <div class="health-subtitle">Laatste 14 dagen</div>
+      <svg class="health-chart" id="moodChart"></svg>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Dankbaarheid</div>
+    <div class="card">
+      <div class="gratitude-fields">
+        <input type="text" class="gratitude-input" placeholder="1. Waar ben je dankbaar voor?">
+        <input type="text" class="gratitude-input" placeholder="2. Waar ben je dankbaar voor?">
+        <input type="text" class="gratitude-input" placeholder="3. Waar ben je dankbaar voor?">
+      </div>
+      <div class="journal-actions">
+        <button type="button" id="gratitudeSaveBtn" class="journal-save-btn">Opslaan</button>
+        <div class="journal-status" id="gratitudeStatus"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="health-subtitle">Eerdere entries</div>
+      <div id="gratitudeHistory"></div>
+      <div class="health-empty" id="gratitudeHistoryEmpty">Nog geen eerdere entries.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Meditatie</div>
+    <div class="card">
+      <div class="meditation-duration-row">
+        <button type="button" class="meditation-duration-btn" data-min="5">5m</button>
+        <button type="button" class="meditation-duration-btn is-active" data-min="10">10m</button>
+        <button type="button" class="meditation-duration-btn" data-min="15">15m</button>
+        <button type="button" class="meditation-duration-btn" data-min="20">20m</button>
+      </div>
+      <div class="meditation-display" id="meditationDisplay">10:00</div>
+      <div class="meditation-controls">
+        <button type="button" id="meditationStartBtn" class="meditation-btn primary">Start</button>
+        <button type="button" id="meditationStopBtn" class="meditation-btn secondary">Stop</button>
+        <button type="button" id="meditationResetBtn" class="meditation-btn secondary">Reset</button>
+      </div>
+      <div class="meditation-status" id="meditationStatus"></div>
+    </div>
+
+    <div class="card">
+      <div class="health-subtitle">Ademhalingsoefening</div>
+      <div class="breathing-circle-wrap">
+        <div class="breathing-circle" id="breathingCircle"></div>
+        <div class="breathing-label" id="breathingLabel">Klaar wanneer jij bent</div>
+      </div>
+      <button type="button" id="breathingToggleBtn" class="meditation-btn primary">Start</button>
+    </div>
+  </div>
+
+</div>
+
 <nav class="tab-bar">
   <div class="tab-bar-inner">
     <button class="tab-btn is-active" id="tabBtnHome" type="button">
@@ -1416,6 +1578,15 @@
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"></path>
       </svg>
       <span>Health</span>
+    </button>
+    <button class="tab-btn" id="tabBtnMental" type="button">
+      <svg class="tab-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+      </svg>
+      <span>Mental Health</span>
     </button>
   </div>
 </nav>
@@ -2278,16 +2449,21 @@
     activeTab = name;
     document.getElementById('tabHome').style.display = name === 'home' ? '' : 'none';
     document.getElementById('tabHealth').style.display = name === 'health' ? '' : 'none';
+    document.getElementById('tabMental').style.display = name === 'mental' ? '' : 'none';
     document.getElementById('tabBtnHome').classList.toggle('is-active', name === 'home');
     document.getElementById('tabBtnHealth').classList.toggle('is-active', name === 'health');
+    document.getElementById('tabBtnMental').classList.toggle('is-active', name === 'mental');
     if (name === 'health' && healthData) renderHealthUI();
+    if (name === 'mental') renderMoodChart();
   }
 
   document.getElementById('tabBtnHome').addEventListener('click', function () { showTab('home'); });
   document.getElementById('tabBtnHealth').addEventListener('click', function () { showTab('health'); });
+  document.getElementById('tabBtnMental').addEventListener('click', function () { showTab('mental'); });
 
   window.addEventListener('resize', function () {
     if (activeTab === 'health' && healthData) renderHealthCharts();
+    if (activeTab === 'mental') renderMoodChart();
   });
 
   /* ---------- health tab: goal settings ---------- */
@@ -3287,6 +3463,349 @@
     loadAgenda();
   });
 
+  /* ---------- mental health: data ---------- */
+
+  let journalEntries = [];
+  let moodEntries = [];
+  let gratitudeEntries = [];
+
+  const MOOD_EMOJI = { 1: '😞', 2: '😕', 3: '😐', 4: '🙂', 5: '😄' };
+  const MOOD_LABELS = { 1: 'Slecht', 2: 'Matig', 3: 'Oké', 4: 'Goed', 5: 'Geweldig' };
+
+  async function loadMentalHealthData() {
+    try {
+      const [jRes, mRes, gRes] = await Promise.all([
+        supabaseClient.from('journal_entries').select('*').order('entry_date', { ascending: false }).limit(60),
+        supabaseClient.from('mood_log').select('*').order('entry_date', { ascending: false }).limit(60),
+        supabaseClient.from('gratitude_entries').select('*').order('entry_date', { ascending: false }).limit(60)
+      ]);
+      if (jRes.error) console.error('Journal laden mislukt', jRes.error);
+      if (mRes.error) console.error('Mood laden mislukt', mRes.error);
+      if (gRes.error) console.error('Gratitude laden mislukt', gRes.error);
+
+      journalEntries = jRes.data || [];
+      moodEntries = mRes.data || [];
+      gratitudeEntries = gRes.data || [];
+
+      renderJournalUI();
+      renderMoodUI();
+      renderGratitudeUI();
+    } catch (e) {
+      console.error('Mental health data laden mislukt', e);
+    }
+  }
+
+  /* ---------- mental health: journal ---------- */
+
+  function renderJournalUI() {
+    const todayStr = toISODate(new Date());
+    const todayEntry = journalEntries.filter(function (e) { return e.entry_date === todayStr; })[0];
+    document.getElementById('journalInput').value = todayEntry ? todayEntry.text : '';
+
+    const historyEl = document.getElementById('journalHistory');
+    const emptyEl = document.getElementById('journalHistoryEmpty');
+    historyEl.innerHTML = '';
+    const past = journalEntries.filter(function (e) { return e.entry_date !== todayStr && e.text && e.text.trim(); });
+    emptyEl.style.display = past.length ? 'none' : '';
+
+    past.forEach(function (e) {
+      const item = document.createElement('div');
+      item.className = 'journal-entry';
+      const date = document.createElement('div');
+      date.className = 'journal-entry-date';
+      date.textContent = formatShortDate(e.entry_date);
+      const text = document.createElement('div');
+      text.className = 'journal-entry-text is-collapsed';
+      text.textContent = e.text;
+      item.appendChild(date);
+      item.appendChild(text);
+      item.addEventListener('click', function () { text.classList.toggle('is-collapsed'); });
+      historyEl.appendChild(item);
+    });
+  }
+
+  document.getElementById('journalSaveBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('journalStatus');
+    const saveBtn = document.getElementById('journalSaveBtn');
+    const text = document.getElementById('journalInput').value;
+    const todayStr = toISODate(new Date());
+
+    saveBtn.disabled = true;
+    statusEl.textContent = 'Opslaan…';
+    supabaseClient.from('journal_entries')
+      .upsert({ entry_date: todayStr, text: text, updated_at: new Date().toISOString() }, { onConflict: 'entry_date' })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        const existing = journalEntries.filter(function (e) { return e.entry_date === todayStr; })[0];
+        if (existing) existing.text = text;
+        else journalEntries.unshift({ entry_date: todayStr, text: text });
+        statusEl.textContent = 'Opgeslagen!';
+        saveBtn.disabled = false;
+        renderJournalUI();
+        setTimeout(function () { statusEl.textContent = ''; }, 2000);
+      })
+      .catch(function (err) {
+        console.error('Journal opslaan mislukt', err);
+        statusEl.textContent = 'Opslaan mislukt.';
+        saveBtn.disabled = false;
+      });
+  });
+
+  /* ---------- mental health: mood ---------- */
+
+  function renderMoodUI() {
+    const todayStr = toISODate(new Date());
+    const todayMood = moodEntries.filter(function (m) { return m.entry_date === todayStr; })[0];
+    document.querySelectorAll('.mood-btn').forEach(function (btn) {
+      btn.classList.toggle('is-selected', !!todayMood && String(todayMood.score) === btn.dataset.score);
+    });
+    document.getElementById('moodStatus').textContent = todayMood
+      ? 'Vandaag: ' + MOOD_EMOJI[todayMood.score] + ' ' + MOOD_LABELS[todayMood.score]
+      : 'Hoe voel je je vandaag?';
+    renderMoodChart();
+  }
+
+  document.querySelectorAll('.mood-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const score = parseInt(btn.dataset.score, 10);
+      const todayStr = toISODate(new Date());
+      supabaseClient.from('mood_log')
+        .upsert({ entry_date: todayStr, score: score, updated_at: new Date().toISOString() }, { onConflict: 'entry_date' })
+        .then(function (res) {
+          if (res.error) throw res.error;
+          const existing = moodEntries.filter(function (m) { return m.entry_date === todayStr; })[0];
+          if (existing) existing.score = score;
+          else moodEntries.unshift({ entry_date: todayStr, score: score });
+          renderMoodUI();
+        })
+        .catch(function (err) { console.error('Mood opslaan mislukt', err); });
+    });
+  });
+
+  function renderMoodChart() {
+    const svg = document.getElementById('moodChart');
+    const width = svg.parentElement.clientWidth;
+    if (!width) return;
+    const height = 130;
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+    svg.innerHTML = '';
+
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dStr = toISODate(d);
+      const entry = moodEntries.filter(function (m) { return m.entry_date === dStr; })[0];
+      days.push({ date: d, score: entry ? entry.score : null });
+    }
+
+    const padL = 20, padR = 8, padT = 14, padB = 12;
+    const plotW = width - padL - padR;
+    const plotH = height - padT - padB;
+    const stepX = days.length > 1 ? plotW / (days.length - 1) : 0;
+
+    [1, 3, 5].forEach(function (v) {
+      const y = padT + plotH * (1 - (v - 1) / 4);
+      svg.appendChild(svgEl('line', { x1: padL, x2: width - padR, y1: y, y2: y, class: 'health-chart-gridline' }));
+      const label = svgEl('text', { x: padL - 5, y: y + 3, 'text-anchor': 'end', class: 'health-chart-axis-label' });
+      label.textContent = v;
+      svg.appendChild(label);
+    });
+
+    const points = days.map(function (d, i) {
+      return {
+        x: padL + stepX * i,
+        y: d.score != null ? padT + plotH * (1 - (d.score - 1) / 4) : null,
+        date: d.date,
+        score: d.score
+      };
+    });
+
+    let pathParts = [];
+    let drawing = false;
+    points.forEach(function (p) {
+      if (p.y == null) { drawing = false; return; }
+      pathParts.push((drawing ? 'L' : 'M') + p.x + ',' + p.y);
+      drawing = true;
+    });
+    if (pathParts.length) {
+      svg.appendChild(svgEl('path', { d: pathParts.join(' '), class: 'health-chart-line' }));
+    }
+
+    points.forEach(function (p) {
+      if (p.score == null) return;
+      svg.appendChild(svgEl('circle', { cx: p.x, cy: p.y, r: 4, class: 'health-chart-dot' }));
+      const hit = svgEl('circle', { cx: p.x, cy: p.y, r: 14, class: 'health-chart-hit' });
+      hit.addEventListener('pointerenter', function (e) {
+        showChartTooltip(e, formatShortDate(toISODate(p.date)), MOOD_EMOJI[p.score] + ' ' + p.score + '/5');
+      });
+      hit.addEventListener('pointermove', moveChartTooltip);
+      hit.addEventListener('pointerleave', hideChartTooltip);
+      svg.appendChild(hit);
+    });
+  }
+
+  /* ---------- mental health: gratitude ---------- */
+
+  function renderGratitudeUI() {
+    const todayStr = toISODate(new Date());
+    const todayEntry = gratitudeEntries.filter(function (g) { return g.entry_date === todayStr; })[0];
+    const inputs = document.querySelectorAll('.gratitude-input');
+    inputs.forEach(function (input, i) {
+      input.value = todayEntry && todayEntry.items[i] ? todayEntry.items[i] : '';
+    });
+
+    const historyEl = document.getElementById('gratitudeHistory');
+    const emptyEl = document.getElementById('gratitudeHistoryEmpty');
+    historyEl.innerHTML = '';
+    const past = gratitudeEntries.filter(function (g) {
+      return g.entry_date !== todayStr && (g.items || []).some(function (i) { return i && i.trim(); });
+    });
+    emptyEl.style.display = past.length ? 'none' : '';
+
+    past.forEach(function (g) {
+      const item = document.createElement('div');
+      item.className = 'gratitude-entry';
+      const date = document.createElement('div');
+      date.className = 'gratitude-entry-date';
+      date.textContent = formatShortDate(g.entry_date);
+      const list = document.createElement('ul');
+      list.className = 'gratitude-entry-list';
+      (g.items || []).filter(function (i) { return i && i.trim(); }).forEach(function (i) {
+        const li = document.createElement('li');
+        li.textContent = i;
+        list.appendChild(li);
+      });
+      item.appendChild(date);
+      item.appendChild(list);
+      historyEl.appendChild(item);
+    });
+  }
+
+  document.getElementById('gratitudeSaveBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('gratitudeStatus');
+    const saveBtn = document.getElementById('gratitudeSaveBtn');
+    const items = Array.prototype.slice.call(document.querySelectorAll('.gratitude-input')).map(function (i) { return i.value; });
+    const todayStr = toISODate(new Date());
+
+    saveBtn.disabled = true;
+    statusEl.textContent = 'Opslaan…';
+    supabaseClient.from('gratitude_entries')
+      .upsert({ entry_date: todayStr, items: items, updated_at: new Date().toISOString() }, { onConflict: 'entry_date' })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        const existing = gratitudeEntries.filter(function (g) { return g.entry_date === todayStr; })[0];
+        if (existing) existing.items = items;
+        else gratitudeEntries.unshift({ entry_date: todayStr, items: items });
+        statusEl.textContent = 'Opgeslagen!';
+        saveBtn.disabled = false;
+        renderGratitudeUI();
+        setTimeout(function () { statusEl.textContent = ''; }, 2000);
+      })
+      .catch(function (err) {
+        console.error('Gratitude opslaan mislukt', err);
+        statusEl.textContent = 'Opslaan mislukt.';
+        saveBtn.disabled = false;
+      });
+  });
+
+  /* ---------- mental health: meditation timer ---------- */
+
+  let meditationDuration = 10 * 60;
+  let meditationRemaining = meditationDuration;
+  let meditationInterval = null;
+
+  function formatTimer(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return pad2(m) + ':' + pad2(s);
+  }
+
+  function updateMeditationDisplay() {
+    document.getElementById('meditationDisplay').textContent = formatTimer(Math.max(0, meditationRemaining));
+  }
+
+  document.querySelectorAll('.meditation-duration-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (meditationInterval) return;
+      document.querySelectorAll('.meditation-duration-btn').forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      meditationDuration = parseInt(btn.dataset.min, 10) * 60;
+      meditationRemaining = meditationDuration;
+      document.getElementById('meditationStatus').textContent = '';
+      updateMeditationDisplay();
+    });
+  });
+
+  document.getElementById('meditationStartBtn').addEventListener('click', function () {
+    if (meditationInterval) return;
+    if (meditationRemaining <= 0) meditationRemaining = meditationDuration;
+    document.getElementById('meditationStatus').textContent = '';
+    meditationInterval = setInterval(function () {
+      meditationRemaining--;
+      updateMeditationDisplay();
+      if (meditationRemaining <= 0) {
+        clearInterval(meditationInterval);
+        meditationInterval = null;
+        document.getElementById('meditationStatus').textContent = 'Klaar! 🧘';
+      }
+    }, 1000);
+  });
+
+  document.getElementById('meditationStopBtn').addEventListener('click', function () {
+    if (meditationInterval) {
+      clearInterval(meditationInterval);
+      meditationInterval = null;
+    }
+  });
+
+  document.getElementById('meditationResetBtn').addEventListener('click', function () {
+    if (meditationInterval) {
+      clearInterval(meditationInterval);
+      meditationInterval = null;
+    }
+    meditationRemaining = meditationDuration;
+    document.getElementById('meditationStatus').textContent = '';
+    updateMeditationDisplay();
+  });
+
+  /* ---------- mental health: breathing exercise ---------- */
+
+  let breathingInterval = null;
+  let breathingPhase = 'in';
+
+  function breathingTick() {
+    const circle = document.getElementById('breathingCircle');
+    const label = document.getElementById('breathingLabel');
+    if (breathingPhase === 'in') {
+      circle.classList.add('is-inhale');
+      circle.classList.remove('is-exhale');
+      label.textContent = 'Adem in…';
+      breathingPhase = 'out';
+    } else {
+      circle.classList.add('is-exhale');
+      circle.classList.remove('is-inhale');
+      label.textContent = 'Adem uit…';
+      breathingPhase = 'in';
+    }
+  }
+
+  document.getElementById('breathingToggleBtn').addEventListener('click', function () {
+    const btn = document.getElementById('breathingToggleBtn');
+    if (breathingInterval) {
+      clearInterval(breathingInterval);
+      breathingInterval = null;
+      btn.textContent = 'Start';
+      document.getElementById('breathingLabel').textContent = 'Klaar wanneer jij bent';
+      document.getElementById('breathingCircle').classList.remove('is-inhale', 'is-exhale');
+    } else {
+      breathingPhase = 'in';
+      breathingTick();
+      breathingInterval = setInterval(breathingTick, 4000);
+      btn.textContent = 'Stop';
+    }
+  });
+
   /* ---------- init ---------- */
 
   function initGoalsUI() {
@@ -3329,6 +3848,7 @@
   loadWeightLog();
   renderAgendaRangeLabel();
   loadAgenda();
+  loadMentalHealthData();
 
   loadStoreFromSupabase()
     .then(migrateLocalStorageIfNeeded)

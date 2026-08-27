@@ -14,6 +14,7 @@
     }
   ],
   "crons": [
-    { "path": "/api/strava-sync", "schedule": "0 5 * * *" }
+    { "path": "/api/strava-sync", "schedule": "0 2 * * *" },
+    { "path": "/api/strava-sync", "schedule": "0 3 * * *" }
   ]
 }

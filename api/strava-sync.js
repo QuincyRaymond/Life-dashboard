@@ -103,9 +103,29 @@ async function upsertActivities(activities) {
   if (!res.ok) throw new Error('Supabase upsert failed: ' + await res.text());
 }
 
+function isScheduledAmsterdamHour() {
+  // Vercel Cron always runs in UTC and has no timezone option, so this
+  // function is triggered twice a day (02:00 and 03:00 UTC — see
+  // vercel.json) and only actually syncs on the invocation that currently
+  // lands on 04:00 in Europe/Amsterdam. That covers both CET (winter,
+  // UTC+1) and CEST (summer, UTC+2) correctly, since Intl's timezone data
+  // (unlike a static cron offset) already accounts for the DST switch.
+  const hour = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Amsterdam',
+    hour: '2-digit',
+    hour12: false
+  }).format(new Date());
+  return parseInt(hour, 10) === 4;
+}
+
 module.exports = async function handler(req, res) {
   if (req.headers.authorization !== 'Bearer ' + process.env.CRON_SECRET) {
     res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+
+  if (!isScheduledAmsterdamHour()) {
+    res.status(200).json({ skipped: true, reason: 'Not 04:00 Europe/Amsterdam yet' });
     return;
   }
 

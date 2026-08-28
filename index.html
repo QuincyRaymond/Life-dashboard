@@ -442,7 +442,7 @@
 
   /* ---------- Component 4: To Do List ---------- */
 
-  .section { display: flex; flex-direction: column; }
+  .section { display: flex; flex-direction: column; gap: 20px; }
 
   .section-title {
     font-size: 10.5px; font-weight: 700;
@@ -838,10 +838,16 @@
   @media (min-width: 860px) {
     .quad-grid-mental-main { grid-template-areas: "mood gratitude" "meditation breathing"; }
   }
-  .quad-area-mood { grid-area: mood; }
-  .quad-area-gratitude { grid-area: gratitude; }
+  .quad-area-mood { grid-area: mood; gap: 20px; }
+  .quad-area-gratitude { grid-area: gratitude; gap: 20px; }
   .quad-area-meditation { grid-area: meditation; }
   .quad-area-breathing { grid-area: breathing; }
+
+  #tabMental .section .health-subtitle,
+  .quad-area-mood .health-subtitle,
+  .quad-area-gratitude .health-subtitle {
+    margin-bottom: 14px;
+  }
   .health-subtitle {
     font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
     color: var(--text-tertiary); margin-bottom: 10px;

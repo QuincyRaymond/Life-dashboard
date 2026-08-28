@@ -1136,7 +1136,11 @@
   .meditation-btn.secondary { background: none; border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-tertiary); }
   .meditation-status { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 10px; min-height: 14px; }
 
-  .breathing-circle-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px 0 24px; }
+  .breathing-circle-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px 0 24px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .breathing-circle-wrap:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 4px; border-radius: 12px; }
   .breathing-circle {
     width: 120px; height: 120px; border-radius: 50%;
     background: radial-gradient(circle, rgba(58, 150, 255, 0.35), rgba(58, 150, 255, 0.06));
@@ -1660,11 +1664,10 @@
       <div class="section-title">Ademhaling</div>
       <div class="card">
         <div class="health-subtitle">Box breathing — 4-4-4-4</div>
-        <div class="breathing-circle-wrap">
+        <div class="breathing-circle-wrap" id="breathingToggleBtn" role="button" tabindex="0" aria-label="Start of stop de ademhalingsoefening">
           <div class="breathing-circle" id="breathingCircle"></div>
-          <div class="breathing-label" id="breathingLabel">Klaar wanneer jij bent</div>
+          <div class="breathing-label" id="breathingLabel">Tik om te starten</div>
         </div>
-        <button type="button" id="breathingToggleBtn" class="meditation-btn primary">Start</button>
       </div>
     </div>
 
@@ -3922,19 +3925,27 @@
     breathingPhaseIdx = (breathingPhaseIdx + 1) % BOX_BREATHING_PHASES.length;
   }
 
-  document.getElementById('breathingToggleBtn').addEventListener('click', function () {
+  function toggleBreathing() {
     const btn = document.getElementById('breathingToggleBtn');
     if (breathingInterval) {
       clearInterval(breathingInterval);
       breathingInterval = null;
-      btn.textContent = 'Start';
-      document.getElementById('breathingLabel').textContent = 'Klaar wanneer jij bent';
+      btn.setAttribute('aria-pressed', 'false');
+      document.getElementById('breathingLabel').textContent = 'Tik om te starten';
       document.getElementById('breathingCircle').classList.remove('is-inhale', 'is-exhale', 'is-holding');
     } else {
       breathingPhaseIdx = 0;
       breathingTick();
       breathingInterval = setInterval(breathingTick, 4000);
-      btn.textContent = 'Stop';
+      btn.setAttribute('aria-pressed', 'true');
+    }
+  }
+
+  document.getElementById('breathingToggleBtn').addEventListener('click', toggleBreathing);
+  document.getElementById('breathingToggleBtn').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleBreathing();
     }
   });
 

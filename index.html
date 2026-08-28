@@ -1082,6 +1082,11 @@
 
   /* ---------- Component: Mental health ---------- */
 
+  .journal-datetime {
+    font-family: var(--font-mono); font-size: 11.5px; font-weight: 700;
+    color: var(--text-tertiary); margin-bottom: 8px;
+  }
+
   .journal-textarea {
     width: 100%; min-height: 120px; resize: vertical;
     background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 10px;
@@ -1590,6 +1595,7 @@
   <div class="section">
     <div class="section-title">Journal</div>
     <div class="card">
+      <div class="journal-datetime" id="journalDateTime"></div>
       <textarea class="journal-textarea" id="journalInput" placeholder="Hoe was je dag? Schrijf vrijuit…"></textarea>
       <div class="journal-actions">
         <button type="button" id="journalSaveBtn" class="journal-save-btn">Opslaan</button>
@@ -3614,6 +3620,17 @@
     }
   }
 
+  function formatJournalDateTime(d) {
+    const datePart = d.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
+    const timePart = d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+    return datePart.charAt(0).toUpperCase() + datePart.slice(1) + ', ' + timePart;
+  }
+
+  function updateJournalDateTime() {
+    const el = document.getElementById('journalDateTime');
+    if (el) el.textContent = formatJournalDateTime(new Date());
+  }
+
   /* ---------- mental health: journal ---------- */
 
   function renderJournalUI() {
@@ -3632,7 +3649,7 @@
       item.className = 'journal-entry';
       const date = document.createElement('div');
       date.className = 'journal-entry-date';
-      date.textContent = formatShortDate(e.entry_date);
+      date.textContent = e.updated_at ? formatJournalDateTime(new Date(e.updated_at)) : formatShortDate(e.entry_date);
       const text = document.createElement('div');
       text.className = 'journal-entry-text is-collapsed';
       text.textContent = e.text;
@@ -3647,17 +3664,19 @@
     const statusEl = document.getElementById('journalStatus');
     const saveBtn = document.getElementById('journalSaveBtn');
     const text = document.getElementById('journalInput').value;
-    const todayStr = toISODate(new Date());
+    const now = new Date();
+    const nowIso = now.toISOString();
+    const todayStr = toISODate(now);
 
     saveBtn.disabled = true;
     statusEl.textContent = 'Opslaan…';
     supabaseClient.from('journal_entries')
-      .upsert({ entry_date: todayStr, text: text, updated_at: new Date().toISOString() }, { onConflict: 'entry_date' })
+      .upsert({ entry_date: todayStr, text: text, updated_at: nowIso }, { onConflict: 'entry_date' })
       .then(function (res) {
         if (res.error) throw res.error;
         const existing = journalEntries.filter(function (e) { return e.entry_date === todayStr; })[0];
-        if (existing) existing.text = text;
-        else journalEntries.unshift({ entry_date: todayStr, text: text });
+        if (existing) { existing.text = text; existing.updated_at = nowIso; }
+        else journalEntries.unshift({ entry_date: todayStr, text: text, updated_at: nowIso });
         statusEl.textContent = 'Opgeslagen!';
         saveBtn.disabled = false;
         renderJournalUI();
@@ -4098,6 +4117,8 @@
   loadWeightLog();
   renderAgendaRangeLabel();
   loadAgenda();
+  updateJournalDateTime();
+  setInterval(updateJournalDateTime, 60 * 1000);
   loadMentalHealthData();
   loadCoachHistory();
 

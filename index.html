@@ -1126,6 +1126,12 @@
   }
   .gratitude-input:focus { outline: none; border-color: var(--accent-blue); }
 
+  .finance-input {
+    background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 8px;
+    padding: 8px 10px; color: var(--text-primary); font-family: var(--font-sans); font-size: 13px;
+  }
+  .finance-input:focus { outline: none; border-color: var(--accent-blue); }
+
   .gratitude-entry { padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); }
   .gratitude-entry:first-child { border-top: none; padding-top: 0; }
   .gratitude-entry-date { font-size: 11px; font-weight: 700; color: var(--text-tertiary); margin-bottom: 5px; }
@@ -1224,6 +1230,55 @@
   .finance-tx-date { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
   .finance-tx-amount { font-family: var(--font-mono); font-size: 13px; font-weight: 700; flex: none; color: var(--text-primary); }
   .finance-tx-amount.is-positive { color: var(--success); }
+  .finance-tx-category { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
+
+  .finance-networth-total { font-family: var(--font-mono); font-size: 32px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; }
+  .finance-networth-breakdown { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--text-secondary); }
+  .finance-networth-breakdown .row { display: flex; justify-content: space-between; }
+  .finance-networth-breakdown .row span:last-child { font-family: var(--font-mono); color: var(--text-primary); font-weight: 600; }
+
+  .finance-category-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .finance-category-row:first-child { border-top: none; padding-top: 0; }
+  .finance-category-name { font-size: 13px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+  .finance-category-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .finance-category-amount { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-primary); }
+
+  .finance-progress-amounts { font-size: 15px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .finance-progress-of { font-size: 12px; font-weight: 600; color: var(--text-tertiary); }
+  .finance-progress-track { height: 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); overflow: hidden; margin: 10px 0 6px; }
+  .finance-progress-fill { height: 100%; background: var(--accent-blue); border-radius: 6px; transition: width 0.4s ease; }
+  .finance-progress-pct { font-size: 11.5px; color: var(--text-tertiary); }
+  .finance-goal-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  .finance-goal-row input { width: 120px; flex: none; }
+
+  .finance-checkbox-row {
+    display: flex; align-items: center; gap: 10px; margin: 14px 0 4px;
+    font-size: 13px; color: var(--text-secondary); cursor: pointer;
+  }
+  .finance-checkbox-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); cursor: pointer; }
+
+  .finance-history-row { padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+  .finance-history-row:first-child { border-top: none; padding-top: 0; }
+  .finance-history-date { font-size: 11px; font-weight: 700; color: var(--text-tertiary); margin-bottom: 3px; }
+  .finance-history-main { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-primary); font-weight: 600; }
+  .finance-history-badge {
+    font-size: 9.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+    background: rgba(107, 227, 164, 0.14); color: var(--success);
+  }
+
+  .finance-review-field { margin-bottom: 14px; }
+  .finance-review-field label {
+    display: block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em;
+    color: var(--text-tertiary); margin-bottom: 6px; text-transform: uppercase;
+  }
+  .finance-review-entry { padding: 12px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+  .finance-review-entry:first-child { border-top: none; padding-top: 0; }
+  .finance-review-entry-q { font-size: 10.5px; font-weight: 700; color: var(--text-tertiary); margin: 8px 0 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .finance-review-entry-q:first-child { margin-top: 0; }
+  .finance-review-entry-a { font-size: 13px; color: var(--text-secondary); line-height: 1.5; white-space: pre-wrap; }
 
   .section-title-icon {
     width: 14px; height: 14px; flex: none; color: var(--accent-blue);
@@ -1737,7 +1792,7 @@
     <div class="card" id="financeLogin">
       <div class="coach-intro">Banktransacties en saldo zijn alleen zichtbaar na inloggen — dit is de enige tab in het dashboard die dat vereist.</div>
       <div class="journal-actions">
-        <input type="email" id="financeEmailInput" placeholder="jouw@email.com" class="gratitude-input" style="flex:1">
+        <input type="email" id="financeEmailInput" placeholder="jouw@email.com" class="finance-input" style="flex:1">
       </div>
       <div class="journal-actions">
         <button type="button" id="financeSendLinkBtn" class="journal-save-btn">Stuur magic link</button>
@@ -1761,14 +1816,112 @@
       </div>
     </div>
 
+    <div class="section">
+      <div class="section-title">Net worth</div>
+      <div class="card">
+        <div class="finance-networth-total" id="financeNetWorthTotal">—</div>
+        <div class="finance-networth-breakdown" id="financeNetWorthBreakdown"></div>
+      </div>
+      <div class="card health-chart-wrap">
+        <div class="health-subtitle">Ontwikkeling over tijd</div>
+        <svg class="health-chart" id="netWorthChart"></svg>
+        <div class="health-empty" id="netWorthChartEmpty">Nog geen geschiedenis — werk hieronder je noodfonds of beleggingen bij om te starten.</div>
+      </div>
+    </div>
+
     <div class="section" id="financeDataSection" style="display:none">
       <div class="section-title">Saldo</div>
       <div class="card" id="financeBalances"></div>
+    </div>
 
-      <div class="section-title" style="margin-top: 20px;">Laatste transacties</div>
+    <div class="section" id="financeExpensesSection" style="display:none">
+      <div class="section-title">Uitgaven</div>
       <div class="card">
+        <div class="health-subtitle">Deze maand per categorie</div>
+        <div id="financeCategoryBreakdown"></div>
+        <div class="health-empty" id="financeCategoryEmpty">Nog geen uitgaven deze maand.</div>
+      </div>
+      <div class="card">
+        <div class="health-subtitle">Laatste transacties</div>
         <div id="financeTransactions"></div>
         <div class="health-empty" id="financeTransactionsEmpty">Nog geen transacties gesynchroniseerd.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Emergency fund</div>
+      <div class="card">
+        <div class="finance-progress-amounts">
+          <span id="efCurrentAmount">€ 0</span>
+          <span class="finance-progress-of">van</span>
+          <span id="efGoalAmount">€ 0</span>
+        </div>
+        <div class="finance-progress-track"><div class="finance-progress-fill" id="efProgressFill" style="width:0%"></div></div>
+        <div class="finance-progress-pct" id="efProgressPct">0%</div>
+
+        <div class="finance-goal-row">
+          <input type="number" id="efGoalInput" class="finance-input" placeholder="Doelbedrag (€)">
+          <button type="button" id="efGoalSaveBtn" class="meditation-custom-btn">Doel opslaan</button>
+        </div>
+
+        <div class="journal-actions" style="margin-top: 14px;">
+          <input type="number" id="efAmountInput" class="finance-input" placeholder="Huidig bedrag bijwerken (€)" style="flex:1">
+          <button type="button" id="efUpdateBtn" class="journal-save-btn">Bijwerken</button>
+        </div>
+        <div class="journal-status" id="efStatus"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Investment tracker</div>
+      <div class="card">
+        <div class="journal-actions">
+          <input type="number" id="investValueInput" class="finance-input" placeholder="VWCE/DEGIRO waarde (€)" style="flex:1">
+        </div>
+        <label class="finance-checkbox-row">
+          <input type="checkbox" id="investContributedCheckbox">
+          <span>Contributie gedaan deze maand</span>
+        </label>
+        <div class="journal-actions">
+          <button type="button" id="investSaveBtn" class="journal-save-btn">Opslaan</button>
+          <div class="journal-status" id="investStatus"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="health-subtitle">Geschiedenis</div>
+        <div id="investHistory"></div>
+        <div class="health-empty" id="investHistoryEmpty">Nog geen maanden ingevuld.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maandelijkse review</div>
+      <div class="card">
+        <div class="finance-review-field">
+          <label>Wat ging deze maand goed financieel gezien?</label>
+          <textarea id="reviewWentWell" class="journal-textarea" style="min-height:70px"></textarea>
+        </div>
+        <div class="finance-review-field">
+          <label>Wat kan volgende maand beter?</label>
+          <textarea id="reviewImprove" class="journal-textarea" style="min-height:70px"></textarea>
+        </div>
+        <div class="finance-review-field">
+          <label>Waren er grote of onverwachte uitgaven?</label>
+          <textarea id="reviewUnexpected" class="journal-textarea" style="min-height:70px"></textarea>
+        </div>
+        <div class="finance-review-field">
+          <label>Zit je op schema met je spaar- en beleggingsdoelen?</label>
+          <textarea id="reviewOnTrack" class="journal-textarea" style="min-height:70px"></textarea>
+        </div>
+        <div class="journal-actions">
+          <button type="button" id="reviewSaveBtn" class="journal-save-btn">Opslaan</button>
+          <div class="journal-status" id="reviewStatus"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="health-subtitle">Eerdere reviews</div>
+        <div id="reviewHistory"></div>
+        <div class="health-empty" id="reviewHistoryEmpty">Nog geen reviews ingevuld.</div>
       </div>
     </div>
 
@@ -2679,6 +2832,7 @@
     document.getElementById('tabBtnFinance').classList.toggle('is-active', name === 'finance');
     if (name === 'health' && healthData) renderHealthUI();
     if (name === 'mental') renderMoodChart();
+    if (name === 'finance' && financeSession) renderNetWorthChart();
   }
 
   document.getElementById('tabBtnHome').addEventListener('click', function () { showTab('home'); });
@@ -2689,6 +2843,7 @@
   window.addEventListener('resize', function () {
     if (activeTab === 'health' && healthData) renderHealthCharts();
     if (activeTab === 'mental') renderMoodChart();
+    if (activeTab === 'finance' && financeSession) renderNetWorthChart();
   });
 
   /* ---------- health tab: goal settings ---------- */
@@ -4274,6 +4429,51 @@
 
   /* ---------- finance: data ---------- */
 
+  const FINANCE_CATEGORIES = [
+    { key: 'boodschappen', label: 'Boodschappen', color: '#6BE3A4', keywords: ['albert heijn', 'jumbo', 'lidl', 'aldi', 'plus', 'coop', 'dirk', 'ah to go', 'ah bezorg', 'picnic', 'spar', 'vomar'] },
+    { key: 'abonnementen', label: 'Abonnementen', color: '#3A96FF', keywords: ['netflix', 'spotify', 'disney', 'videoland', 'ziggo', 'kpn', 'vodafone', 't-mobile', 'youtube premium', 'amazon prime', 'icloud', 'google storage', 'gym', 'basic-fit', 'fitness'] },
+    { key: 'wonen', label: 'Wonen', color: '#F2C063', keywords: ['huur', 'hypotheek', 'vve', 'energie', 'eneco', 'vattenfall', 'essent', 'waternet', 'gemeente', 'vastelasten', 'woning'] },
+    { key: 'transport', label: 'Transport', color: '#B98BFF', keywords: ['ns ', 'ov-chipkaart', 'ovpay', 'shell', 'bp ', 'esso', 'tango', 'q-park', 'ana', 'uber', 'gvb', 'ret', 'htm'] },
+    { key: 'uitgaan', label: 'Uitgaan & eten', color: '#FF6B6B', keywords: ['thuisbezorgd', 'uber eats', 'deliveroo', 'restaurant', 'cafe', 'café', 'bar ', 'bistro', 'mcdonald', 'burger king', 'kfc', 'starbucks', 'bakker'] },
+    { key: 'shopping', label: 'Shopping', color: '#FF9F5A', keywords: ['bol.com', 'zalando', 'amazon', 'h&m', 'zara', 'action', 'ikea', 'mediamarkt', 'coolblue', 'decathlon'] },
+    { key: 'inkomen', label: 'Inkomen', color: '#6BE3A4', keywords: [] },
+    { key: 'overig', label: 'Overig', color: '#8A93A6', keywords: [] }
+  ];
+
+  // Deliberately not persisted to the database — keyword rules live only
+  // here so they can be tweaked later without any data migration.
+  function categorizeTransaction(t) {
+    if (Number(t.amount) > 0) return FINANCE_CATEGORIES[6];
+    const text = [t.creditor_name, t.debtor_name, t.remittance_info].filter(Boolean).join(' ').toLowerCase();
+    for (let i = 0; i < FINANCE_CATEGORIES.length - 2; i++) {
+      const cat = FINANCE_CATEGORIES[i];
+      if (cat.keywords.some(function (kw) { return text.indexOf(kw) !== -1; })) return cat;
+    }
+    return FINANCE_CATEGORIES[7];
+  }
+
+  function formatEuro(n) {
+    return Number(n || 0).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
+  }
+
+  function formatEuroShort(n) {
+    const abs = Math.abs(n);
+    if (abs >= 1000) return (n / 1000).toFixed(1) + 'k';
+    return Math.round(n).toString();
+  }
+
+  function currentMonthStr() {
+    const d = new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-01';
+  }
+
+  function formatMonthLabel(dateStr) {
+    const parts = dateStr.split('-').map(Number);
+    const dt = new Date(parts[0], parts[1] - 1, 1);
+    const label = dt.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+
   function renderFinanceStatus(connection) {
     const section = document.getElementById('financeStatusSection');
     const card = document.getElementById('financeStatusCard');
@@ -4351,7 +4551,13 @@
       name.textContent = t.creditor_name || t.debtor_name || t.remittance_info || 'Transactie';
       const date = document.createElement('div');
       date.className = 'finance-tx-date';
-      date.textContent = t.booking_date ? formatShortDate(t.booking_date) : '';
+      const cat = categorizeTransaction(t);
+      const badge = document.createElement('span');
+      badge.className = 'finance-tx-category';
+      badge.style.color = cat.color;
+      badge.textContent = cat.label;
+      date.textContent = (t.booking_date ? formatShortDate(t.booking_date) + ' · ' : '');
+      date.appendChild(badge);
       main.appendChild(name);
       main.appendChild(date);
       const amount = document.createElement('div');
@@ -4364,6 +4570,56 @@
     });
   }
 
+  function renderCategoryBreakdown(transactions) {
+    const el = document.getElementById('financeCategoryBreakdown');
+    const emptyEl = document.getElementById('financeCategoryEmpty');
+    el.innerHTML = '';
+
+    const monthStr = currentMonthStr().slice(0, 7);
+    const totals = {};
+    transactions.forEach(function (t) {
+      if (Number(t.amount) >= 0) return;
+      if (!t.booking_date || t.booking_date.slice(0, 7) !== monthStr) return;
+      const cat = categorizeTransaction(t);
+      totals[cat.key] = (totals[cat.key] || 0) + Math.abs(Number(t.amount));
+    });
+
+    const rows = FINANCE_CATEGORIES
+      .filter(function (cat) { return totals[cat.key]; })
+      .map(function (cat) { return { cat: cat, total: totals[cat.key] }; })
+      .sort(function (a, b) { return b.total - a.total; });
+
+    emptyEl.style.display = rows.length ? 'none' : '';
+    rows.forEach(function (r) {
+      const row = document.createElement('div');
+      row.className = 'finance-category-row';
+      const name = document.createElement('div');
+      name.className = 'finance-category-name';
+      const dot = document.createElement('span');
+      dot.className = 'finance-category-dot';
+      dot.style.background = r.cat.color;
+      name.appendChild(dot);
+      name.appendChild(document.createTextNode(r.cat.label));
+      const amount = document.createElement('div');
+      amount.className = 'finance-category-amount';
+      amount.textContent = formatEuro(r.total);
+      row.appendChild(name);
+      row.appendChild(amount);
+      el.appendChild(row);
+    });
+  }
+
+  function computeBankTotal(accounts, balances) {
+    let total = 0;
+    accounts.forEach(function (a) {
+      const latest = balances.filter(function (b) { return b.account_uid === a.account_uid; })[0];
+      if (latest && latest.amount != null) total += Number(latest.amount);
+    });
+    return total;
+  }
+
+  let financeBankTotal = 0;
+
   async function loadFinanceData() {
     try {
       const { data: connection, error: connError } = await supabaseClient.from('bank_connection').select('*').eq('id', true).maybeSingle();
@@ -4373,27 +4629,337 @@
       const isConnected = connection && connection.status === 'connected';
       document.getElementById('financeConnectSection').style.display = isConnected ? 'none' : '';
       document.getElementById('financeDataSection').style.display = isConnected ? '' : 'none';
+      document.getElementById('financeExpensesSection').style.display = isConnected ? '' : 'none';
 
       if (!isConnected) {
         loadAspsps();
-        return;
+        financeBankTotal = 0;
+      } else {
+        const [accountsRes, balancesRes, txRes] = await Promise.all([
+          supabaseClient.from('bank_accounts').select('*'),
+          supabaseClient.from('bank_balances').select('*').order('synced_at', { ascending: false }),
+          supabaseClient.from('bank_transactions').select('*').order('booking_date', { ascending: false }).limit(30)
+        ]);
+        if (accountsRes.error) console.error('Rekeningen laden mislukt', accountsRes.error);
+        if (balancesRes.error) console.error('Saldo laden mislukt', balancesRes.error);
+        if (txRes.error) console.error('Transacties laden mislukt', txRes.error);
+
+        renderBalances(accountsRes.data || [], balancesRes.data || []);
+        renderTransactions(txRes.data || []);
+        renderCategoryBreakdown(txRes.data || []);
+        financeBankTotal = computeBankTotal(accountsRes.data || [], balancesRes.data || []);
       }
 
-      const [accountsRes, balancesRes, txRes] = await Promise.all([
-        supabaseClient.from('bank_accounts').select('*'),
-        supabaseClient.from('bank_balances').select('*').order('synced_at', { ascending: false }),
-        supabaseClient.from('bank_transactions').select('*').order('booking_date', { ascending: false }).limit(30)
-      ]);
-      if (accountsRes.error) console.error('Rekeningen laden mislukt', accountsRes.error);
-      if (balancesRes.error) console.error('Saldo laden mislukt', balancesRes.error);
-      if (txRes.error) console.error('Transacties laden mislukt', txRes.error);
-
-      renderBalances(accountsRes.data || [], balancesRes.data || []);
-      renderTransactions(txRes.data || []);
+      await Promise.all([loadEmergencyFund(), loadInvestmentData(), loadMonthlyReview()]);
+      await loadNetWorth();
     } catch (e) {
       console.error('Finance data laden mislukt', e);
     }
   }
+
+  /* ---------- finance: net worth ---------- */
+
+  let financeDegiroValue = 0;
+  let financeEfValue = 0;
+  let cachedNetWorthSnapshots = [];
+
+  function renderNetWorthSummary() {
+    const total = financeBankTotal + financeDegiroValue + financeEfValue;
+    document.getElementById('financeNetWorthTotal').textContent = formatEuro(total);
+    const el = document.getElementById('financeNetWorthBreakdown');
+    el.innerHTML = '';
+    [['Bank', financeBankTotal], ['DEGIRO', financeDegiroValue], ['Emergency fund', financeEfValue]].forEach(function (pair) {
+      const row = document.createElement('div');
+      row.className = 'row';
+      const label = document.createElement('span');
+      label.textContent = pair[0];
+      const value = document.createElement('span');
+      value.textContent = formatEuro(pair[1]);
+      row.appendChild(label);
+      row.appendChild(value);
+      el.appendChild(row);
+    });
+  }
+
+  function renderNetWorthChart() {
+    const svg = document.getElementById('netWorthChart');
+    const emptyEl = document.getElementById('netWorthChartEmpty');
+    const snapshots = cachedNetWorthSnapshots;
+    if (snapshots.length < 2) {
+      svg.style.display = 'none';
+      emptyEl.style.display = 'block';
+      return;
+    }
+    svg.style.display = '';
+    emptyEl.style.display = 'none';
+
+    const width = svg.parentElement.clientWidth;
+    if (!width) return;
+    const height = 150;
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+    svg.innerHTML = '';
+
+    const padL = 46, padR = 10, padT = 14, padB = 10;
+    const plotW = width - padL - padR;
+    const plotH = height - padT - padB;
+
+    const values = snapshots.map(function (s) { return Number(s.total); });
+    const maxVal = Math.max.apply(null, values.concat([1]));
+    const minVal = Math.min.apply(null, values.concat([0]));
+    const range = Math.max(maxVal - minVal, 1);
+    const stepX = plotW / (snapshots.length - 1);
+
+    [0, 0.5, 1].forEach(function (t) {
+      const y = padT + plotH * (1 - t);
+      svg.appendChild(svgEl('line', { x1: padL, x2: width - padR, y1: y, y2: y, class: 'health-chart-gridline' }));
+      const label = svgEl('text', { x: padL - 8, y: y + 3, 'text-anchor': 'end', class: 'health-chart-axis-label' });
+      label.textContent = formatEuroShort(minVal + range * t);
+      svg.appendChild(label);
+    });
+
+    const points = snapshots.map(function (s, i) {
+      return { x: padL + stepX * i, y: padT + plotH * (1 - (Number(s.total) - minVal) / range), snapshot: s };
+    });
+
+    const linePath = points.map(function (p, i) { return (i === 0 ? 'M' : 'L') + p.x + ',' + p.y; }).join(' ');
+    svg.appendChild(svgEl('path', { d: linePath, class: 'health-chart-line' }));
+
+    points.forEach(function (p) {
+      svg.appendChild(svgEl('circle', { cx: p.x, cy: p.y, r: 4, class: 'health-chart-dot' }));
+      const hit = svgEl('circle', { cx: p.x, cy: p.y, r: 14, class: 'health-chart-hit' });
+      hit.addEventListener('pointerenter', function (e) {
+        showChartTooltip(e, formatShortDate(p.snapshot.snapshot_date), formatEuro(p.snapshot.total));
+      });
+      hit.addEventListener('pointermove', moveChartTooltip);
+      hit.addEventListener('pointerleave', hideChartTooltip);
+      svg.appendChild(hit);
+    });
+  }
+
+  async function loadNetWorth() {
+    const { data, error } = await supabaseClient.from('net_worth_snapshots').select('*').order('snapshot_date', { ascending: true }).limit(200);
+    if (error) console.error('Net worth geschiedenis laden mislukt', error);
+    cachedNetWorthSnapshots = data || [];
+    renderNetWorthSummary();
+    renderNetWorthChart();
+  }
+
+  async function recordNetWorthSnapshot() {
+    const total = financeBankTotal + financeDegiroValue + financeEfValue;
+    const { error } = await supabaseClient.from('net_worth_snapshots').insert({
+      snapshot_date: toISODate(new Date()),
+      bank_balance: financeBankTotal,
+      degiro_value: financeDegiroValue,
+      emergency_fund: financeEfValue,
+      total: total
+    });
+    if (error) console.error('Net worth snapshot opslaan mislukt', error);
+    await loadNetWorth();
+  }
+
+  /* ---------- finance: emergency fund ---------- */
+
+  let financeEfGoal = 0;
+
+  function renderEmergencyFund() {
+    document.getElementById('efCurrentAmount').textContent = formatEuro(financeEfValue);
+    document.getElementById('efGoalAmount').textContent = formatEuro(financeEfGoal);
+    const pct = financeEfGoal > 0 ? Math.min(100, Math.round(financeEfValue / financeEfGoal * 100)) : 0;
+    document.getElementById('efProgressFill').style.width = pct + '%';
+    document.getElementById('efProgressPct').textContent = pct + '% van je doel';
+    document.getElementById('efGoalInput').value = financeEfGoal || '';
+  }
+
+  async function loadEmergencyFund() {
+    const [goalRes, logsRes] = await Promise.all([
+      supabaseClient.from('emergency_fund_goal').select('*').eq('id', true).maybeSingle(),
+      supabaseClient.from('emergency_fund_log').select('*').order('entry_date', { ascending: false }).limit(1)
+    ]);
+    if (goalRes.error) console.error('Emergency fund doel laden mislukt', goalRes.error);
+    if (logsRes.error) console.error('Emergency fund laden mislukt', logsRes.error);
+    financeEfGoal = goalRes.data ? Number(goalRes.data.target_amount) : 0;
+    financeEfValue = (logsRes.data && logsRes.data[0]) ? Number(logsRes.data[0].amount) : 0;
+    renderEmergencyFund();
+  }
+
+  document.getElementById('efGoalSaveBtn').addEventListener('click', function () {
+    const val = parseFloat(document.getElementById('efGoalInput').value);
+    if (isNaN(val)) return;
+    supabaseClient.from('emergency_fund_goal').upsert({ id: true, target_amount: val, updated_at: new Date().toISOString() })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        financeEfGoal = val;
+        renderEmergencyFund();
+      })
+      .catch(function (err) { console.error('Doel opslaan mislukt', err); });
+  });
+
+  document.getElementById('efUpdateBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('efStatus');
+    const input = document.getElementById('efAmountInput');
+    const val = parseFloat(input.value);
+    if (isNaN(val)) return;
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Opslaan…';
+    supabaseClient.from('emergency_fund_log')
+      .upsert({ entry_date: toISODate(new Date()), amount: val, updated_at: new Date().toISOString() }, { onConflict: 'entry_date' })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        financeEfValue = val;
+        renderEmergencyFund();
+        input.value = '';
+        statusEl.textContent = 'Opgeslagen!';
+        setTimeout(function () { statusEl.textContent = ''; }, 2000);
+        return recordNetWorthSnapshot();
+      })
+      .catch(function (err) {
+        console.error('Emergency fund bijwerken mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Opslaan mislukt.';
+      });
+  });
+
+  /* ---------- finance: investment tracker ---------- */
+
+  let investmentHistory = [];
+
+  function renderInvestmentHistory() {
+    const listEl = document.getElementById('investHistory');
+    const emptyEl = document.getElementById('investHistoryEmpty');
+    listEl.innerHTML = '';
+    emptyEl.style.display = investmentHistory.length ? 'none' : '';
+    investmentHistory.forEach(function (r) {
+      const row = document.createElement('div');
+      row.className = 'finance-history-row';
+      const date = document.createElement('div');
+      date.className = 'finance-history-date';
+      date.textContent = formatMonthLabel(r.entry_month);
+      const main = document.createElement('div');
+      main.className = 'finance-history-main';
+      const value = document.createElement('span');
+      value.textContent = formatEuro(r.degiro_value);
+      main.appendChild(value);
+      if (r.contributed) {
+        const badge = document.createElement('span');
+        badge.className = 'finance-history-badge';
+        badge.textContent = '✓ Contributie gedaan';
+        main.appendChild(badge);
+      }
+      row.appendChild(date);
+      row.appendChild(main);
+      listEl.appendChild(row);
+    });
+  }
+
+  async function loadInvestmentData() {
+    const { data, error } = await supabaseClient.from('investment_log').select('*').order('entry_month', { ascending: false }).limit(24);
+    if (error) console.error('Investment geschiedenis laden mislukt', error);
+    investmentHistory = data || [];
+    financeDegiroValue = investmentHistory[0] ? Number(investmentHistory[0].degiro_value) : 0;
+
+    const thisMonth = investmentHistory.filter(function (r) { return r.entry_month === currentMonthStr(); })[0];
+    document.getElementById('investValueInput').value = thisMonth ? thisMonth.degiro_value : '';
+    document.getElementById('investContributedCheckbox').checked = thisMonth ? !!thisMonth.contributed : false;
+
+    renderInvestmentHistory();
+  }
+
+  document.getElementById('investSaveBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('investStatus');
+    const val = parseFloat(document.getElementById('investValueInput').value);
+    if (isNaN(val)) return;
+    const contributed = document.getElementById('investContributedCheckbox').checked;
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Opslaan…';
+    supabaseClient.from('investment_log')
+      .upsert({ entry_month: currentMonthStr(), degiro_value: val, contributed: contributed, updated_at: new Date().toISOString() }, { onConflict: 'entry_month' })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        statusEl.textContent = 'Opgeslagen!';
+        setTimeout(function () { statusEl.textContent = ''; }, 2000);
+        return loadInvestmentData().then(recordNetWorthSnapshot);
+      })
+      .catch(function (err) {
+        console.error('Investment opslaan mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Opslaan mislukt.';
+      });
+  });
+
+  /* ---------- finance: monthly review ---------- */
+
+  let reviewHistory = [];
+
+  function renderReviewHistory() {
+    const listEl = document.getElementById('reviewHistory');
+    const emptyEl = document.getElementById('reviewHistoryEmpty');
+    listEl.innerHTML = '';
+    const past = reviewHistory.filter(function (r) { return r.entry_month !== currentMonthStr(); });
+    emptyEl.style.display = past.length ? 'none' : '';
+    past.forEach(function (r) {
+      const item = document.createElement('div');
+      item.className = 'finance-review-entry';
+      const date = document.createElement('div');
+      date.className = 'finance-history-date';
+      date.textContent = formatMonthLabel(r.entry_month);
+      item.appendChild(date);
+      [
+        ['Wat ging goed', r.went_well],
+        ['Kan beter', r.improve],
+        ['Onverwachte uitgaven', r.unexpected_expenses],
+        ['Op schema', r.on_track]
+      ].forEach(function (pair) {
+        if (!pair[1]) return;
+        const q = document.createElement('div');
+        q.className = 'finance-review-entry-q';
+        q.textContent = pair[0];
+        const a = document.createElement('div');
+        a.className = 'finance-review-entry-a';
+        a.textContent = pair[1];
+        item.appendChild(q);
+        item.appendChild(a);
+      });
+      listEl.appendChild(item);
+    });
+  }
+
+  async function loadMonthlyReview() {
+    const { data, error } = await supabaseClient.from('monthly_review').select('*').order('entry_month', { ascending: false }).limit(24);
+    if (error) console.error('Reviews laden mislukt', error);
+    reviewHistory = data || [];
+    const thisMonth = reviewHistory.filter(function (r) { return r.entry_month === currentMonthStr(); })[0];
+    document.getElementById('reviewWentWell').value = thisMonth ? (thisMonth.went_well || '') : '';
+    document.getElementById('reviewImprove').value = thisMonth ? (thisMonth.improve || '') : '';
+    document.getElementById('reviewUnexpected').value = thisMonth ? (thisMonth.unexpected_expenses || '') : '';
+    document.getElementById('reviewOnTrack').value = thisMonth ? (thisMonth.on_track || '') : '';
+    renderReviewHistory();
+  }
+
+  document.getElementById('reviewSaveBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('reviewStatus');
+    const payload = {
+      entry_month: currentMonthStr(),
+      went_well: document.getElementById('reviewWentWell').value,
+      improve: document.getElementById('reviewImprove').value,
+      unexpected_expenses: document.getElementById('reviewUnexpected').value,
+      on_track: document.getElementById('reviewOnTrack').value,
+      updated_at: new Date().toISOString()
+    };
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Opslaan…';
+    supabaseClient.from('monthly_review').upsert(payload, { onConflict: 'entry_month' })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        statusEl.textContent = 'Opgeslagen!';
+        setTimeout(function () { statusEl.textContent = ''; }, 2000);
+        return loadMonthlyReview();
+      })
+      .catch(function (err) {
+        console.error('Review opslaan mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Opslaan mislukt.';
+      });
+  });
 
   /* ---------- init ---------- */
 

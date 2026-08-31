@@ -736,7 +736,7 @@
     -webkit-backdrop-filter: blur(24px) saturate(1.2);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
-  .tab-bar-inner { display: flex; width: 100%; max-width: 420px; gap: 4px; }
+  .tab-bar-inner { display: flex; width: 100%; max-width: 480px; gap: 4px; }
   .tab-btn {
     flex: 1;
     display: flex;
@@ -1183,6 +1183,47 @@
     font-size: 12.5px; font-weight: 700; text-decoration: none;
     padding: 8px 14px; border-radius: 8px;
   }
+
+  /* ---------- Component: Finance ---------- */
+
+  .finance-bank-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .finance-bank-btn {
+    text-align: left; padding: 10px 14px; border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-primary); font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+    cursor: pointer;
+  }
+  .finance-bank-btn:hover { background: rgba(255, 255, 255, 0.08); }
+
+  .finance-status-card { display: flex; align-items: center; gap: 12px; }
+  .finance-status-card.is-expired, .finance-status-card.is-error {
+    border: 1px solid rgba(255, 107, 107, 0.3); background: rgba(255, 107, 107, 0.06);
+  }
+  .finance-status-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .finance-status-text strong { color: var(--text-primary); }
+
+  .finance-account-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .finance-account-row:first-child { border-top: none; padding-top: 0; }
+  .finance-account-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .finance-account-iban { font-size: 10.5px; color: var(--text-tertiary); font-family: var(--font-mono); margin-top: 2px; }
+  .finance-account-amount { font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--text-primary); }
+
+  .finance-tx-row {
+    display: flex; justify-content: space-between; gap: 10px;
+    padding: 9px 0; border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .finance-tx-row:first-child { border-top: none; padding-top: 0; }
+  .finance-tx-main { min-width: 0; }
+  .finance-tx-name {
+    font-size: 13px; font-weight: 600; color: var(--text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .finance-tx-date { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
+  .finance-tx-amount { font-family: var(--font-mono); font-size: 13px; font-weight: 700; flex: none; color: var(--text-primary); }
+  .finance-tx-amount.is-positive { color: var(--success); }
 
   .section-title-icon {
     width: 14px; height: 14px; flex: none; color: var(--accent-blue);
@@ -1687,6 +1728,54 @@
 
 </div>
 
+<div class="page" id="tabFinance" style="display:none">
+
+  <h1 class="dash-title">Finance</h1>
+
+  <div class="section">
+    <div class="section-title">Inloggen</div>
+    <div class="card" id="financeLogin">
+      <div class="coach-intro">Banktransacties en saldo zijn alleen zichtbaar na inloggen — dit is de enige tab in het dashboard die dat vereist.</div>
+      <div class="journal-actions">
+        <input type="email" id="financeEmailInput" placeholder="jouw@email.com" class="gratitude-input" style="flex:1">
+      </div>
+      <div class="journal-actions">
+        <button type="button" id="financeSendLinkBtn" class="journal-save-btn">Stuur magic link</button>
+        <div class="journal-status" id="financeLoginStatus"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="financeContent" style="display:none">
+
+    <div class="section" id="financeStatusSection" style="display:none">
+      <div class="card finance-status-card" id="financeStatusCard"></div>
+    </div>
+
+    <div class="section" id="financeConnectSection" style="display:none">
+      <div class="section-title">Koppel je bank</div>
+      <div class="card">
+        <div class="coach-intro">Kies je bank om via Enable Banking te koppelen. Je wordt doorgestuurd naar de inlogpagina van je eigen bank.</div>
+        <div class="finance-bank-list" id="financeAspspList"></div>
+        <div class="journal-status" id="financeConnectStatus"></div>
+      </div>
+    </div>
+
+    <div class="section" id="financeDataSection" style="display:none">
+      <div class="section-title">Saldo</div>
+      <div class="card" id="financeBalances"></div>
+
+      <div class="section-title" style="margin-top: 20px;">Laatste transacties</div>
+      <div class="card">
+        <div id="financeTransactions"></div>
+        <div class="health-empty" id="financeTransactionsEmpty">Nog geen transacties gesynchroniseerd.</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
 <nav class="tab-bar">
   <div class="tab-bar-inner">
     <button class="tab-btn is-active" id="tabBtnHome" type="button">
@@ -1712,6 +1801,14 @@
         <circle cx="12" cy="16.5" r="1" fill="currentColor" stroke="none"></circle>
       </svg>
       <span>Mental Health</span>
+    </button>
+    <button class="tab-btn" id="tabBtnFinance" type="button">
+      <svg class="tab-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="6" width="18" height="13" rx="2"></rect>
+        <path d="M3 10h18"></path>
+        <circle cx="16" cy="14.5" r="1.2" fill="currentColor" stroke="none"></circle>
+      </svg>
+      <span>Finance</span>
     </button>
   </div>
 </nav>
@@ -2575,9 +2672,11 @@
     document.getElementById('tabHome').style.display = name === 'home' ? '' : 'none';
     document.getElementById('tabHealth').style.display = name === 'health' ? '' : 'none';
     document.getElementById('tabMental').style.display = name === 'mental' ? '' : 'none';
+    document.getElementById('tabFinance').style.display = name === 'finance' ? '' : 'none';
     document.getElementById('tabBtnHome').classList.toggle('is-active', name === 'home');
     document.getElementById('tabBtnHealth').classList.toggle('is-active', name === 'health');
     document.getElementById('tabBtnMental').classList.toggle('is-active', name === 'mental');
+    document.getElementById('tabBtnFinance').classList.toggle('is-active', name === 'finance');
     if (name === 'health' && healthData) renderHealthUI();
     if (name === 'mental') renderMoodChart();
   }
@@ -2585,6 +2684,7 @@
   document.getElementById('tabBtnHome').addEventListener('click', function () { showTab('home'); });
   document.getElementById('tabBtnHealth').addEventListener('click', function () { showTab('health'); });
   document.getElementById('tabBtnMental').addEventListener('click', function () { showTab('mental'); });
+  document.getElementById('tabBtnFinance').addEventListener('click', function () { showTab('finance'); });
 
   window.addEventListener('resize', function () {
     if (activeTab === 'health' && healthData) renderHealthCharts();
@@ -4075,6 +4175,226 @@
       });
   });
 
+  /* ---------- finance: auth gate ---------- */
+
+  let financeSession = null;
+
+  async function initFinanceAuth() {
+    const { data } = await supabaseClient.auth.getSession();
+    financeSession = data.session;
+    supabaseClient.auth.onAuthStateChange(function (_event, session) {
+      financeSession = session;
+      renderFinanceGate();
+    });
+    renderFinanceGate();
+  }
+
+  function renderFinanceGate() {
+    const loginEl = document.getElementById('financeLogin');
+    const contentEl = document.getElementById('financeContent');
+    if (financeSession) {
+      loginEl.style.display = 'none';
+      contentEl.style.display = '';
+      loadFinanceData();
+    } else {
+      loginEl.style.display = '';
+      contentEl.style.display = 'none';
+    }
+  }
+
+  document.getElementById('financeSendLinkBtn').addEventListener('click', function () {
+    const email = document.getElementById('financeEmailInput').value.trim();
+    const statusEl = document.getElementById('financeLoginStatus');
+    if (!email) return;
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Bezig met versturen…';
+    supabaseClient.auth.signInWithOtp({ email: email, options: { emailRedirectTo: window.location.href } })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        statusEl.textContent = 'Check je mail voor de inloglink!';
+      })
+      .catch(function (err) {
+        console.error('Magic link versturen mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Versturen mislukt: ' + err.message;
+      });
+  });
+
+  /* ---------- finance: bank connection ---------- */
+
+  async function loadAspsps() {
+    const listEl = document.getElementById('financeAspspList');
+    const statusEl = document.getElementById('financeConnectStatus');
+    listEl.innerHTML = '';
+    statusEl.textContent = 'Banken laden…';
+    try {
+      const res = await fetch('/api/enable-banking-aspsps?country=NL');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Onbekende fout');
+      statusEl.textContent = '';
+      (data.aspsps || []).forEach(function (a) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'finance-bank-btn';
+        btn.textContent = a.name;
+        btn.addEventListener('click', function () { connectBank(a); });
+        listEl.appendChild(btn);
+      });
+    } catch (e) {
+      console.error('Banken laden mislukt', e);
+      statusEl.textContent = 'Banken laden mislukt.';
+    }
+  }
+
+  async function connectBank(aspsp) {
+    const statusEl = document.getElementById('financeConnectStatus');
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Bezig met doorsturen naar ' + aspsp.name + '…';
+    try {
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const token = sessionData.session ? sessionData.session.access_token : '';
+      const res = await fetch('/api/enable-banking-start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({
+          aspspName: aspsp.name,
+          aspspCountry: aspsp.country,
+          maximumConsentValidity: aspsp.maximum_consent_validity
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Onbekende fout');
+      window.location.href = data.url;
+    } catch (e) {
+      console.error('Bank koppelen mislukt', e);
+      statusEl.classList.add('is-error');
+      statusEl.textContent = 'Koppelen mislukt: ' + e.message;
+    }
+  }
+
+  /* ---------- finance: data ---------- */
+
+  function renderFinanceStatus(connection) {
+    const section = document.getElementById('financeStatusSection');
+    const card = document.getElementById('financeStatusCard');
+    if (!connection || connection.status === 'disconnected') {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = '';
+    card.className = 'card finance-status-card' + (connection.status === 'expired' || connection.status === 'error' ? ' is-' + connection.status : '');
+    card.innerHTML = '';
+    const text = document.createElement('div');
+    text.className = 'finance-status-text';
+    if (connection.status === 'connected') {
+      text.innerHTML = '';
+      text.appendChild(document.createTextNode('Gekoppeld met '));
+      const strong = document.createElement('strong');
+      strong.textContent = connection.aspsp_name || 'je bank';
+      text.appendChild(strong);
+      if (connection.access_valid_until) {
+        text.appendChild(document.createTextNode(' — geldig tot ' + formatShortDate(connection.access_valid_until.slice(0, 10))));
+      }
+    } else if (connection.status === 'pending') {
+      text.textContent = 'Koppeling wordt afgerond…';
+    } else {
+      text.textContent = (connection.last_error || 'Koppeling met je bank werkt niet meer.') + ' Koppel hieronder opnieuw.';
+    }
+    card.appendChild(text);
+  }
+
+  function renderBalances(accounts, balances) {
+    const el = document.getElementById('financeBalances');
+    el.innerHTML = '';
+    if (!accounts.length) {
+      const empty = document.createElement('div');
+      empty.className = 'health-empty';
+      empty.style.display = 'block';
+      empty.textContent = 'Nog geen rekeningen gesynchroniseerd.';
+      el.appendChild(empty);
+      return;
+    }
+    accounts.forEach(function (a) {
+      const latest = balances.filter(function (b) { return b.account_uid === a.account_uid; })[0];
+      const row = document.createElement('div');
+      row.className = 'finance-account-row';
+      const main = document.createElement('div');
+      const name = document.createElement('div');
+      name.className = 'finance-account-name';
+      name.textContent = a.name || 'Rekening';
+      const iban = document.createElement('div');
+      iban.className = 'finance-account-iban';
+      iban.textContent = a.iban || '';
+      main.appendChild(name);
+      main.appendChild(iban);
+      const amount = document.createElement('div');
+      amount.className = 'finance-account-amount';
+      amount.textContent = latest ? Number(latest.amount).toLocaleString('nl-NL', { style: 'currency', currency: latest.currency || 'EUR' }) : '—';
+      row.appendChild(main);
+      row.appendChild(amount);
+      el.appendChild(row);
+    });
+  }
+
+  function renderTransactions(transactions) {
+    const listEl = document.getElementById('financeTransactions');
+    const emptyEl = document.getElementById('financeTransactionsEmpty');
+    listEl.innerHTML = '';
+    emptyEl.style.display = transactions.length ? 'none' : '';
+    transactions.forEach(function (t) {
+      const row = document.createElement('div');
+      row.className = 'finance-tx-row';
+      const main = document.createElement('div');
+      main.className = 'finance-tx-main';
+      const name = document.createElement('div');
+      name.className = 'finance-tx-name';
+      name.textContent = t.creditor_name || t.debtor_name || t.remittance_info || 'Transactie';
+      const date = document.createElement('div');
+      date.className = 'finance-tx-date';
+      date.textContent = t.booking_date ? formatShortDate(t.booking_date) : '';
+      main.appendChild(name);
+      main.appendChild(date);
+      const amount = document.createElement('div');
+      const isPositive = Number(t.amount) > 0;
+      amount.className = 'finance-tx-amount' + (isPositive ? ' is-positive' : '');
+      amount.textContent = (isPositive ? '+' : '') + Number(t.amount).toLocaleString('nl-NL', { style: 'currency', currency: t.currency || 'EUR' });
+      row.appendChild(main);
+      row.appendChild(amount);
+      listEl.appendChild(row);
+    });
+  }
+
+  async function loadFinanceData() {
+    try {
+      const { data: connection, error: connError } = await supabaseClient.from('bank_connection').select('*').eq('id', true).maybeSingle();
+      if (connError) console.error('Bankkoppeling laden mislukt', connError);
+      renderFinanceStatus(connection);
+
+      const isConnected = connection && connection.status === 'connected';
+      document.getElementById('financeConnectSection').style.display = isConnected ? 'none' : '';
+      document.getElementById('financeDataSection').style.display = isConnected ? '' : 'none';
+
+      if (!isConnected) {
+        loadAspsps();
+        return;
+      }
+
+      const [accountsRes, balancesRes, txRes] = await Promise.all([
+        supabaseClient.from('bank_accounts').select('*'),
+        supabaseClient.from('bank_balances').select('*').order('synced_at', { ascending: false }),
+        supabaseClient.from('bank_transactions').select('*').order('booking_date', { ascending: false }).limit(30)
+      ]);
+      if (accountsRes.error) console.error('Rekeningen laden mislukt', accountsRes.error);
+      if (balancesRes.error) console.error('Saldo laden mislukt', balancesRes.error);
+      if (txRes.error) console.error('Transacties laden mislukt', txRes.error);
+
+      renderBalances(accountsRes.data || [], balancesRes.data || []);
+      renderTransactions(txRes.data || []);
+    } catch (e) {
+      console.error('Finance data laden mislukt', e);
+    }
+  }
+
   /* ---------- init ---------- */
 
   function initGoalsUI() {
@@ -4121,6 +4441,7 @@
   setInterval(updateJournalDateTime, 60 * 1000);
   loadMentalHealthData();
   loadCoachHistory();
+  initFinanceAuth();
 
   loadStoreFromSupabase()
     .then(migrateLocalStorageIfNeeded)

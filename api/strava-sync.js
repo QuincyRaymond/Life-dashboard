@@ -118,6 +118,31 @@ function isScheduledAmsterdamHour() {
   return parseInt(hour, 10) === 4;
 }
 
+async function runStravaSync() {
+  let tokens = await getTokens();
+
+  const now = Math.floor(Date.now() / 1000);
+  if (!tokens.expires_at || tokens.expires_at <= now + 60) {
+    const refreshed = await refreshAccessToken(tokens.refresh_token);
+    tokens = {
+      access_token: refreshed.access_token,
+      refresh_token: refreshed.refresh_token,
+      expires_at: refreshed.expires_at
+    };
+    await saveTokens(tokens);
+  }
+
+  const activities = await fetchActivities(tokens.access_token);
+  const withCalories = await Promise.all(activities.map(function (a) {
+    return fetchCalories(a.id, tokens.access_token).then(function (calories) {
+      return Object.assign({}, a, { calories: calories });
+    });
+  }));
+  await upsertActivities(withCalories);
+
+  return { synced: withCalories.length };
+}
+
 module.exports = async function handler(req, res) {
   if (req.headers.authorization !== 'Bearer ' + process.env.CRON_SECRET) {
     res.status(401).json({ error: 'Unauthorized' });
@@ -129,31 +154,26 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  const result = { strava: null, bank: null };
+
   try {
-    let tokens = await getTokens();
-
-    const now = Math.floor(Date.now() / 1000);
-    if (!tokens.expires_at || tokens.expires_at <= now + 60) {
-      const refreshed = await refreshAccessToken(tokens.refresh_token);
-      tokens = {
-        access_token: refreshed.access_token,
-        refresh_token: refreshed.refresh_token,
-        expires_at: refreshed.expires_at
-      };
-      await saveTokens(tokens);
-    }
-
-    const activities = await fetchActivities(tokens.access_token);
-    const withCalories = await Promise.all(activities.map(function (a) {
-      return fetchCalories(a.id, tokens.access_token).then(function (calories) {
-        return Object.assign({}, a, { calories: calories });
-      });
-    }));
-    await upsertActivities(withCalories);
-
-    res.status(200).json({ synced: withCalories.length });
+    result.strava = await runStravaSync();
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: e.message });
+    console.error('Strava sync failed', e);
+    result.strava = { error: e.message };
   }
+
+  // Rides the same daily cron trigger as the Strava sync instead of having
+  // its own — see supabase/enable_banking_schema.sql and
+  // api/enable-banking-sync.js. Only runs once the bank tables/env vars
+  // exist; a missing SUPABASE_SERVICE_ROLE_KEY-backed table just no-ops.
+  try {
+    const { syncBankData } = require('../lib/enablebanking');
+    result.bank = await syncBankData();
+  } catch (e) {
+    console.error('Bank sync failed', e);
+    result.bank = { error: e.message };
+  }
+
+  res.status(200).json(result);
 };

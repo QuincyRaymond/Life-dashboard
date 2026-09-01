@@ -1,18 +1,15 @@
 -- Run this once in the Supabase SQL Editor, alongside the other schema
--- files.
+-- files. Safe to re-run: policy changes are guarded with "drop policy if
+-- exists" in case an earlier version of this file already ran.
 --
--- Backs the WHOOP integration on the Sleep card in the Health tab. Same
--- sensitivity tier as enable_banking_schema.sql: biometric/recovery data is
--- more sensitive than the rest of this dashboard's data, so reading requires
--- a signed-in Supabase session belonging to your own email specifically
--- (the same magic-link login already used for the Finance tab — one login
--- unlocks both, since it's the same Supabase Auth session). Writing is
--- restricted to the service_role key, used only by the Vercel serverless
--- functions (api/whoop-*.js and the daily cron in api/strava-sync.js).
---
--- Replace 'qdvlugt@hotmail.com' below if you'd rather use a different email
--- (see also enable_banking_schema.sql and lib/enablebanking.js, which use
--- the same address).
+-- Backs the WHOOP integration on the Sleep card in the Health tab.
+-- Recovery/sleep numbers sit at the same "no login required" sensitivity
+-- tier as the rest of the Health tab (weight, workouts, etc.) — publicly
+-- readable, no Finance-tab-style login gate. The raw OAuth tokens are a
+-- different story: whoop_connection is locked down completely (no
+-- anon/authenticated policy at all, service_role only), and the Sleep
+-- card instead reads connection status through the whoop_connection_status
+-- view below, which only ever exposes status/last_error/last_synced_at.
 
 create table if not exists whoop_connection (
   id boolean primary key default true,
@@ -28,12 +25,20 @@ create table if not exists whoop_connection (
 );
 
 alter table whoop_connection enable row level security;
-create policy "owner read whoop_connection" on whoop_connection
-  for select using (auth.jwt() ->> 'email' = 'qdvlugt@hotmail.com');
--- No insert/update/delete policy for anon or authenticated — only the
--- service_role key (server-side) writes to this table. The client-side JS
--- also deliberately never selects access_token/refresh_token even though
--- RLS would allow the owner to read them.
+drop policy if exists "owner read whoop_connection" on whoop_connection;
+-- Deliberately no select/insert/update/delete policy for anon or
+-- authenticated — this table holds raw OAuth tokens and must never be
+-- queried directly from the browser. Only the service_role key
+-- (server-side, api/whoop-*.js) touches it directly.
+
+-- Views run with the privileges of their owner (the postgres role that
+-- runs this script, which bypasses RLS) rather than the querying role, so
+-- this is the standard Supabase pattern for exposing a safe subset of
+-- columns from an otherwise-locked-down table to anon/authenticated.
+create or replace view whoop_connection_status as
+  select status, last_error, last_synced_at from whoop_connection where id = true;
+
+grant select on whoop_connection_status to anon, authenticated;
 
 create table if not exists whoop_recovery (
   id bigint generated always as identity primary key,
@@ -49,8 +54,10 @@ create table if not exists whoop_recovery (
 create index if not exists whoop_recovery_recorded_at_idx on whoop_recovery (recorded_at desc);
 
 alter table whoop_recovery enable row level security;
-create policy "owner read whoop_recovery" on whoop_recovery
-  for select using (auth.jwt() ->> 'email' = 'qdvlugt@hotmail.com');
+drop policy if exists "owner read whoop_recovery" on whoop_recovery;
+drop policy if exists "public read whoop_recovery" on whoop_recovery;
+create policy "public read whoop_recovery" on whoop_recovery
+  for select using (true);
 
 create table if not exists whoop_sleep (
   id bigint generated always as identity primary key,
@@ -66,8 +73,10 @@ create table if not exists whoop_sleep (
 create index if not exists whoop_sleep_start_time_idx on whoop_sleep (start_time desc);
 
 alter table whoop_sleep enable row level security;
-create policy "owner read whoop_sleep" on whoop_sleep
-  for select using (auth.jwt() ->> 'email' = 'qdvlugt@hotmail.com');
+drop policy if exists "owner read whoop_sleep" on whoop_sleep;
+drop policy if exists "public read whoop_sleep" on whoop_sleep;
+create policy "public read whoop_sleep" on whoop_sleep
+  for select using (true);
 
 insert into whoop_connection (id, status) values (true, 'disconnected')
 on conflict (id) do nothing;

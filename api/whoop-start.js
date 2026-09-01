@@ -1,18 +1,14 @@
 const crypto = require('crypto');
-const { verifySupabaseOwner } = require('../lib/enablebanking');
 const { buildAuthorizationUrl, patchWhoopConnection } = require('../lib/whoop');
 
 const WHOOP_CALLBACK_URL = 'https://life-dashboard-five-pi.vercel.app/api/whoop-callback';
 
+// Unlike the Finance tab's Enable Banking flow, this deliberately has no
+// Supabase-auth gate — the Health tab has no separate login, so connecting
+// WHOOP works the same way the rest of that tab already does (no auth).
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
-    return;
-  }
-
-  const isOwner = await verifySupabaseOwner(req);
-  if (!isOwner) {
-    res.status(401).json({ error: 'Unauthorized' });
     return;
   }
 

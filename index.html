@@ -1640,16 +1640,6 @@
     <div class="quad-section quad-area-sleep">
       <div class="section-title">Slaap</div>
 
-      <div class="card health-disabled-card" id="whoopLoginPrompt">
-        <div class="health-disabled-body">
-          <span class="health-disabled-icon">🔒</span>
-          <div>
-            <div class="health-disabled-title">Log in om WHOOP te bekijken</div>
-            <div class="health-disabled-sub">Log in via de Finance-tab — dezelfde beveiligde login geldt hier ook.</div>
-          </div>
-        </div>
-      </div>
-
       <div class="card" id="whoopConnectCard" style="display:none">
         <div class="coach-intro">Koppel je WHOOP-account om recovery, slaap en strain hier te zien.</div>
         <button type="button" id="whoopConnectBtn" class="journal-save-btn">Koppel WHOOP</button>
@@ -3076,20 +3066,6 @@
 
   /* ---------- health tab: whoop ---------- */
 
-  function renderWhoopGate() {
-    const loginPrompt = document.getElementById('whoopLoginPrompt');
-    const connectCard = document.getElementById('whoopConnectCard');
-    const dataSection = document.getElementById('whoopDataSection');
-    if (!financeSession) {
-      loginPrompt.style.display = '';
-      connectCard.style.display = 'none';
-      dataSection.style.display = 'none';
-      return;
-    }
-    loginPrompt.style.display = 'none';
-    loadWhoopData();
-  }
-
   function renderWhoopRecovery(r) {
     const score = r && r.recovery_score != null ? Math.round(Number(r.recovery_score)) : 0;
     const band = score >= 67 ? 'good' : score >= 34 ? 'ok' : 'bad';
@@ -3120,7 +3096,7 @@
   async function loadWhoopData() {
     try {
       const { data: connection, error: connError } = await supabaseClient
-        .from('whoop_connection').select('status,last_error,last_synced_at').eq('id', true).maybeSingle();
+        .from('whoop_connection_status').select('*').maybeSingle();
       if (connError) console.error('Whoop koppeling laden mislukt', connError);
 
       const isConnected = connection && connection.status === 'connected';
@@ -3150,11 +3126,7 @@
     const statusEl = document.getElementById('whoopConnectStatus');
     statusEl.classList.remove('is-error');
     statusEl.textContent = 'Bezig met doorsturen naar WHOOP…';
-    supabaseClient.auth.getSession()
-      .then(function (sessionRes) {
-        const token = sessionRes.data.session ? sessionRes.data.session.access_token : '';
-        return fetch('/api/whoop-start', { method: 'POST', headers: { Authorization: 'Bearer ' + token } });
-      })
+    fetch('/api/whoop-start', { method: 'POST' })
       .then(function (res) { return res.json().then(function (data) { return { res: res, data: data }; }); })
       .then(function (r) {
         if (!r.res.ok) throw new Error(r.data.error || 'Onbekende fout');
@@ -4472,10 +4444,8 @@
     supabaseClient.auth.onAuthStateChange(function (_event, session) {
       financeSession = session;
       renderFinanceGate();
-      renderWhoopGate();
     });
     renderFinanceGate();
-    renderWhoopGate();
   }
 
   function renderFinanceGate() {
@@ -5142,6 +5112,7 @@
   loadMentalHealthData();
   loadCoachHistory();
   initFinanceAuth();
+  loadWhoopData();
 
   loadStoreFromSupabase()
     .then(migrateLocalStorageIfNeeded)

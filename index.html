@@ -1717,17 +1717,43 @@
         </svg>
         AI Coach
       </div>
-      <div class="card">
-        <div class="coach-intro">Vraag een korte, warme reflectie op je dagboek, stemming en dankbaarheid van de afgelopen 14 dagen.</div>
-        <div class="journal-actions">
-          <button type="button" id="coachRequestBtn" class="journal-save-btn">Vraag om feedback</button>
-          <div class="journal-status" id="coachStatus"></div>
+
+      <div class="card journal-pin-card" id="coachPinCard">
+        <div class="journal-pin-icon">🔒</div>
+        <div class="journal-pin-title" id="coachPinTitle">AI Coach is vergrendeld</div>
+        <div class="journal-pin-sub" id="coachPinSub">Voer je 4-cijferige pincode in.</div>
+
+        <div class="journal-pin-inputs" id="coachPinInputs">
+          <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+          <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+          <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+          <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
         </div>
+
+        <div class="journal-pin-inputs" id="coachPinConfirmRow" style="display:none">
+          <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+          <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+          <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+          <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+        </div>
+
+        <button type="button" class="journal-save-btn" id="coachPinSubmitBtn">Ontgrendel</button>
+        <div class="journal-status" id="coachPinStatus"></div>
       </div>
-      <div class="card">
-        <div class="health-subtitle">Eerdere feedback</div>
-        <div id="coachHistory"></div>
-        <div class="health-empty" id="coachHistoryEmpty">Nog geen feedback gevraagd.</div>
+
+      <div id="coachContent" style="display:none">
+        <div class="card">
+          <div class="coach-intro">Vraag een korte, warme reflectie op je dagboek, stemming en dankbaarheid van de afgelopen 14 dagen.</div>
+          <div class="journal-actions">
+            <button type="button" id="coachRequestBtn" class="journal-save-btn">Vraag om feedback</button>
+            <div class="journal-status" id="coachStatus"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="health-subtitle">Eerdere feedback</div>
+          <div id="coachHistory"></div>
+          <div class="health-empty" id="coachHistoryEmpty">Nog geen feedback gevraagd.</div>
+        </div>
       </div>
     </div>
 
@@ -4079,12 +4105,16 @@
     if (el) el.textContent = formatJournalDateTime(new Date());
   }
 
-  /* ---------- mental health: journal pin lock ---------- */
+  /* ---------- mental health: pin lock (Journal + AI Coach) ---------- */
   // Privacy screen only, not real security — a 4-digit PIN offers no real
   // protection, this just prevents someone glancing over your shoulder.
+  // One shared unlock state gates both sections: unlocking via either
+  // section's card reveals both, so it's never asked twice per session.
   // "Unlocked" lives only in a plain JS variable, so it resets on refresh
   // but survives switching between Dashboard/Health/Mental Health/Finance
   // tabs (those are just visibility toggles within the same page load).
+
+  const PIN_SCOPES = { journal: 'Journal', coach: 'AI Coach' };
 
   let journalPinHash = null;
   let journalUnlocked = false;
@@ -4116,58 +4146,67 @@
         if (e.key === 'Backspace' && !input.value && input.previousElementSibling && input.previousElementSibling.classList.contains('journal-pin-digit')) {
           input.previousElementSibling.focus();
         }
-        if (e.key === 'Enter') document.getElementById('journalPinSubmitBtn').click();
+        if (e.key === 'Enter') {
+          const card = input.closest('.journal-pin-card');
+          const btn = card && card.querySelector('.journal-save-btn');
+          if (btn) btn.click();
+        }
       });
     });
   }
 
   function renderJournalPinUI() {
-    const titleEl = document.getElementById('journalPinTitle');
-    const subEl = document.getElementById('journalPinSub');
-    const btnEl = document.getElementById('journalPinSubmitBtn');
-    const confirmRow = document.getElementById('journalPinConfirmRow');
-    const statusEl = document.getElementById('journalPinStatus');
-    statusEl.classList.remove('is-error');
-    statusEl.textContent = '';
+    Object.keys(PIN_SCOPES).forEach(function (scope) {
+      const label = PIN_SCOPES[scope];
+      const titleEl = document.getElementById(scope + 'PinTitle');
+      const subEl = document.getElementById(scope + 'PinSub');
+      const btnEl = document.getElementById(scope + 'PinSubmitBtn');
+      const confirmRow = document.getElementById(scope + 'PinConfirmRow');
+      const statusEl = document.getElementById(scope + 'PinStatus');
+      statusEl.classList.remove('is-error');
+      statusEl.textContent = '';
 
-    if (journalPinMode === 'setup') {
-      titleEl.textContent = 'Stel een pincode in';
-      subEl.textContent = 'Kies een 4-cijferige pincode om je Journal af te schermen.';
-      confirmRow.style.display = '';
-      btnEl.textContent = 'Instellen';
-    } else if (journalPinMode === 'change-verify') {
-      titleEl.textContent = 'Pincode wijzigen';
-      subEl.textContent = 'Voer eerst je huidige pincode in.';
-      confirmRow.style.display = 'none';
-      btnEl.textContent = 'Volgende';
-    } else if (journalPinMode === 'change-new') {
-      titleEl.textContent = 'Nieuwe pincode';
-      subEl.textContent = 'Kies je nieuwe 4-cijferige pincode.';
-      confirmRow.style.display = '';
-      btnEl.textContent = 'Opslaan';
-    } else {
-      titleEl.textContent = 'Journal is vergrendeld';
-      subEl.textContent = 'Voer je 4-cijferige pincode in.';
-      confirmRow.style.display = 'none';
-      btnEl.textContent = 'Ontgrendel';
-    }
+      if (journalPinMode === 'setup') {
+        titleEl.textContent = 'Stel een pincode in';
+        subEl.textContent = 'Kies een 4-cijferige pincode om dit af te schermen.';
+        confirmRow.style.display = '';
+        btnEl.textContent = 'Instellen';
+      } else if (journalPinMode === 'change-verify') {
+        titleEl.textContent = 'Pincode wijzigen';
+        subEl.textContent = 'Voer eerst je huidige pincode in.';
+        confirmRow.style.display = 'none';
+        btnEl.textContent = 'Volgende';
+      } else if (journalPinMode === 'change-new') {
+        titleEl.textContent = 'Nieuwe pincode';
+        subEl.textContent = 'Kies je nieuwe 4-cijferige pincode.';
+        confirmRow.style.display = '';
+        btnEl.textContent = 'Opslaan';
+      } else {
+        titleEl.textContent = label + ' is vergrendeld';
+        subEl.textContent = 'Voer je 4-cijferige pincode in.';
+        confirmRow.style.display = 'none';
+        btnEl.textContent = 'Ontgrendel';
+      }
 
-    clearPinDigits('journalPinInputs');
-    clearPinDigits('journalPinConfirmRow');
-    const firstInput = document.querySelector('#journalPinInputs .journal-pin-digit');
-    if (firstInput) firstInput.focus();
+      clearPinDigits(scope + 'PinInputs');
+      clearPinDigits(scope + 'PinConfirmRow');
+    });
   }
 
-  function showJournalLocked() {
+  function showAllLocked() {
     document.getElementById('journalPinCard').style.display = '';
     document.getElementById('journalContent').style.display = 'none';
     document.getElementById('journalPinChangeBtn').style.display = 'none';
+    document.getElementById('coachPinCard').style.display = '';
+    document.getElementById('coachContent').style.display = 'none';
   }
 
-  function showJournalUnlocked() {
+  function showAllUnlocked() {
     document.getElementById('journalPinCard').style.display = 'none';
     document.getElementById('journalContent').style.display = '';
     document.getElementById('journalPinChangeBtn').style.display = '';
+    document.getElementById('coachPinCard').style.display = 'none';
+    document.getElementById('coachContent').style.display = '';
   }
 
   async function loadJournalPinSettings() {
@@ -4177,9 +4216,9 @@
       journalPinHash = data ? data.journal_pin_hash : null;
       journalPinMode = journalPinHash ? 'locked' : 'setup';
       if (journalUnlocked) {
-        showJournalUnlocked();
+        showAllUnlocked();
       } else {
-        showJournalLocked();
+        showAllLocked();
         renderJournalPinUI();
       }
     } catch (e) {
@@ -4187,11 +4226,11 @@
     }
   }
 
-  document.getElementById('journalPinSubmitBtn').addEventListener('click', function () {
-    const statusEl = document.getElementById('journalPinStatus');
+  function handlePinSubmit(scope) {
+    const statusEl = document.getElementById(scope + 'PinStatus');
     statusEl.classList.remove('is-error');
 
-    const pin = getPinDigits('journalPinInputs');
+    const pin = getPinDigits(scope + 'PinInputs');
     if (pin.length !== 4) {
       statusEl.classList.add('is-error');
       statusEl.textContent = 'Vul alle 4 cijfers in.';
@@ -4203,13 +4242,13 @@
         if (hash !== journalPinHash) {
           statusEl.classList.add('is-error');
           statusEl.textContent = 'Onjuiste pincode.';
-          clearPinDigits('journalPinInputs');
-          document.querySelector('#journalPinInputs .journal-pin-digit').focus();
+          clearPinDigits(scope + 'PinInputs');
+          document.querySelector('#' + scope + 'PinInputs .journal-pin-digit').focus();
           return;
         }
         if (journalPinMode === 'locked') {
           journalUnlocked = true;
-          showJournalUnlocked();
+          showAllUnlocked();
         } else {
           journalPinMode = 'change-new';
           renderJournalPinUI();
@@ -4219,7 +4258,7 @@
     }
 
     // 'setup' or 'change-new' — also require the confirmation row to match.
-    const confirmPin = getPinDigits('journalPinConfirmRow');
+    const confirmPin = getPinDigits(scope + 'PinConfirmRow');
     if (confirmPin.length !== 4) {
       statusEl.classList.add('is-error');
       statusEl.textContent = 'Bevestig je pincode.';
@@ -4228,9 +4267,9 @@
     if (pin !== confirmPin) {
       statusEl.classList.add('is-error');
       statusEl.textContent = 'Pincodes komen niet overeen.';
-      clearPinDigits('journalPinInputs');
-      clearPinDigits('journalPinConfirmRow');
-      document.querySelector('#journalPinInputs .journal-pin-digit').focus();
+      clearPinDigits(scope + 'PinInputs');
+      clearPinDigits(scope + 'PinConfirmRow');
+      document.querySelector('#' + scope + 'PinInputs .journal-pin-digit').focus();
       return;
     }
 
@@ -4242,18 +4281,22 @@
           journalPinHash = hash;
           journalUnlocked = true;
           journalPinMode = 'locked';
-          showJournalUnlocked();
+          showAllUnlocked();
         });
     }).catch(function (err) {
       console.error('Pincode opslaan mislukt', err);
       statusEl.classList.add('is-error');
       statusEl.textContent = 'Opslaan mislukt: ' + err.message;
     });
+  }
+
+  Object.keys(PIN_SCOPES).forEach(function (scope) {
+    document.getElementById(scope + 'PinSubmitBtn').addEventListener('click', function () { handlePinSubmit(scope); });
   });
 
   document.getElementById('journalPinChangeBtn').addEventListener('click', function () {
     journalPinMode = 'change-verify';
-    showJournalLocked();
+    showAllLocked();
     renderJournalPinUI();
   });
 

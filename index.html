@@ -3130,6 +3130,11 @@
       .then(function (res) { return res.json().then(function (data) { return { res: res, data: data }; }); })
       .then(function (r) {
         if (!r.res.ok) throw new Error(r.data.error || 'Onbekende fout');
+        if (r.data.alreadyConnected) {
+          statusEl.textContent = 'Al gekoppeld!';
+          loadWhoopData();
+          return;
+        }
         window.location.href = r.data.url;
       })
       .catch(function (err) {

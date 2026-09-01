@@ -1,0 +1,13 @@
+-- Run this once in the Supabase SQL Editor.
+--
+-- Adds the column backing the Journal privacy-PIN lock on the Mental
+-- Health tab. Lives on the existing single-row user_settings table (same
+-- place as wake/sleep time and Health goals) rather than a new table,
+-- since it's just one more per-user setting with the same "no login"
+-- access pattern as the rest of the app.
+--
+-- This is a privacy screen, not real security: the PIN is only hashed
+-- (SHA-256, computed client-side) to avoid storing it as plain text in an
+-- otherwise publicly-readable/writable row — a 4-digit PIN offers no real
+-- protection against anyone with API access regardless of hashing.
+alter table user_settings add column if not exists journal_pin_hash text;

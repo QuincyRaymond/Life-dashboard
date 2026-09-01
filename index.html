@@ -1105,6 +1105,7 @@
   }
   .journal-save-btn:disabled { opacity: 0.6; cursor: default; }
   .journal-status { font-size: 11px; color: var(--text-tertiary); }
+  .journal-status.is-error { color: var(--danger); }
 
   .journal-entry { padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer; }
   .journal-entry:first-child { border-top: none; padding-top: 0; }
@@ -1113,6 +1114,22 @@
   .journal-entry-text.is-collapsed {
     display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
+
+  .section-title-row { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+  .section-title-row .section-title { margin: 0; flex: 1; }
+
+  .journal-pin-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 30px 20px; }
+  .journal-pin-icon { font-size: 26px; margin-bottom: 10px; }
+  .journal-pin-title { font-size: 14.5px; font-weight: 700; color: var(--text-primary); }
+  .journal-pin-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; margin-bottom: 18px; }
+  .journal-pin-inputs { display: flex; gap: 10px; margin-bottom: 14px; }
+  .journal-pin-digit {
+    width: 44px; height: 52px; text-align: center;
+    font-size: 22px; font-family: var(--font-mono); font-weight: 700; color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 10px;
+  }
+  .journal-pin-digit:focus { outline: none; border-color: var(--accent-blue); }
+  .journal-pin-card .journal-status { margin-top: 10px; }
 
   .mood-picker { display: flex; justify-content: space-between; gap: 8px; }
   .mood-btn {
@@ -1724,19 +1741,53 @@
   </div>
 
   <div class="section">
-    <div class="section-title">Journal</div>
-    <div class="card">
-      <div class="journal-datetime" id="journalDateTime"></div>
-      <textarea class="journal-textarea" id="journalInput" placeholder="Hoe was je dag? Schrijf vrijuit…"></textarea>
-      <div class="journal-actions">
-        <button type="button" id="journalSaveBtn" class="journal-save-btn">Opslaan</button>
-        <div class="journal-status" id="journalStatus"></div>
-      </div>
+    <div class="section-title-row">
+      <div class="section-title">Journal</div>
+      <button class="health-goals-btn" id="journalPinChangeBtn" type="button" aria-label="Pincode wijzigen" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
     </div>
-    <div class="card">
-      <div class="health-subtitle">Eerdere entries</div>
-      <div id="journalHistory"></div>
-      <div class="health-empty" id="journalHistoryEmpty">Nog geen eerdere entries.</div>
+
+    <div class="card journal-pin-card" id="journalPinCard">
+      <div class="journal-pin-icon">🔒</div>
+      <div class="journal-pin-title" id="journalPinTitle">Journal is vergrendeld</div>
+      <div class="journal-pin-sub" id="journalPinSub">Voer je 4-cijferige pincode in.</div>
+
+      <div class="journal-pin-inputs" id="journalPinInputs">
+        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+      </div>
+
+      <div class="journal-pin-inputs" id="journalPinConfirmRow" style="display:none">
+        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="journal-pin-digit">
+      </div>
+
+      <button type="button" class="journal-save-btn" id="journalPinSubmitBtn">Ontgrendel</button>
+      <div class="journal-status" id="journalPinStatus"></div>
+    </div>
+
+    <div id="journalContent" style="display:none">
+      <div class="card">
+        <div class="journal-datetime" id="journalDateTime"></div>
+        <textarea class="journal-textarea" id="journalInput" placeholder="Hoe was je dag? Schrijf vrijuit…"></textarea>
+        <div class="journal-actions">
+          <button type="button" id="journalSaveBtn" class="journal-save-btn">Opslaan</button>
+          <div class="journal-status" id="journalStatus"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="health-subtitle">Eerdere entries</div>
+        <div id="journalHistory"></div>
+        <div class="health-empty" id="journalHistoryEmpty">Nog geen eerdere entries.</div>
+      </div>
     </div>
   </div>
 
@@ -4028,6 +4079,186 @@
     if (el) el.textContent = formatJournalDateTime(new Date());
   }
 
+  /* ---------- mental health: journal pin lock ---------- */
+  // Privacy screen only, not real security — a 4-digit PIN offers no real
+  // protection, this just prevents someone glancing over your shoulder.
+  // "Unlocked" lives only in a plain JS variable, so it resets on refresh
+  // but survives switching between Dashboard/Health/Mental Health/Finance
+  // tabs (those are just visibility toggles within the same page load).
+
+  let journalPinHash = null;
+  let journalUnlocked = false;
+  let journalPinMode = 'locked'; // 'locked' | 'setup' | 'change-verify' | 'change-new'
+
+  async function sha256Hex(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return Array.prototype.map.call(new Uint8Array(buf), function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+  }
+
+  function getPinDigits(containerId) {
+    const inputs = document.querySelectorAll('#' + containerId + ' .journal-pin-digit');
+    return Array.prototype.map.call(inputs, function (i) { return i.value; }).join('');
+  }
+
+  function clearPinDigits(containerId) {
+    document.querySelectorAll('#' + containerId + ' .journal-pin-digit').forEach(function (i) { i.value = ''; });
+  }
+
+  function setupPinDigitInputs() {
+    document.querySelectorAll('.journal-pin-digit').forEach(function (input) {
+      input.addEventListener('input', function () {
+        input.value = input.value.replace(/[^0-9]/g, '').slice(0, 1);
+        if (input.value && input.nextElementSibling && input.nextElementSibling.classList.contains('journal-pin-digit')) {
+          input.nextElementSibling.focus();
+        }
+      });
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Backspace' && !input.value && input.previousElementSibling && input.previousElementSibling.classList.contains('journal-pin-digit')) {
+          input.previousElementSibling.focus();
+        }
+        if (e.key === 'Enter') document.getElementById('journalPinSubmitBtn').click();
+      });
+    });
+  }
+
+  function renderJournalPinUI() {
+    const titleEl = document.getElementById('journalPinTitle');
+    const subEl = document.getElementById('journalPinSub');
+    const btnEl = document.getElementById('journalPinSubmitBtn');
+    const confirmRow = document.getElementById('journalPinConfirmRow');
+    const statusEl = document.getElementById('journalPinStatus');
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = '';
+
+    if (journalPinMode === 'setup') {
+      titleEl.textContent = 'Stel een pincode in';
+      subEl.textContent = 'Kies een 4-cijferige pincode om je Journal af te schermen.';
+      confirmRow.style.display = '';
+      btnEl.textContent = 'Instellen';
+    } else if (journalPinMode === 'change-verify') {
+      titleEl.textContent = 'Pincode wijzigen';
+      subEl.textContent = 'Voer eerst je huidige pincode in.';
+      confirmRow.style.display = 'none';
+      btnEl.textContent = 'Volgende';
+    } else if (journalPinMode === 'change-new') {
+      titleEl.textContent = 'Nieuwe pincode';
+      subEl.textContent = 'Kies je nieuwe 4-cijferige pincode.';
+      confirmRow.style.display = '';
+      btnEl.textContent = 'Opslaan';
+    } else {
+      titleEl.textContent = 'Journal is vergrendeld';
+      subEl.textContent = 'Voer je 4-cijferige pincode in.';
+      confirmRow.style.display = 'none';
+      btnEl.textContent = 'Ontgrendel';
+    }
+
+    clearPinDigits('journalPinInputs');
+    clearPinDigits('journalPinConfirmRow');
+    const firstInput = document.querySelector('#journalPinInputs .journal-pin-digit');
+    if (firstInput) firstInput.focus();
+  }
+
+  function showJournalLocked() {
+    document.getElementById('journalPinCard').style.display = '';
+    document.getElementById('journalContent').style.display = 'none';
+    document.getElementById('journalPinChangeBtn').style.display = 'none';
+  }
+
+  function showJournalUnlocked() {
+    document.getElementById('journalPinCard').style.display = 'none';
+    document.getElementById('journalContent').style.display = '';
+    document.getElementById('journalPinChangeBtn').style.display = '';
+  }
+
+  async function loadJournalPinSettings() {
+    try {
+      const { data, error } = await supabaseClient.from('user_settings').select('journal_pin_hash').eq('id', true).maybeSingle();
+      if (error) console.error('Journal pincode laden mislukt', error);
+      journalPinHash = data ? data.journal_pin_hash : null;
+      journalPinMode = journalPinHash ? 'locked' : 'setup';
+      if (journalUnlocked) {
+        showJournalUnlocked();
+      } else {
+        showJournalLocked();
+        renderJournalPinUI();
+      }
+    } catch (e) {
+      console.error('Journal pincode laden mislukt', e);
+    }
+  }
+
+  document.getElementById('journalPinSubmitBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('journalPinStatus');
+    statusEl.classList.remove('is-error');
+
+    const pin = getPinDigits('journalPinInputs');
+    if (pin.length !== 4) {
+      statusEl.classList.add('is-error');
+      statusEl.textContent = 'Vul alle 4 cijfers in.';
+      return;
+    }
+
+    if (journalPinMode === 'locked' || journalPinMode === 'change-verify') {
+      sha256Hex(pin).then(function (hash) {
+        if (hash !== journalPinHash) {
+          statusEl.classList.add('is-error');
+          statusEl.textContent = 'Onjuiste pincode.';
+          clearPinDigits('journalPinInputs');
+          document.querySelector('#journalPinInputs .journal-pin-digit').focus();
+          return;
+        }
+        if (journalPinMode === 'locked') {
+          journalUnlocked = true;
+          showJournalUnlocked();
+        } else {
+          journalPinMode = 'change-new';
+          renderJournalPinUI();
+        }
+      });
+      return;
+    }
+
+    // 'setup' or 'change-new' — also require the confirmation row to match.
+    const confirmPin = getPinDigits('journalPinConfirmRow');
+    if (confirmPin.length !== 4) {
+      statusEl.classList.add('is-error');
+      statusEl.textContent = 'Bevestig je pincode.';
+      return;
+    }
+    if (pin !== confirmPin) {
+      statusEl.classList.add('is-error');
+      statusEl.textContent = 'Pincodes komen niet overeen.';
+      clearPinDigits('journalPinInputs');
+      clearPinDigits('journalPinConfirmRow');
+      document.querySelector('#journalPinInputs .journal-pin-digit').focus();
+      return;
+    }
+
+    sha256Hex(pin).then(function (hash) {
+      return supabaseClient.from('user_settings')
+        .upsert({ id: true, journal_pin_hash: hash, updated_at: new Date().toISOString() })
+        .then(function (res) {
+          if (res.error) throw res.error;
+          journalPinHash = hash;
+          journalUnlocked = true;
+          journalPinMode = 'locked';
+          showJournalUnlocked();
+        });
+    }).catch(function (err) {
+      console.error('Pincode opslaan mislukt', err);
+      statusEl.classList.add('is-error');
+      statusEl.textContent = 'Opslaan mislukt: ' + err.message;
+    });
+  });
+
+  document.getElementById('journalPinChangeBtn').addEventListener('click', function () {
+    journalPinMode = 'change-verify';
+    showJournalLocked();
+    renderJournalPinUI();
+  });
+
+  setupPinDigitInputs();
+
   /* ---------- mental health: journal ---------- */
 
   function renderJournalUI() {
@@ -5147,6 +5378,7 @@
   loadAgenda();
   updateJournalDateTime();
   setInterval(updateJournalDateTime, 60 * 1000);
+  loadJournalPinSettings();
   loadMentalHealthData();
   loadCoachHistory();
   initFinanceAuth();

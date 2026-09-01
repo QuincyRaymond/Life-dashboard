@@ -1001,6 +1001,11 @@
   .health-disabled-title { font-size: 13.5px; font-weight: 700; color: var(--text-secondary); }
   .health-disabled-sub { font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px; }
 
+  .whoop-stat-grid { display: flex; flex-direction: column; gap: 10px; }
+  .whoop-stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-secondary); }
+  .whoop-stat-value { font-family: var(--font-mono); font-weight: 700; color: var(--text-primary); font-size: 14px; }
+  .whoop-sync-time { font-size: 11px; color: var(--text-tertiary); margin-top: 10px; }
+
   /* ---------- Component: Weight & progress ---------- */
 
   .weight-log-form { display: flex; flex-direction: column; gap: 12px; }
@@ -1634,13 +1639,47 @@
 
     <div class="quad-section quad-area-sleep">
       <div class="section-title">Slaap</div>
-      <div class="card health-disabled-card">
+
+      <div class="card health-disabled-card" id="whoopLoginPrompt">
         <div class="health-disabled-body">
-          <span class="health-disabled-icon">⏸</span>
+          <span class="health-disabled-icon">🔒</span>
           <div>
-            <div class="health-disabled-title">Whoop — nog niet gekoppeld</div>
-            <div class="health-disabled-sub">Deze integratie wordt later geactiveerd.</div>
+            <div class="health-disabled-title">Log in om WHOOP te bekijken</div>
+            <div class="health-disabled-sub">Log in via de Finance-tab — dezelfde beveiligde login geldt hier ook.</div>
           </div>
+        </div>
+      </div>
+
+      <div class="card" id="whoopConnectCard" style="display:none">
+        <div class="coach-intro">Koppel je WHOOP-account om recovery, slaap en strain hier te zien.</div>
+        <button type="button" id="whoopConnectBtn" class="journal-save-btn">Koppel WHOOP</button>
+        <div class="journal-status" id="whoopConnectStatus"></div>
+      </div>
+
+      <div id="whoopDataSection" style="display:none">
+        <div class="card">
+          <div class="health-score-row">
+            <div class="health-score-ring-wrap">
+              <svg class="health-score-ring" viewBox="0 0 108 108">
+                <circle class="health-score-track" cx="54" cy="54" r="46"></circle>
+                <circle class="health-score-fill" id="recoveryScoreFill" cx="54" cy="54" r="46"></circle>
+              </svg>
+              <div class="health-score-overlay">
+                <div class="health-score-num" id="recoveryScoreNum">—</div>
+                <div class="health-score-label" id="recoveryScoreLabel">Recovery</div>
+              </div>
+            </div>
+            <div class="health-score-detail" id="recoveryScoreDetail">Bezig met laden…</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="health-subtitle">Slaap &amp; strain</div>
+          <div class="whoop-stat-grid">
+            <div class="whoop-stat-row"><span>Sleep performance</span><span class="whoop-stat-value" id="whoopSleepPerf">—</span></div>
+            <div class="whoop-stat-row"><span>Totale slaapduur</span><span class="whoop-stat-value" id="whoopSleepDuration">—</span></div>
+            <div class="whoop-stat-row"><span>Strain (laatste cycle)</span><span class="whoop-stat-value" id="whoopStrain">—</span></div>
+          </div>
+          <div class="whoop-sync-time" id="whoopLastSync"></div>
         </div>
       </div>
     </div>
@@ -3035,6 +3074,99 @@
     document.getElementById(prefix + 'ScoreDetail').textContent = info.detail;
   }
 
+  /* ---------- health tab: whoop ---------- */
+
+  function renderWhoopGate() {
+    const loginPrompt = document.getElementById('whoopLoginPrompt');
+    const connectCard = document.getElementById('whoopConnectCard');
+    const dataSection = document.getElementById('whoopDataSection');
+    if (!financeSession) {
+      loginPrompt.style.display = '';
+      connectCard.style.display = 'none';
+      dataSection.style.display = 'none';
+      return;
+    }
+    loginPrompt.style.display = 'none';
+    loadWhoopData();
+  }
+
+  function renderWhoopRecovery(r) {
+    const score = r && r.recovery_score != null ? Math.round(Number(r.recovery_score)) : 0;
+    const band = score >= 67 ? 'good' : score >= 34 ? 'ok' : 'bad';
+    const detailParts = [];
+    if (r && r.hrv_rmssd_milli != null) detailParts.push('HRV ' + Math.round(Number(r.hrv_rmssd_milli)) + ' ms');
+    if (r && r.resting_heart_rate != null) detailParts.push('Rusthartslag ' + Math.round(Number(r.resting_heart_rate)) + ' bpm');
+    renderHealthScoreUI('recovery', {
+      score: score,
+      band: band,
+      label: 'Recovery',
+      detail: r ? (detailParts.join(' · ') || 'Geen data') : 'Nog geen recovery-data gesynchroniseerd.'
+    });
+    document.getElementById('whoopStrain').textContent = r && r.strain != null ? Number(r.strain).toFixed(1) : '—';
+  }
+
+  function renderWhoopSleep(s) {
+    document.getElementById('whoopSleepPerf').textContent = s && s.sleep_performance_percentage != null
+      ? Math.round(Number(s.sleep_performance_percentage)) + '%'
+      : '—';
+    if (s && s.total_sleep_time_milli != null) {
+      const totalMinutes = Math.round(Number(s.total_sleep_time_milli) / 60000);
+      document.getElementById('whoopSleepDuration').textContent = Math.floor(totalMinutes / 60) + 'u ' + (totalMinutes % 60) + 'm';
+    } else {
+      document.getElementById('whoopSleepDuration').textContent = '—';
+    }
+  }
+
+  async function loadWhoopData() {
+    try {
+      const { data: connection, error: connError } = await supabaseClient
+        .from('whoop_connection').select('status,last_error,last_synced_at').eq('id', true).maybeSingle();
+      if (connError) console.error('Whoop koppeling laden mislukt', connError);
+
+      const isConnected = connection && connection.status === 'connected';
+      document.getElementById('whoopConnectCard').style.display = isConnected ? 'none' : '';
+      document.getElementById('whoopDataSection').style.display = isConnected ? '' : 'none';
+      if (!isConnected) return;
+
+      const [recoveryRes, sleepRes] = await Promise.all([
+        supabaseClient.from('whoop_recovery').select('*').order('recorded_at', { ascending: false }).limit(1),
+        supabaseClient.from('whoop_sleep').select('*').order('start_time', { ascending: false }).limit(1)
+      ]);
+      if (recoveryRes.error) console.error('Whoop recovery laden mislukt', recoveryRes.error);
+      if (sleepRes.error) console.error('Whoop sleep laden mislukt', sleepRes.error);
+
+      renderWhoopRecovery(recoveryRes.data && recoveryRes.data[0]);
+      renderWhoopSleep(sleepRes.data && sleepRes.data[0]);
+
+      document.getElementById('whoopLastSync').textContent = connection.last_synced_at
+        ? 'Laatste sync: ' + formatShortDate(connection.last_synced_at.slice(0, 10)) + ' ' + connection.last_synced_at.slice(11, 16)
+        : '';
+    } catch (e) {
+      console.error('Whoop data laden mislukt', e);
+    }
+  }
+
+  document.getElementById('whoopConnectBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('whoopConnectStatus');
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Bezig met doorsturen naar WHOOP…';
+    supabaseClient.auth.getSession()
+      .then(function (sessionRes) {
+        const token = sessionRes.data.session ? sessionRes.data.session.access_token : '';
+        return fetch('/api/whoop-start', { method: 'POST', headers: { Authorization: 'Bearer ' + token } });
+      })
+      .then(function (res) { return res.json().then(function (data) { return { res: res, data: data }; }); })
+      .then(function (r) {
+        if (!r.res.ok) throw new Error(r.data.error || 'Onbekende fout');
+        window.location.href = r.data.url;
+      })
+      .catch(function (err) {
+        console.error('Whoop koppelen mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Koppelen mislukt: ' + err.message;
+      });
+  });
+
   function hasNoteContent(n) {
     return !!(n && ((n.note && n.note.trim()) || (n.exercises && n.exercises.trim())));
   }
@@ -4340,8 +4472,10 @@
     supabaseClient.auth.onAuthStateChange(function (_event, session) {
       financeSession = session;
       renderFinanceGate();
+      renderWhoopGate();
     });
     renderFinanceGate();
+    renderWhoopGate();
   }
 
   function renderFinanceGate() {

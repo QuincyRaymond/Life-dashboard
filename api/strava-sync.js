@@ -154,7 +154,7 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const result = { strava: null, bank: null };
+  const result = { strava: null, bank: null, whoop: null };
 
   try {
     result.strava = await runStravaSync();
@@ -173,6 +173,16 @@ module.exports = async function handler(req, res) {
   } catch (e) {
     console.error('Bank sync failed', e);
     result.bank = { error: e.message };
+  }
+
+  // Same pattern as the bank sync above — see supabase/whoop_schema.sql and
+  // api/whoop-sync.js. No-ops until WHOOP is connected.
+  try {
+    const { syncWhoopData } = require('../lib/whoop');
+    result.whoop = await syncWhoopData();
+  } catch (e) {
+    console.error('Whoop sync failed', e);
+    result.whoop = { error: e.message };
   }
 
   res.status(200).json(result);

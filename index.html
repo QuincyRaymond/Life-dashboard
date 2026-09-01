@@ -1454,6 +1454,12 @@
     <div class="quad-section quad-area-agenda">
       <div class="section-title">Agenda</div>
 
+      <div class="card" id="agendaReconnectCard" style="display:none">
+        <div class="coach-intro">De koppeling met Google Calendar is verlopen. Koppel opnieuw om je agenda weer te zien.</div>
+        <button type="button" id="agendaReconnectBtn" class="journal-save-btn">Koppel Google Calendar opnieuw</button>
+        <div class="journal-status" id="agendaReconnectStatus"></div>
+      </div>
+
       <div class="card agenda-compact-card" id="agendaCompactCard">
         <div class="agenda-compact-header">
           <div class="agenda-compact-title">Vandaag</div>
@@ -3892,19 +3898,46 @@
       const res = await fetch('/api/calendar-events?' + params.toString());
       const data = await res.json();
       if (myToken !== agendaLoadToken) return;
-      if (!res.ok) throw new Error(data.error || 'Onbekende fout');
+      if (!res.ok) {
+        const err = new Error(data.error || 'Onbekende fout');
+        err.code = data.code;
+        throw err;
+      }
       agendaEvents = data.events || [];
       statusEl.textContent = '';
+      document.getElementById('agendaReconnectCard').style.display = 'none';
       renderAgenda();
     } catch (e) {
       if (myToken !== agendaLoadToken) return;
       console.error('Agenda laden mislukt', e);
       agendaEvents = [];
       renderAgenda();
-      statusEl.textContent = 'Agenda laden mislukt.';
-      statusEl.classList.add('is-error');
+      if (e.code === 'auth_expired') {
+        statusEl.textContent = '';
+        document.getElementById('agendaReconnectCard').style.display = '';
+      } else {
+        statusEl.textContent = 'Agenda laden mislukt.';
+        statusEl.classList.add('is-error');
+      }
     }
   }
+
+  document.getElementById('agendaReconnectBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('agendaReconnectStatus');
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Bezig met doorsturen naar Google…';
+    fetch('/api/google-calendar-start', { method: 'POST' })
+      .then(function (res) { return res.json().then(function (data) { return { res: res, data: data }; }); })
+      .then(function (r) {
+        if (!r.res.ok) throw new Error(r.data.error || 'Onbekende fout');
+        window.location.href = r.data.url;
+      })
+      .catch(function (err) {
+        console.error('Google Calendar koppelen mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Koppelen mislukt: ' + err.message;
+      });
+  });
 
   document.getElementById('agendaPrevBtn').addEventListener('click', function () {
     if (agendaViewMode === 'week') agendaAnchor.setDate(agendaAnchor.getDate() - 7);

@@ -114,11 +114,21 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    let tokens = await getTokens();
-    const now = Math.floor(Date.now() / 1000);
-    if (!tokens.expires_at || tokens.expires_at <= now + 60) {
-      tokens = await refreshAccessToken(tokens.refresh_token);
-      await saveTokens(tokens);
+    let tokens;
+    try {
+      tokens = await getTokens();
+      const now = Math.floor(Date.now() / 1000);
+      if (!tokens.expires_at || tokens.expires_at <= now + 60) {
+        tokens = await refreshAccessToken(tokens.refresh_token);
+        await saveTokens(tokens);
+      }
+    } catch (authErr) {
+      // Distinct from the generic 500 below so the client can tell "the
+      // Google connection needs to be re-authorized" apart from any other
+      // failure and show the reconnect button accordingly.
+      console.error('Google Calendar auth failed', authErr);
+      res.status(401).json({ error: authErr.message, code: 'auth_expired' });
+      return;
     }
 
     const perCalendar = await Promise.all(CALENDARS.map(function (cal) {

@@ -363,6 +363,17 @@
   .water-progress-track { height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.06); overflow: hidden; }
   .water-progress-fill { height: 100%; background: var(--accent-blue); border-radius: 5px; transition: width 0.4s ease; }
   .water-progress-label { font-size: 10.5px; color: var(--text-tertiary); margin-top: 6px; }
+  .water-summary-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .water-summary-row .water-summary { margin-bottom: 0; }
+  .water-goal-btn {
+    width: 26px; height: 26px; border-radius: 8px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-tertiary); cursor: pointer;
+  }
+  .water-goal-btn:hover { color: var(--text-secondary); background: rgba(255, 255, 255, 0.09); }
+  .water-goal-btn svg { width: 13px; height: 13px; }
+  .water-goal-edit { display: flex; gap: 8px; margin-top: 10px; }
 
   /* ---------- Component: Tab bar ---------- */
 
@@ -451,18 +462,18 @@
   .quad-area-weight { grid-area: weight; }
   .quad-area-sleep { grid-area: sleep; }
 
-  .quad-grid-dash-top { grid-template-areas: "dayring" "future-top"; }
+  .quad-grid-dash-top { grid-template-areas: "dayring" "habits"; }
   @media (min-width: 860px) {
-    .quad-grid-dash-top { grid-template-areas: "dayring future-top"; }
+    .quad-grid-dash-top { grid-template-areas: "dayring habits"; }
   }
   .quad-area-dayring { grid-area: dayring; }
-  .quad-area-future-top { grid-area: future-top; }
-
-  .quad-grid-dash-main { grid-template-areas: "habits" "agenda" "future-main-1" "future-main-2"; }
-  @media (min-width: 860px) {
-    .quad-grid-dash-main { grid-template-areas: "habits agenda" "future-main-1 future-main-2"; }
-  }
   .quad-area-habits { grid-area: habits; }
+
+  .quad-grid-dash-main { grid-template-areas: "future-main-0" "agenda" "future-main-1" "future-main-2"; }
+  @media (min-width: 860px) {
+    .quad-grid-dash-main { grid-template-areas: "future-main-0 agenda" "future-main-1 future-main-2"; }
+  }
+  .quad-area-future-main-0 { grid-area: future-main-0; }
   .quad-area-agenda { grid-area: agenda; }
   .quad-area-future-main-1 { grid-area: future-main-1; }
   .quad-area-future-main-2 { grid-area: future-main-2; }
@@ -1039,17 +1050,6 @@
       </div>
     </div>
 
-    <div class="quad-section quad-area-future-top">
-      <div class="section-title">Gereserveerd</div>
-      <div class="card dash-placeholder-card">
-        <div class="health-empty health-empty-static">Ruimte voor een toekomstige sectie.</div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="quad-grid quad-grid-dash-main">
-
     <div class="quad-section quad-area-habits">
       <div class="section-title">Habits</div>
 
@@ -1060,10 +1060,33 @@
       <div class="card water-card">
         <button type="button" class="water-drop-btn" id="waterDropBtn" aria-label="Voeg 890 ml toe">💧</button>
         <div class="water-info">
-          <div class="water-summary" id="waterSummary">0 keer · 0,00 L</div>
+          <div class="water-summary-row">
+            <div class="water-summary" id="waterSummary">0 keer · 0,00 L</div>
+            <button type="button" class="water-goal-btn" id="waterGoalBtn" aria-label="Dagdoel aanpassen">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+              </svg>
+            </button>
+          </div>
           <div class="water-progress-track"><div class="water-progress-fill" id="waterProgressFill" style="width:0%"></div></div>
           <div class="water-progress-label" id="waterProgressLabel">Doel: 2,5 L</div>
+          <div class="water-goal-edit" id="waterGoalEdit" style="display:none">
+            <input type="number" id="waterGoalInput" class="finance-input" placeholder="Doel in ml" style="flex:1">
+            <button type="button" id="waterGoalSaveBtn" class="journal-save-btn">Opslaan</button>
+          </div>
+          <div class="journal-status" id="waterGoalStatus"></div>
         </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="quad-grid quad-grid-dash-main">
+
+    <div class="quad-section quad-area-future-main-0">
+      <div class="section-title">Gereserveerd</div>
+      <div class="card dash-placeholder-card">
+        <div class="health-empty health-empty-static">Ruimte voor een toekomstige sectie.</div>
       </div>
     </div>
 
@@ -1864,24 +1887,32 @@
   /* ---------- water ---------- */
 
   const WATER_FILL_ML = 890;
-  const WATER_GOAL_ML = 2500;
 
   let waterState = { fillCount: 0, totalMl: 0 };
+  let waterGoalMl = 2500;
+
+  function formatLiters(ml) {
+    return (ml / 1000).toFixed(2).replace('.', ',') + ' L';
+  }
 
   function renderWaterUI() {
-    const liters = (waterState.totalMl / 1000).toFixed(2).replace('.', ',');
-    document.getElementById('waterSummary').textContent = waterState.fillCount + ' keer \u00b7 ' + liters + ' L';
-    const pct = Math.min(100, Math.round(waterState.totalMl / WATER_GOAL_ML * 100));
+    document.getElementById('waterSummary').textContent = waterState.fillCount + ' keer \u00b7 ' + formatLiters(waterState.totalMl);
+    const pct = Math.min(100, Math.round(waterState.totalMl / waterGoalMl * 100));
     document.getElementById('waterProgressFill').style.width = pct + '%';
-    document.getElementById('waterProgressLabel').textContent = pct + '% van doel (2,5 L)';
+    document.getElementById('waterProgressLabel').textContent = pct + '% van doel (' + formatLiters(waterGoalMl) + ')';
   }
 
   async function loadWaterData() {
     try {
       const todayStr = toISODate(new Date());
-      const { data, error } = await supabaseClient.from('water_log').select('*').eq('date', todayStr).maybeSingle();
-      if (error) console.error('Water laden mislukt', error);
-      waterState = data ? { fillCount: data.fill_count, totalMl: data.total_ml } : { fillCount: 0, totalMl: 0 };
+      const [logRes, settingsRes] = await Promise.all([
+        supabaseClient.from('water_log').select('*').eq('date', todayStr).maybeSingle(),
+        supabaseClient.from('user_settings').select('water_goal_ml').eq('id', true).maybeSingle()
+      ]);
+      if (logRes.error) console.error('Water laden mislukt', logRes.error);
+      if (settingsRes.error) console.error('Water-doel laden mislukt', settingsRes.error);
+      waterState = logRes.data ? { fillCount: logRes.data.fill_count, totalMl: logRes.data.total_ml } : { fillCount: 0, totalMl: 0 };
+      if (settingsRes.data && settingsRes.data.water_goal_ml) waterGoalMl = settingsRes.data.water_goal_ml;
       renderWaterUI();
     } catch (e) {
       console.error('Water laden mislukt', e);
@@ -1903,6 +1934,43 @@
         console.error('Water opslaan mislukt', err);
         waterState = prevState;
         renderWaterUI();
+      });
+  });
+
+  document.getElementById('waterGoalBtn').addEventListener('click', function () {
+    const editEl = document.getElementById('waterGoalEdit');
+    const opening = editEl.style.display === 'none';
+    editEl.style.display = opening ? '' : 'none';
+    if (opening) {
+      document.getElementById('waterGoalInput').value = waterGoalMl;
+      document.getElementById('waterGoalInput').focus();
+    }
+  });
+
+  document.getElementById('waterGoalSaveBtn').addEventListener('click', function () {
+    const statusEl = document.getElementById('waterGoalStatus');
+    const val = parseInt(document.getElementById('waterGoalInput').value, 10);
+    if (!val || val <= 0) {
+      statusEl.classList.add('is-error');
+      statusEl.textContent = 'Vul een geldig doel in ml in.';
+      return;
+    }
+    statusEl.classList.remove('is-error');
+    statusEl.textContent = 'Opslaan\u2026';
+    supabaseClient.from('user_settings')
+      .upsert({ id: true, water_goal_ml: val, updated_at: new Date().toISOString() })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        waterGoalMl = val;
+        renderWaterUI();
+        document.getElementById('waterGoalEdit').style.display = 'none';
+        statusEl.textContent = 'Opgeslagen!';
+        setTimeout(function () { statusEl.textContent = ''; }, 2000);
+      })
+      .catch(function (err) {
+        console.error('Water-doel opslaan mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Opslaan mislukt.';
       });
   });
 

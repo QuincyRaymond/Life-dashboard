@@ -95,142 +95,6 @@
     .dash-title { font-size: 22px; }
   }
 
-  /* ---------- Component 2: Goal Ticker ---------- */
-
-  .ticker-row {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 18px;
-  }
-
-  .goal-ticker {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 12px;
-    border-radius: 12px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.30) 100%);
-    background-image:
-      linear-gradient(180deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.30) 100%),
-      repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 3px);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .goal-ticker::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -40%;
-    width: 30%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-    animation: tickerSweep 8s linear infinite;
-  }
-
-  @keyframes tickerSweep {
-    from { left: -40%; }
-    to   { left: 110%; }
-  }
-
-  .goal-ticker-led { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
-
-  .goal-ticker-led-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--success);
-    box-shadow: 0 0 8px rgba(107, 227, 164, 0.7);
-    animation: ledPulse 1.6s ease-in-out infinite;
-  }
-
-  @keyframes ledPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%      { opacity: 0.45; transform: scale(0.85); }
-  }
-
-  .goal-ticker-label {
-    font-family: var(--font-mono);
-    font-size: 9.5px;
-    font-weight: 800;
-    letter-spacing: 0.18em;
-    color: var(--text-tertiary);
-    white-space: nowrap;
-  }
-
-  .goal-ticker-stage {
-    flex: 1;
-    height: 22px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .goal-ticker-row {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 22px;
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-primary);
-    white-space: nowrap;
-  }
-
-  .goal-ticker-status {
-    width: 18px;
-    flex: 0 0 18px;
-    text-align: center;
-  }
-  .goal-ticker-status[data-status="done"] { color: var(--success); }
-  .goal-ticker-status[data-status="pending"] { color: var(--text-tertiary); }
-  .goal-ticker-status[data-status="empty"] { color: var(--text-tertiary); }
-
-  .goal-ticker-text {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .goal-ticker-meta {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-secondary);
-    letter-spacing: 0.04em;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.04);
-    white-space: nowrap;
-    flex: 0 0 auto;
-  }
-
-  .goal-ticker-row.is-leaving  { animation: ticker-leave 0.45s cubic-bezier(0.55, 0, 0.55, 1) forwards; }
-  .goal-ticker-row.is-entering { animation: ticker-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-
-  @keyframes ticker-leave {
-    from { opacity: 1; transform: translateY(0); }
-    to   { opacity: 0; transform: translateY(-100%); }
-  }
-  @keyframes ticker-enter {
-    from { opacity: 0; transform: translateY(100%); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (max-width: 480px) {
-    .goal-ticker { padding: 9px 12px; }
-    .goal-ticker-label { font-size: 9px; letter-spacing: 0.14em; }
-    .goal-ticker-row { font-size: 12px; }
-    .goal-ticker-meta { font-size: 10px; padding: 2px 7px; }
-  }
-
   /* ---------- Component 3: Day Ring ---------- */
 
   .day-ring-card {
@@ -440,287 +304,65 @@
   .agenda-expand-btn:hover, .agenda-collapse-btn:hover { color: var(--text-primary); }
   .agenda-collapse-btn { margin-top: 12px; }
 
-  /* ---------- Component 4: To Do List ---------- */
+  /* ---------- Component 4: Habits ---------- */
 
-  .section { display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; }
-
-  .section-title {
-    font-size: 10.5px; font-weight: 700;
-    letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--text-tertiary);
-    display: flex; align-items: center; gap: 12px;
-    margin: 0 0 14px;
+  .habit-tiles { display: flex; gap: 12px; flex-wrap: wrap; }
+  .habit-tile {
+    flex: 1; min-width: 110px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 18px 12px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
   }
-  .section-title::before { content: ''; width: 18px; height: 1px; background: var(--text-tertiary); opacity: 0.6; }
-  .section-title::after  { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent); }
-
-  .gm-card { margin-bottom: 16px; position: relative; }
-  .gm-card:last-child { margin-bottom: 0; }
-
-  .gm-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 14px;
+  .habit-tile:hover { background: rgba(255, 255, 255, 0.06); }
+  .habit-tile.is-done {
+    background: rgba(107, 227, 164, 0.10);
+    border-color: rgba(107, 227, 164, 0.32);
   }
+  .habit-tile-icon { font-size: 28px; }
+  .habit-tile-name { font-size: 12.5px; font-weight: 700; color: var(--text-primary); }
 
-  .gm-eyebrow {
-    font-size: 10.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--text-tertiary);
-    margin-bottom: 6px;
-  }
-
-  .gm-subtext { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
-
-  .gm-progress-row { display: flex; align-items: baseline; gap: 6px; }
-
-  .gm-progress-num {
-    font-family: var(--font-mono);
-    font-size: 42px;
-    font-weight: 700;
-    letter-spacing: -0.045em;
-    font-variant-numeric: tabular-nums;
-  }
-  .gm-progress-total { font-family: var(--font-mono); font-size: 18px; color: var(--text-tertiary); }
-  .gm-progress-label {
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 0.10em; text-transform: uppercase;
-    color: var(--text-tertiary);
-  }
-
-  .gm-streak {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.04);
+  .habit-streak {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 10px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
     color: var(--text-tertiary);
     border: 1px solid transparent;
-    height: fit-content;
+    font-size: 11px;
   }
-  .gm-streak.gm-streak-active {
+  .habit-streak.is-active {
     background: rgba(242, 192, 99, 0.10);
     color: var(--warning);
     border-color: rgba(242, 192, 99, 0.32);
   }
-  .gm-streak-bolt { font-size: 13px; }
-  .gm-streak.gm-streak-active .gm-streak-bolt { filter: drop-shadow(0 0 6px rgba(242, 192, 99, 0.6)); }
-  .gm-streak-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; }
-  .gm-streak-text { font-size: 10px; text-transform: uppercase; letter-spacing: 0.10em; }
+  .habit-streak-flame { font-size: 12px; }
+  .habit-streak.is-active .habit-streak-flame { filter: drop-shadow(0 0 6px rgba(242, 192, 99, 0.6)); }
+  .habit-streak-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; }
 
-  .gm-tomorrow-count {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-tertiary);
-    height: fit-content;
+  @media (max-width: 480px) {
+    .habit-tile { min-width: 90px; padding: 14px 8px; }
+    .habit-tile-icon { font-size: 24px; }
   }
 
-  .gm-bar { display: flex; gap: 4px; height: 6px; margin-bottom: 16px; }
-  .gm-bar:empty { display: none; }
-  .gm-bar-seg { flex: 1; height: 100%; border-radius: 3px; background: rgba(255,255,255,0.08); }
-  .gm-bar-seg.gm-bar-seg-done { background: var(--success); box-shadow: 0 0 6px rgba(107, 227, 164, 0.40); }
-
-  .gm-card-tomorrow .gm-progress-row { display: none; }
-
-  .gm-list { list-style: none; margin: 0; padding: 0; }
-
-  .empty-state {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    font-style: italic;
-    padding: 14px 0;
-    text-align: center;
+  .water-card { display: flex; align-items: center; gap: 16px; }
+  .water-drop-btn {
+    flex: none; width: 64px; height: 64px; border-radius: 50%;
+    border: none; cursor: pointer;
+    background: rgba(58, 150, 255, 0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    transition: transform 0.15s, background 0.15s;
   }
-
-  .goal-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    margin-bottom: 6px;
-    background: rgba(255,255,255,0.035);
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.06);
-  }
-  .goal-row:hover { background: rgba(255,255,255,0.06); }
-  .goal-row:hover .goal-drag-handle,
-  .goal-row:hover .goal-delete { opacity: 1; }
-
-  .goal-drag-handle {
-    width: 14px; flex: 0 0 14px;
-    opacity: 0;
-    transition: opacity 0.15s;
-    cursor: grab;
-    letter-spacing: -2px;
-    color: var(--text-tertiary);
-    text-align: center;
-    font-size: 14px;
-  }
-
-  .goal-checkbox {
-    appearance: none; -webkit-appearance: none;
-    width: 22px; height: 22px; flex: 0 0 22px;
-    border-radius: 7px;
-    border: 1.5px solid rgba(255,255,255,0.18);
-    background: rgba(0,0,0,0.25);
-    position: relative;
-    cursor: pointer;
-    margin: 0;
-    transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
-  }
-  .goal-checkbox:checked {
-    background: var(--success);
-    border-color: var(--success);
-    box-shadow: 0 0 12px rgba(107, 227, 164, 0.40);
-  }
-  .goal-checkbox:checked::after {
-    content: '';
-    position: absolute;
-    left: 7px; top: 3px;
-    width: 5px; height: 10px;
-    border: solid #0A0A0B;
-    border-width: 0 2px 2px 0;
-    animation: checkPop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  }
-  @keyframes checkPop {
-    from { transform: rotate(45deg) scale(0); }
-    to   { transform: rotate(45deg) scale(1); }
-  }
-  .goal-checkbox:disabled { cursor: not-allowed; opacity: 0.6; }
-
-  .goal-text {
-    flex: 1;
-    font-size: 14px;
-    color: var(--text-primary);
-    outline: none;
-    word-break: break-word;
-    cursor: text;
-  }
-  .goal-text[contenteditable="true"] {
-    outline: 1px solid rgba(255,255,255,0.2);
-    border-radius: 4px;
-    padding: 2px 4px;
-  }
-
-  .gm-queue-btn {
-    background: none; border: none; cursor: pointer;
-    color: var(--text-tertiary); opacity: 0.55;
-    font-size: 13px; padding: 2px;
-    transition: color 0.15s, opacity 0.15s, filter 0.15s;
-  }
-  .gm-queue-btn.is-active {
-    color: var(--warning); opacity: 1;
-    filter: drop-shadow(0 0 4px rgba(242, 192, 99, 0.65));
-  }
-  .gm-queue-btn:disabled { cursor: not-allowed; }
-
-  .goal-row.is-queue-flashing { animation: gm-queue-flash 0.48s ease; }
-  @keyframes gm-queue-flash {
-    0%   { background: rgba(255,255,255,0.035); }
-    40%  { background: rgba(242, 192, 99, 0.32); transform: scale(1.015); }
-    100% { background: rgba(255,255,255,0.035); transform: scale(1); }
-  }
-
-  .goal-delete {
-    background: none; border: none; cursor: pointer;
-    color: var(--text-tertiary); opacity: 0.5;
-    font-size: 16px; line-height: 1; padding: 2px 4px;
-    transition: color 0.15s, opacity 0.15s;
-  }
-  .goal-delete:hover { color: var(--danger); }
-
-  .goal-row.is-done {
-    opacity: 0.45;
-    background: rgba(107, 227, 164, 0.04);
-  }
-  .goal-row.is-done .goal-text {
-    text-decoration: line-through;
-    text-decoration-color: rgba(255,255,255,0.4);
-  }
-
-  .goal-row.is-queued {
-    background: rgba(242, 192, 99, 0.10);
-    box-shadow: inset 3px 0 0 0 var(--warning);
-  }
-  .goal-row.is-queued .goal-text { color: #FFE2A8; }
-
-  .goal-row.drag-over { border-top: 2px solid rgba(255,255,255,0.5); }
-
-  .gm-card.gm-all-done::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 120px;
-    background: radial-gradient(ellipse at top, rgba(107, 227, 164, 0.12), transparent 70%);
-    border-radius: 16px 16px 0 0;
-    pointer-events: none;
-  }
-  .gm-card.gm-all-done .gm-progress-num,
-  .gm-card.gm-all-done .gm-progress-label { color: var(--success); }
-
-  .gm-show-more {
-    display: block;
-    width: 100%; text-align: center; padding: 10px; margin-bottom: 6px;
-    background: none; border: 1px dashed rgba(255,255,255,0.12);
-    border-radius: 10px; color: var(--text-tertiary); cursor: pointer;
-    font-size: 12px; font-family: inherit;
-  }
-  .gm-show-more:hover { color: var(--text-primary); }
-
-  .gm-push-btn {
-    display: block;
-    width: 100%; padding: 10px; margin-bottom: 14px;
-    background: none; border: 1px dashed rgba(255,255,255,0.14);
-    border-radius: 10px; color: var(--text-tertiary); cursor: pointer;
-    font-size: 12.5px; font-family: inherit;
-  }
-  .gm-push-btn:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.3); }
-
-  .gm-input-wrap {
-    display: flex; gap: 8px; flex-wrap: wrap;
-    padding-top: 14px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-  }
-  .gm-input-wrap input {
-    flex: 1; min-width: 140px;
-    padding: 11px 14px; border-radius: 12px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: var(--text-primary); font-size: 13px;
-    font-family: inherit;
-  }
-  .gm-input-wrap input::placeholder { color: var(--text-tertiary); }
-  .gm-input-wrap input:focus { outline: none; border-color: rgba(255,255,255,0.4); }
-
-  .gm-add-btn {
-    background: linear-gradient(180deg, #FFFFFF 0%, #E8E5DD 100%);
-    color: #0A0A0B; font-weight: 700; font-size: 12.5px;
-    padding: 11px 20px; border-radius: 12px; border: none; cursor: pointer;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 4px 14px rgba(0,0,0,0.3);
-    transition: transform 0.15s, filter 0.15s;
-    white-space: nowrap;
-    font-family: inherit;
-  }
-  .gm-add-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
-
-  .gm-polish-btn {
-    background: rgba(255,255,255,0.04);
-    color: var(--text-primary);
-    border: 1px solid rgba(255,255,255,0.10);
-    font-size: 12.5px; font-weight: 600;
-    padding: 11px 20px; border-radius: 12px; cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s;
-    font-family: inherit;
-  }
-  .gm-polish-btn:hover { background: rgba(255,255,255,0.08); }
-
-  .gm-polish-status { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; min-height: 14px; }
-  .gm-polish-status.is-error { color: var(--danger); }
+  .water-drop-btn:hover { background: rgba(58, 150, 255, 0.2); }
+  .water-drop-btn:active { transform: scale(0.92); }
+  .water-info { flex: 1; min-width: 0; }
+  .water-summary { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+  .water-progress-track { height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.06); overflow: hidden; }
+  .water-progress-fill { height: 100%; background: var(--accent-blue); border-radius: 5px; transition: width 0.4s ease; }
+  .water-progress-label { font-size: 10.5px; color: var(--text-tertiary); margin-top: 6px; }
 
   /* ---------- Component: Tab bar ---------- */
 
@@ -816,11 +458,11 @@
   .quad-area-dayring { grid-area: dayring; }
   .quad-area-future-top { grid-area: future-top; }
 
-  .quad-grid-dash-main { grid-template-areas: "todo" "agenda" "future-main-1" "future-main-2"; }
+  .quad-grid-dash-main { grid-template-areas: "habits" "agenda" "future-main-1" "future-main-2"; }
   @media (min-width: 860px) {
-    .quad-grid-dash-main { grid-template-areas: "todo agenda" "future-main-1 future-main-2"; }
+    .quad-grid-dash-main { grid-template-areas: "habits agenda" "future-main-1 future-main-2"; }
   }
-  .quad-area-todo { grid-area: todo; }
+  .quad-area-habits { grid-area: habits; }
   .quad-area-agenda { grid-area: agenda; }
   .quad-area-future-main-1 { grid-area: future-main-1; }
   .quad-area-future-main-2 { grid-area: future-main-2; }
@@ -1343,20 +985,6 @@
 
   <h1 class="dash-title">Quincy's Dashboard</h1>
 
-  <div class="ticker-row">
-    <div class="goal-ticker" id="goalTicker" aria-live="polite" aria-atomic="true">
-      <div class="goal-ticker-led"><span class="goal-ticker-led-dot"></span></div>
-      <div class="goal-ticker-label">GOALS</div>
-      <div class="goal-ticker-stage" id="goalTickerStage">
-        <div class="goal-ticker-row">
-          <span class="goal-ticker-status" data-status="">·</span>
-          <span class="goal-ticker-text">Loading…</span>
-        </div>
-      </div>
-      <div class="goal-ticker-meta" id="goalTickerMeta">0/0</div>
-    </div>
-  </div>
-
   <div class="quad-grid quad-grid-dash-top">
 
     <div class="quad-section quad-area-dayring">
@@ -1422,55 +1050,20 @@
 
   <div class="quad-grid quad-grid-dash-main">
 
-    <div class="quad-section quad-area-todo">
-      <div class="section-title">To Do List</div>
+    <div class="quad-section quad-area-habits">
+      <div class="section-title">Habits</div>
 
-      <div class="card gm-card" id="todayCard">
-        <div class="gm-header">
-          <div class="gm-header-left">
-            <div class="gm-eyebrow" id="todayLabel">Today — </div>
-            <div class="gm-progress-row">
-              <span class="gm-progress-num" id="gmProgressNum">0</span>
-              <span class="gm-progress-total" id="gmProgressTotal">/ 0</span>
-              <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
-            </div>
-          </div>
-          <div class="gm-streak" id="gmStreak">
-            <span class="gm-streak-bolt">⚡</span>
-            <span class="gm-streak-num" id="gmStreakNum">0</span>
-            <span class="gm-streak-text">day streak</span>
-          </div>
-        </div>
-        <div class="gm-bar" id="gmBar"></div>
-        <ul class="goal-list gm-list" id="goalList"></ul>
-        <div class="empty-state" id="emptyState">No goals for today yet — add one below.</div>
-        <button class="gm-show-more" id="gmShowMore" style="display:none;"></button>
-        <button class="gm-push-btn" id="gmPushBtn" style="display:none;">Push remaining to tomorrow</button>
-        <div class="goal-input-wrap gm-input-wrap">
-          <input type="text" id="goalInput" placeholder="Add a goal for today…">
-          <button id="goalAddBtn" class="gm-add-btn">+ Add</button>
-          <button id="goalPolishBtn" class="gm-polish-btn">✨ Polish</button>
-        </div>
-        <div class="gm-polish-status" id="polishStatus"></div>
+      <div class="card">
+        <div class="habit-tiles" id="habitTiles"></div>
       </div>
 
-      <div class="card gm-card gm-card-tomorrow" id="tomorrowCard">
-        <div class="gm-header">
-          <div class="gm-header-left">
-            <div class="gm-eyebrow" id="tomorrowLabel">Plan tomorrow — </div>
-            <div class="gm-subtext">Write tonight, locked until 6 AM.</div>
-          </div>
-          <div class="gm-tomorrow-count" id="gmTomorrowCount">0 planned</div>
+      <div class="card water-card">
+        <button type="button" class="water-drop-btn" id="waterDropBtn" aria-label="Voeg 890 ml toe">💧</button>
+        <div class="water-info">
+          <div class="water-summary" id="waterSummary">0 keer · 0,00 L</div>
+          <div class="water-progress-track"><div class="water-progress-fill" id="waterProgressFill" style="width:0%"></div></div>
+          <div class="water-progress-label" id="waterProgressLabel">Doel: 2,5 L</div>
         </div>
-        <ul class="goal-list gm-list" id="tomorrowList"></ul>
-        <div class="empty-state" id="tomorrowEmptyState">Nothing planned for tomorrow yet</div>
-        <button class="gm-show-more" id="gmTomorrowShowMore" style="display:none;"></button>
-        <div class="goal-input-wrap gm-input-wrap">
-          <input type="text" id="tomorrowInput" placeholder="Add a goal for tomorrow…">
-          <button id="tomorrowAddBtn" class="gm-add-btn">+ Add</button>
-          <button id="tomorrowPolishBtn" class="gm-polish-btn">✨ Polish</button>
-        </div>
-        <div class="gm-polish-status" id="tomorrowStatus"></div>
       </div>
     </div>
 
@@ -2104,143 +1697,11 @@
 (function () {
   'use strict';
 
-  const ANTHROPIC_API_KEY = '';
-
   /* ---------- supabase ---------- */
 
   const SUPABASE_URL = 'https://atsusphjcgrxgfeejhex.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_5BL3gNtUjmCqxgKpYt6qFg_K88jbiAh';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  /* ---------- storage helpers (Supabase-backed) ---------- */
-
-  const GOALS_TABLE = 'goals';
-  const STREAK_TABLE = 'goal_streak';
-
-  let goalsCache = {};
-  let streakCache = { count: 0, lastProcessedDate: null };
-  const pendingGoalWrites = {};
-
-  function storeGet(key) {
-    if (key === STREAK_KEY) return streakCache;
-    if (key.indexOf('goals:') === 0) return goalsCache[key] || null;
-    return null;
-  }
-  function storeSet(key, value) {
-    if (key === STREAK_KEY) {
-      streakCache = value;
-      supabaseClient.from(STREAK_TABLE).upsert({
-        id: true,
-        count: value.count || 0,
-        last_processed_date: value.lastProcessedDate || null
-      }).then(function (res) {
-        if (res.error) console.error('Supabase streak save failed', res.error);
-      });
-      return;
-    }
-    if (key.indexOf('goals:') === 0) {
-      goalsCache[key] = value;
-      syncGoalsToSupabase(key.slice('goals:'.length), value);
-      window.dispatchEvent(new CustomEvent('goals-changed'));
-    }
-  }
-  function storeDelete(key) {
-    if (key.indexOf('goals:') === 0) {
-      delete goalsCache[key];
-      syncGoalsToSupabase(key.slice('goals:'.length), []);
-    }
-  }
-  function storeListKeys(prefix) {
-    return Object.keys(goalsCache).filter(function (k) { return k.indexOf(prefix) === 0; });
-  }
-
-  function syncGoalsToSupabase(dateStr, goals) {
-    const prev = pendingGoalWrites[dateStr] || Promise.resolve();
-    const next = prev.then(function () {
-      return supabaseClient.from(GOALS_TABLE).delete().eq('date', dateStr).then(function (res) {
-        if (res.error) { console.error('Supabase goal save failed', res.error); return; }
-        if (!goals.length) return;
-        const rows = goals.map(function (g, i) {
-          return {
-            date: dateStr,
-            text: g.text,
-            done: !!g.done,
-            done_at: g.doneAt ? new Date(g.doneAt).toISOString() : null,
-            queued: !!g.queued,
-            position: i
-          };
-        });
-        return supabaseClient.from(GOALS_TABLE).insert(rows).then(function (res2) {
-          if (res2.error) console.error('Supabase goal save failed', res2.error);
-        });
-      });
-    }).catch(function (e) { console.error('Supabase goal save failed', e); });
-    pendingGoalWrites[dateStr] = next;
-    return next;
-  }
-
-  async function loadStoreFromSupabase() {
-    const [goalsRes, streakRes] = await Promise.all([
-      supabaseClient.from(GOALS_TABLE).select('*').order('date', { ascending: true }).order('position', { ascending: true }),
-      supabaseClient.from(STREAK_TABLE).select('*').eq('id', true).maybeSingle()
-    ]);
-    goalsCache = {};
-    if (goalsRes.error) {
-      console.error('Supabase goals load failed', goalsRes.error);
-    } else {
-      (goalsRes.data || []).forEach(function (row) {
-        const key = 'goals:' + row.date;
-        if (!goalsCache[key]) goalsCache[key] = [];
-        const goal = { text: row.text, done: row.done, queued: row.queued };
-        if (row.done_at) goal.doneAt = new Date(row.done_at).getTime();
-        goalsCache[key].push(goal);
-      });
-    }
-    if (streakRes.error) {
-      console.error('Supabase streak load failed', streakRes.error);
-    } else if (streakRes.data) {
-      streakCache = { count: streakRes.data.count || 0, lastProcessedDate: streakRes.data.last_processed_date || null };
-    }
-  }
-
-  async function migrateLocalStorageIfNeeded() {
-    try {
-      if (Object.keys(goalsCache).length > 0) return;
-      const localKeys = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.indexOf('goals:') === 0) localKeys.push(k);
-      }
-      const tasks = [];
-      localKeys.forEach(function (k) {
-        let goals = null;
-        try { goals = JSON.parse(localStorage.getItem(k)); } catch (e) { /* ignore */ }
-        if (goals && goals.length) {
-          goalsCache[k] = goals;
-          tasks.push(syncGoalsToSupabase(k.slice('goals:'.length), goals));
-        }
-      });
-      const rawStreak = localStorage.getItem(STREAK_KEY);
-      if (rawStreak) {
-        try {
-          const streak = JSON.parse(rawStreak);
-          if (streak && (streak.count || streak.lastProcessedDate)) {
-            streakCache = streak;
-            tasks.push(supabaseClient.from(STREAK_TABLE).upsert({
-              id: true,
-              count: streak.count || 0,
-              last_processed_date: streak.lastProcessedDate || null
-            }));
-          }
-        } catch (e) { /* ignore */ }
-      }
-      await Promise.all(tasks);
-      localKeys.forEach(function (k) { localStorage.removeItem(k); });
-      if (rawStreak) localStorage.removeItem(STREAK_KEY);
-    } catch (e) {
-      console.error('localStorage migration failed', e);
-    }
-  }
 
   /* ---------- date helpers ---------- */
 
@@ -2257,476 +1718,192 @@
     }
     return toDateString(now);
   }
-  function getTomorrowDateString() {
-    const now = new Date();
-    if (now.getHours() < 6) {
-      return toDateString(now);
-    }
-    const d = new Date(now);
-    d.setDate(d.getDate() + 1);
-    return toDateString(d);
-  }
-  function formatDate(dateStr) {
-    const parts = dateStr.split('-').map(Number);
-    const dt = new Date(parts[0], parts[1] - 1, parts[2]);
-    const weekday = dt.toLocaleDateString('en-US', { weekday: 'short' });
-    const month = dt.toLocaleDateString('en-US', { month: 'short' });
-    return weekday + ', ' + month + ' ' + dt.getDate();
-  }
 
-  function todayKey() { return 'goals:' + getActiveDateString(); }
-  function tomorrowKey() { return 'goals:' + getTomorrowDateString(); }
+  /* ---------- habits ---------- */
 
-  const STREAK_KEY = 'goal_streak_v1';
+  const HABITS = [
+    { key: 'journal', label: 'Journalen', icon: '📓' },
+    { key: 'meditate', label: 'Mediteren', icon: '🧘' }
+  ];
 
-  /* ---------- rollover + streak ---------- */
+  let habitState = {};
 
-  function runStreakCheck() {
-    const streak = storeGet(STREAK_KEY) || { count: 0, lastProcessedDate: null };
-    const active = getActiveDateString();
-    let dates = storeListKeys('goals:')
-      .map(function (k) { return k.slice('goals:'.length); })
-      .filter(function (d) { return d < active; });
-    if (streak.lastProcessedDate) {
-      dates = dates.filter(function (d) { return d > streak.lastProcessedDate; });
-    }
-    dates.sort();
-    dates.forEach(function (dateStr) {
-      const goals = storeGet('goals:' + dateStr) || [];
-      if (goals.length === 0) {
-        // no goals that day, don't break the streak
-      } else if (goals.every(function (g) { return g.done; })) {
-        streak.count += 1;
-      } else {
-        streak.count = 0;
-      }
-      streak.lastProcessedDate = dateStr;
+  function renderHabitTiles() {
+    const container = document.getElementById('habitTiles');
+    container.innerHTML = '';
+    HABITS.forEach(function (h) {
+      const state = habitState[h.key] || { completedToday: false, streak: 0 };
+
+      const tile = document.createElement('div');
+      tile.className = 'habit-tile' + (state.completedToday ? ' is-done' : '');
+
+      const icon = document.createElement('div');
+      icon.className = 'habit-tile-icon';
+      icon.textContent = h.icon;
+
+      const name = document.createElement('div');
+      name.className = 'habit-tile-name';
+      name.textContent = h.label;
+
+      const streak = document.createElement('div');
+      streak.className = 'habit-streak' + (state.streak > 0 ? ' is-active' : '');
+      const flame = document.createElement('span');
+      flame.className = 'habit-streak-flame';
+      flame.textContent = '🔥';
+      const num = document.createElement('span');
+      num.className = 'habit-streak-num';
+      num.textContent = state.streak || 0;
+      streak.appendChild(flame);
+      streak.appendChild(num);
+
+      tile.appendChild(icon);
+      tile.appendChild(name);
+      tile.appendChild(streak);
+      tile.addEventListener('click', function () { toggleHabit(h.key); });
+      container.appendChild(tile);
     });
-    storeSet(STREAK_KEY, streak);
   }
 
-  function runRollover() {
-    const active = getActiveDateString();
-    const keys = storeListKeys('goals:');
-    keys.forEach(function (key) {
-      const dateStr = key.slice('goals:'.length);
-      if (dateStr < active) {
-        const goals = storeGet(key) || [];
-        const undone = goals.filter(function (g) { return !g.done; });
-        if (undone.length) {
-          const todayGoals = storeGet(todayKey()) || [];
-          undone.forEach(function (g) {
-            const exists = todayGoals.some(function (tg) { return tg.text === g.text; });
-            if (!exists) todayGoals.push({ text: g.text, done: false });
-          });
-          storeSet(todayKey(), todayGoals);
+  async function loadHabitsData() {
+    try {
+      const todayStr = toISODate(new Date());
+      const [logRes, streakRes] = await Promise.all([
+        supabaseClient.from('habit_log').select('*').eq('date', todayStr),
+        supabaseClient.from('habit_streaks').select('*')
+      ]);
+      if (logRes.error) console.error('Habit log laden mislukt', logRes.error);
+      if (streakRes.error) console.error('Habit streaks laden mislukt', streakRes.error);
+
+      habitState = {};
+      HABITS.forEach(function (h) {
+        habitState[h.key] = { completedToday: false, streak: 0, longestStreak: 0, lastCompletedDate: null };
+      });
+      (logRes.data || []).forEach(function (row) {
+        if (habitState[row.habit_name]) habitState[row.habit_name].completedToday = true;
+      });
+      (streakRes.data || []).forEach(function (row) {
+        if (habitState[row.habit_name]) {
+          habitState[row.habit_name].streak = row.current_streak || 0;
+          habitState[row.habit_name].longestStreak = row.longest_streak || 0;
+          habitState[row.habit_name].lastCompletedDate = row.last_completed_date;
         }
-        storeDelete(key);
-      }
-    });
+      });
+      renderHabitTiles();
+    } catch (e) {
+      console.error('Habits laden mislukt', e);
+    }
   }
 
-  /* ---------- goal list rendering ---------- */
-
-  function getGoals(key) { return storeGet(key) || []; }
-  function saveGoals(key, goals) { storeSet(key, goals); }
-
-  function renderTodayHeader() {
-    const goals = getGoals(todayKey());
-    const total = goals.length;
-    const done = goals.filter(function (g) { return g.done; }).length;
-
-    document.getElementById('gmProgressNum').textContent = done;
-    document.getElementById('gmProgressTotal').textContent = '/ ' + total;
-
-    const label = document.getElementById('gmProgressLabel');
-    if (total === 0) label.textContent = 'no goals yet';
-    else if (done === total) label.textContent = 'all done — solid day';
-    else label.textContent = 'complete';
-
-    const bar = document.getElementById('gmBar');
-    bar.innerHTML = '';
-    goals.forEach(function (g) {
-      const seg = document.createElement('div');
-      seg.className = 'gm-bar-seg' + (g.done ? ' gm-bar-seg-done' : '');
-      bar.appendChild(seg);
-    });
-
-    document.getElementById('todayCard').classList.toggle('gm-all-done', total > 0 && done === total);
-
-    const pushBtn = document.getElementById('gmPushBtn');
-    const hasUndone = goals.some(function (g) { return !g.done; });
-    pushBtn.style.display = hasUndone ? '' : 'none';
-
-    document.getElementById('todayLabel').textContent = 'Today — ' + formatDate(getActiveDateString());
+  function toggleHabit(key) {
+    const state = habitState[key];
+    if (!state) return;
+    if (state.completedToday) completeHabit(key, false);
+    else completeHabit(key, true);
   }
 
-  function renderStreak() {
-    const streak = storeGet(STREAK_KEY) || { count: 0 };
-    document.getElementById('gmStreakNum').textContent = streak.count || 0;
-    document.getElementById('gmStreak').classList.toggle('gm-streak-active', (streak.count || 0) > 0);
-  }
+  // Streak math only needs "was yesterday the last completed day": if so,
+  // completing today continues the streak (+1); otherwise a day was missed
+  // and today starts a fresh streak of 1. Un-completing reverses exactly
+  // that same decision — inferred from the *current* streak value alone
+  // (1 means today was a fresh start, so it reverts to 0; anything higher
+  // means it was a continuation, so it reverts to streak-1 with yesterday
+  // still standing as the last completed day) — no separate "undo" state
+  // needs to be cached, which keeps this correct even across a reload.
+  async function completeHabit(key, completing) {
+    const state = habitState[key];
+    const todayStr = toISODate(new Date());
+    const yesterdayStr = toISODate(new Date(Date.now() - 24 * 3600 * 1000));
 
-  function renderTomorrowCount() {
-    const goals = getGoals(tomorrowKey());
-    document.getElementById('gmTomorrowCount').textContent = goals.length + ' planned';
-    document.getElementById('tomorrowLabel').textContent = 'Plan tomorrow — ' + formatDate(getTomorrowDateString());
-  }
+    const prevState = Object.assign({}, state);
 
-  function makeInlineEdit(el, key, idx, reload) {
-    el.addEventListener('click', function () {
-      if (el.getAttribute('contenteditable') === 'true') return;
-      el.setAttribute('contenteditable', 'true');
-      el.focus();
-      const range = document.createRange();
-      range.selectNodeContents(el);
-      range.collapse(false);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-    });
-    function commit() {
-      el.removeAttribute('contenteditable');
-      const newText = el.textContent.trim();
-      const current = getGoals(key);
-      if (newText && newText !== current[idx].text) {
-        current[idx].text = newText;
-        saveGoals(key, current);
-        reload();
+    let newStreak, newLastDate;
+    if (completing) {
+      const continuing = state.lastCompletedDate === yesterdayStr;
+      newStreak = continuing ? (state.streak || 0) + 1 : 1;
+      newLastDate = todayStr;
+    } else {
+      const wasFreshStart = (state.streak || 0) <= 1;
+      newStreak = wasFreshStart ? 0 : state.streak - 1;
+      newLastDate = wasFreshStart ? null : yesterdayStr;
+    }
+
+    state.completedToday = completing;
+    state.streak = newStreak;
+    state.lastCompletedDate = newLastDate;
+    renderHabitTiles();
+
+    try {
+      if (completing) {
+        const { error } = await supabaseClient.from('habit_log')
+          .upsert({ habit_name: key, date: todayStr, completed_at: new Date().toISOString() }, { onConflict: 'habit_name,date' });
+        if (error) throw error;
       } else {
-        el.textContent = current[idx].text;
+        const { error } = await supabaseClient.from('habit_log').delete().eq('habit_name', key).eq('date', todayStr);
+        if (error) throw error;
       }
+
+      const { error: streakErr } = await supabaseClient.from('habit_streaks').upsert({
+        habit_name: key,
+        current_streak: newStreak,
+        last_completed_date: newLastDate,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'habit_name' });
+      if (streakErr) throw streakErr;
+
+      if (completing && newStreak > (state.longestStreak || 0)) {
+        await supabaseClient.from('habit_streaks').update({ longest_streak: newStreak }).eq('habit_name', key);
+        state.longestStreak = newStreak;
+      }
+    } catch (e) {
+      console.error('Habit opslaan mislukt', e);
+      habitState[key] = prevState;
+      renderHabitTiles();
     }
-    el.addEventListener('blur', commit);
-    el.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        el.blur();
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        const current = getGoals(key);
-        el.textContent = current[idx].text;
-        el.removeAttribute('contenteditable');
-        el.blur();
-      }
-    });
   }
 
-  let dragSrcIdx = null;
-  function wireDragReorder(li, key, idx, reload) {
-    li.addEventListener('dragstart', function (e) {
-      dragSrcIdx = idx;
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    li.addEventListener('dragover', function (e) {
-      e.preventDefault();
-      li.classList.add('drag-over');
-    });
-    li.addEventListener('dragleave', function () {
-      li.classList.remove('drag-over');
-    });
-    li.addEventListener('drop', function (e) {
-      e.preventDefault();
-      li.classList.remove('drag-over');
-      if (dragSrcIdx === null || dragSrcIdx === idx) return;
-      const current = getGoals(key);
-      const moved = current.splice(dragSrcIdx, 1)[0];
-      current.splice(idx, 0, moved);
-      saveGoals(key, current);
-      dragSrcIdx = null;
-      reload();
-    });
-    li.addEventListener('dragend', function () {
-      dragSrcIdx = null;
-    });
+  /* ---------- water ---------- */
+
+  const WATER_FILL_ML = 890;
+  const WATER_GOAL_ML = 2500;
+
+  let waterState = { fillCount: 0, totalMl: 0 };
+
+  function renderWaterUI() {
+    const liters = (waterState.totalMl / 1000).toFixed(2).replace('.', ',');
+    document.getElementById('waterSummary').textContent = waterState.fillCount + ' keer \u00b7 ' + liters + ' L';
+    const pct = Math.min(100, Math.round(waterState.totalMl / WATER_GOAL_ML * 100));
+    document.getElementById('waterProgressFill').style.width = pct + '%';
+    document.getElementById('waterProgressLabel').textContent = pct + '% van doel (2,5 L)';
   }
 
-  function buildGoalRow(goal, idx, key, reload, readOnly) {
-    const li = document.createElement('li');
-    li.className = 'goal-row' + (goal.done ? ' is-done' : '') + (goal.queued ? ' is-queued' : '');
-    li.draggable = true;
-    li.dataset.idx = idx;
+  async function loadWaterData() {
+    try {
+      const todayStr = toISODate(new Date());
+      const { data, error } = await supabaseClient.from('water_log').select('*').eq('date', todayStr).maybeSingle();
+      if (error) console.error('Water laden mislukt', error);
+      waterState = data ? { fillCount: data.fill_count, totalMl: data.total_ml } : { fillCount: 0, totalMl: 0 };
+      renderWaterUI();
+    } catch (e) {
+      console.error('Water laden mislukt', e);
+    }
+  }
 
-    const handle = document.createElement('span');
-    handle.className = 'goal-drag-handle';
-    handle.textContent = '⋮⋮';
-    li.appendChild(handle);
+  document.getElementById('waterDropBtn').addEventListener('click', function () {
+    const todayStr = toISODate(new Date());
+    const prevState = { fillCount: waterState.fillCount, totalMl: waterState.totalMl };
+    waterState = { fillCount: waterState.fillCount + 1, totalMl: waterState.totalMl + WATER_FILL_ML };
+    renderWaterUI();
 
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.className = 'goal-checkbox';
-    cb.checked = !!goal.done;
-    if (readOnly) {
-      cb.disabled = true;
-      cb.title = 'Activates at 6 AM tomorrow';
-    } else {
-      cb.addEventListener('change', function () {
-        const current = getGoals(key);
-        current[idx].done = cb.checked;
-        if (cb.checked) current[idx].doneAt = Date.now();
-        else delete current[idx].doneAt;
-        saveGoals(key, current);
-        reload();
+    supabaseClient.from('water_log')
+      .upsert({ date: todayStr, fill_count: waterState.fillCount, total_ml: waterState.totalMl, updated_at: new Date().toISOString() }, { onConflict: 'date' })
+      .then(function (res) {
+        if (res.error) throw res.error;
+      })
+      .catch(function (err) {
+        console.error('Water opslaan mislukt', err);
+        waterState = prevState;
+        renderWaterUI();
       });
-    }
-    li.appendChild(cb);
-
-    const text = document.createElement('span');
-    text.className = 'goal-text';
-    text.textContent = goal.text;
-    makeInlineEdit(text, key, idx, reload);
-    li.appendChild(text);
-
-    const queueBtn = document.createElement('button');
-    queueBtn.className = 'gm-queue-btn' + (goal.queued ? ' is-active' : '');
-    queueBtn.textContent = '⚡';
-    queueBtn.title = 'Queue for productivity window';
-    queueBtn.type = 'button';
-    if (readOnly) {
-      queueBtn.disabled = true;
-    } else {
-      queueBtn.addEventListener('click', function () {
-        const current = getGoals(key);
-        current[idx].queued = !current[idx].queued;
-        saveGoals(key, current);
-        li.classList.add('is-queue-flashing');
-        setTimeout(function () { reload(); }, 480);
-      });
-    }
-    li.appendChild(queueBtn);
-
-    const delBtn = document.createElement('button');
-    delBtn.className = 'goal-delete';
-    delBtn.textContent = '×';
-    delBtn.title = 'Delete';
-    delBtn.type = 'button';
-    delBtn.addEventListener('click', function () {
-      const current = getGoals(key);
-      current.splice(idx, 1);
-      saveGoals(key, current);
-      reload();
-    });
-    li.appendChild(delBtn);
-
-    wireDragReorder(li, key, idx, reload);
-
-    return li;
-  }
-
-  function renderListInto(goals, listEl, emptyEl, key, readOnly, showMoreBtn, reload) {
-    listEl.innerHTML = '';
-    emptyEl.style.display = goals.length === 0 ? '' : 'none';
-
-    const COLLAPSE_AT = 5;
-    const expanded = listEl.dataset.expanded === 'true';
-    const visibleGoals = (!expanded && goals.length > COLLAPSE_AT) ? goals.slice(0, COLLAPSE_AT) : goals;
-
-    visibleGoals.forEach(function (g) {
-      const idx = goals.indexOf(g);
-      listEl.appendChild(buildGoalRow(g, idx, key, reload, readOnly));
-    });
-
-    if (goals.length > COLLAPSE_AT) {
-      showMoreBtn.style.display = '';
-      const remaining = goals.length - COLLAPSE_AT;
-      showMoreBtn.textContent = expanded ? 'Show less ▴' : 'Show ' + remaining + ' more ▾';
-      showMoreBtn.onclick = function () {
-        listEl.dataset.expanded = expanded ? 'false' : 'true';
-        reload();
-      };
-    } else {
-      showMoreBtn.style.display = 'none';
-    }
-  }
-
-  function loadToday() {
-    const goals = getGoals(todayKey());
-    renderListInto(
-      goals,
-      document.getElementById('goalList'),
-      document.getElementById('emptyState'),
-      todayKey(),
-      false,
-      document.getElementById('gmShowMore'),
-      loadToday
-    );
-    renderTodayHeader();
-  }
-
-  function loadTomorrow() {
-    const goals = getGoals(tomorrowKey());
-    renderListInto(
-      goals,
-      document.getElementById('tomorrowList'),
-      document.getElementById('tomorrowEmptyState'),
-      tomorrowKey(),
-      true,
-      document.getElementById('gmTomorrowShowMore'),
-      loadTomorrow
-    );
-    renderTomorrowCount();
-  }
-
-  document.getElementById('gmPushBtn').addEventListener('click', function () {
-    if (!confirm('Push all remaining goals to tomorrow?')) return;
-    const goals = getGoals(todayKey());
-    const undone = goals.filter(function (g) { return !g.done; });
-    const done = goals.filter(function (g) { return g.done; });
-    const tomorrowGoals = getGoals(tomorrowKey());
-    undone.forEach(function (g) {
-      const exists = tomorrowGoals.some(function (tg) { return tg.text === g.text; });
-      if (!exists) tomorrowGoals.push({ text: g.text, done: false });
-    });
-    saveGoals(tomorrowKey(), tomorrowGoals);
-    saveGoals(todayKey(), done);
-    loadToday();
-    loadTomorrow();
-  });
-
-  /* ---------- add + polish ---------- */
-
-  function makeAddHandlers(input, addBtn, polishBtn, key, statusEl, reload) {
-    function doAdd() {
-      const text = input.value.trim();
-      if (!text) return;
-      const goals = getGoals(key);
-      goals.push({ text: text, done: false });
-      saveGoals(key, goals);
-      input.value = '';
-      reload();
-    }
-
-    function showStatus(msg, isError) {
-      statusEl.textContent = msg;
-      statusEl.classList.toggle('is-error', !!isError);
-      setTimeout(function () {
-        statusEl.textContent = '';
-        statusEl.classList.remove('is-error');
-      }, 3500);
-    }
-
-    async function doPolish() {
-      const text = input.value.trim();
-      if (!text) return;
-
-      if (!ANTHROPIC_API_KEY) {
-        doAdd();
-        showStatus('Polish needs an Anthropic API key — added as-typed.', false);
-        return;
-      }
-
-      try {
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': ANTHROPIC_API_KEY,
-            'anthropic-version': '2023-06-01',
-            'anthropic-dangerous-direct-browser-access': 'true'
-          },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-5',
-            max_tokens: 1000,
-            messages: [{
-              role: 'user',
-              content: 'Clean up and polish this single to-do goal so it reads clearly and concisely. Return ONLY a JSON array containing exactly one string (the polished goal) — no preamble, no code fences.\n\nGoal: ' + text
-            }]
-          })
-        });
-        if (!res.ok) throw new Error('request failed');
-        const data = await res.json();
-        const raw = data.content[0].text.trim();
-        const arr = JSON.parse(raw);
-        const polished = arr[0];
-        const goals = getGoals(key);
-        goals.push({ text: polished, done: false });
-        saveGoals(key, goals);
-        input.value = '';
-        reload();
-      } catch (e) {
-        const goals = getGoals(key);
-        goals.push({ text: text, done: false });
-        saveGoals(key, goals);
-        input.value = '';
-        reload();
-        showStatus('Polish failed — added as-typed.', true);
-      }
-    }
-
-    addBtn.addEventListener('click', doAdd);
-    polishBtn.addEventListener('click', doPolish);
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); doAdd(); }
-    });
-  }
-
-  /* ---------- goal ticker ---------- */
-
-  let cycleIdx = 0;
-  let tickerFirstRender = true;
-
-  function buildTickerItems() {
-    const goals = getGoals(todayKey());
-    const total = goals.length;
-    const done = goals.filter(function (g) { return g.done; }).length;
-    let items;
-    if (total === 0) {
-      items = [{ status: 'empty', text: 'No goals set for today — add one to get rolling.' }];
-    } else if (done === total) {
-      items = [{ status: 'done', text: '✓ All goals done — solid day.' }];
-    } else {
-      items = goals.filter(function (g) { return !g.done; }).map(function (g) {
-        return { status: 'pending', text: g.text };
-      });
-    }
-    return { items: items, done: done, total: total };
-  }
-
-  function tick() {
-    const data = buildTickerItems();
-    if (cycleIdx >= data.items.length) cycleIdx = 0;
-    const item = data.items[cycleIdx];
-
-    const stage = document.getElementById('goalTickerStage');
-    const oldRow = stage.querySelector('.goal-ticker-row');
-
-    const newRow = document.createElement('div');
-    newRow.className = 'goal-ticker-row';
-    const statusSpan = document.createElement('span');
-    statusSpan.className = 'goal-ticker-status';
-    statusSpan.dataset.status = item.status;
-    statusSpan.textContent = item.status === 'done' ? '✓' : item.status === 'pending' ? '○' : '·';
-    const textSpan = document.createElement('span');
-    textSpan.className = 'goal-ticker-text';
-    textSpan.textContent = item.text;
-    newRow.appendChild(statusSpan);
-    newRow.appendChild(textSpan);
-
-    if (oldRow && !tickerFirstRender) {
-      oldRow.classList.add('is-leaving');
-      setTimeout(function () {
-        if (oldRow.parentNode) oldRow.parentNode.removeChild(oldRow);
-      }, 460);
-      newRow.classList.add('is-entering');
-      stage.appendChild(newRow);
-    } else {
-      if (oldRow) oldRow.remove();
-      stage.appendChild(newRow);
-    }
-    tickerFirstRender = false;
-
-    document.getElementById('goalTickerMeta').textContent = data.done + '/' + data.total;
-    cycleIdx++;
-  }
-
-  function startTicker() {
-    tick();
-    setInterval(tick, 5000);
-  }
-
-  window.addEventListener('goals-changed', function () {
-    cycleIdx = 0;
-    tick();
   });
 
   /* ---------- day ring ---------- */
@@ -5444,37 +4621,6 @@
 
   /* ---------- init ---------- */
 
-  function initGoalsUI() {
-    runStreakCheck();
-    runRollover();
-
-    document.getElementById('todayLabel').textContent = 'Today — ' + formatDate(getActiveDateString());
-    document.getElementById('tomorrowLabel').textContent = 'Plan tomorrow — ' + formatDate(getTomorrowDateString());
-
-    makeAddHandlers(
-      document.getElementById('goalInput'),
-      document.getElementById('goalAddBtn'),
-      document.getElementById('goalPolishBtn'),
-      todayKey(),
-      document.getElementById('polishStatus'),
-      loadToday
-    );
-    makeAddHandlers(
-      document.getElementById('tomorrowInput'),
-      document.getElementById('tomorrowAddBtn'),
-      document.getElementById('tomorrowPolishBtn'),
-      tomorrowKey(),
-      document.getElementById('tomorrowStatus'),
-      loadTomorrow
-    );
-
-    loadToday();
-    loadTomorrow();
-    renderStreak();
-
-    startTicker();
-  }
-
   updateDaySettingsDisplay();
   updateDayBar();
   setInterval(updateDayBar, 60 * 1000);
@@ -5491,14 +4637,8 @@
   loadCoachHistory();
   initFinanceAuth();
   loadWhoopData();
-
-  loadStoreFromSupabase()
-    .then(migrateLocalStorageIfNeeded)
-    .then(initGoalsUI)
-    .catch(function (e) {
-      console.error('Supabase init failed, starting with empty goals', e);
-      initGoalsUI();
-    });
+  loadHabitsData();
+  loadWaterData();
 })();
 </script>
 </body>

@@ -1154,6 +1154,12 @@
   }
   .finance-input:focus { outline: none; border-color: var(--accent-blue); }
 
+  .finance-link-btn {
+    font-size: 11.5px; font-weight: 700; color: var(--accent-blue);
+    background: none; border: none; cursor: pointer; padding: 0; margin-top: 12px;
+  }
+  .finance-link-btn:hover { color: var(--text-primary); }
+
   .gratitude-entry { padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); }
   .gratitude-entry:first-child { border-top: none; padding-top: 0; }
   .gratitude-entry-date { font-size: 11px; font-weight: 700; color: var(--text-tertiary); margin-bottom: 5px; }
@@ -1903,12 +1909,27 @@
     <div class="section-title">Inloggen</div>
     <div class="card" id="financeLogin">
       <div class="coach-intro">Banktransacties en saldo zijn alleen zichtbaar na inloggen — dit is de enige tab in het dashboard die dat vereist.</div>
-      <div class="journal-actions">
-        <input type="email" id="financeEmailInput" placeholder="jouw@email.com" class="finance-input" style="flex:1">
+
+      <div id="financeEmailStep">
+        <div class="journal-actions">
+          <input type="email" id="financeEmailInput" placeholder="jouw@email.com" class="finance-input" style="flex:1">
+        </div>
+        <div class="journal-actions">
+          <button type="button" id="financeSendCodeBtn" class="journal-save-btn">Stuur code</button>
+          <div class="journal-status" id="financeLoginStatus"></div>
+        </div>
       </div>
-      <div class="journal-actions">
-        <button type="button" id="financeSendLinkBtn" class="journal-save-btn">Stuur magic link</button>
-        <div class="journal-status" id="financeLoginStatus"></div>
+
+      <div id="financeCodeStep" style="display:none">
+        <div class="coach-intro">We hebben een 6-cijferige code gestuurd naar <strong id="financeCodeEmailLabel"></strong>.</div>
+        <div class="journal-actions">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" id="financeCodeInput" placeholder="6-cijferige code" class="finance-input" style="flex:1">
+        </div>
+        <div class="journal-actions">
+          <button type="button" id="financeVerifyCodeBtn" class="journal-save-btn">Verifiëren</button>
+          <div class="journal-status" id="financeCodeStatus"></div>
+        </div>
+        <button type="button" id="financeChangeEmailBtn" class="finance-link-btn">Ander e-mailadres gebruiken</button>
       </div>
     </div>
   </div>
@@ -4773,22 +4794,66 @@
     }
   }
 
-  document.getElementById('financeSendLinkBtn').addEventListener('click', function () {
+  let financePendingEmail = '';
+
+  // OTP code instead of a magic link — on iOS, tapping a magic link always
+  // opens Safari (never the homescreen web-app), and iOS keeps Safari's and
+  // a homescreen app's storage completely separate, so the resulting
+  // session never reaches the app that started the flow. A typed code
+  // avoids leaving the app entirely, sidestepping that structural
+  // limitation. shouldCreateUser: false keeps sign-up behavior unchanged —
+  // only an already-known email can log in, same as before.
+  document.getElementById('financeSendCodeBtn').addEventListener('click', function () {
     const email = document.getElementById('financeEmailInput').value.trim();
     const statusEl = document.getElementById('financeLoginStatus');
     if (!email) return;
     statusEl.classList.remove('is-error');
     statusEl.textContent = 'Bezig met versturen…';
-    supabaseClient.auth.signInWithOtp({ email: email, options: { emailRedirectTo: window.location.href } })
+    supabaseClient.auth.signInWithOtp({ email: email, options: { shouldCreateUser: false } })
       .then(function (res) {
         if (res.error) throw res.error;
-        statusEl.textContent = 'Check je mail voor de inloglink!';
+        financePendingEmail = email;
+        statusEl.textContent = '';
+        document.getElementById('financeCodeEmailLabel').textContent = email;
+        document.getElementById('financeEmailStep').style.display = 'none';
+        document.getElementById('financeCodeStep').style.display = '';
+        document.getElementById('financeCodeInput').value = '';
+        document.getElementById('financeCodeInput').focus();
       })
       .catch(function (err) {
-        console.error('Magic link versturen mislukt', err);
+        console.error('Code versturen mislukt', err);
         statusEl.classList.add('is-error');
         statusEl.textContent = 'Versturen mislukt: ' + err.message;
       });
+  });
+
+  document.getElementById('financeVerifyCodeBtn').addEventListener('click', function () {
+    const code = document.getElementById('financeCodeInput').value.trim();
+    const statusEl = document.getElementById('financeCodeStatus');
+    statusEl.classList.remove('is-error');
+    if (!code) return;
+    statusEl.textContent = 'Bezig met verifiëren…';
+    supabaseClient.auth.verifyOtp({ email: financePendingEmail, token: code, type: 'email' })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        statusEl.textContent = '';
+      })
+      .catch(function (err) {
+        console.error('Code verifiëren mislukt', err);
+        statusEl.classList.add('is-error');
+        statusEl.textContent = 'Onjuiste of verlopen code.';
+      });
+  });
+
+  document.getElementById('financeCodeInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') document.getElementById('financeVerifyCodeBtn').click();
+  });
+
+  document.getElementById('financeChangeEmailBtn').addEventListener('click', function () {
+    document.getElementById('financeCodeStep').style.display = 'none';
+    document.getElementById('financeEmailStep').style.display = '';
+    document.getElementById('financeLoginStatus').textContent = '';
+    document.getElementById('financeCodeStatus').textContent = '';
   });
 
   /* ---------- finance: bank connection ---------- */

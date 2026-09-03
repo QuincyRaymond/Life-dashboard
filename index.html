@@ -101,9 +101,19 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 26px;
+    justify-content: center;
+    gap: 32px;
     flex-wrap: wrap;
-    margin-bottom: 18px;
+    padding: 32px 24px;
+    margin-bottom: 22px;
+    overflow: hidden;
+  }
+  .day-ring-card::before {
+    content: '';
+    position: absolute;
+    inset: -30%;
+    background: radial-gradient(circle at 50% 40%, rgba(58, 150, 255, 0.16), transparent 62%);
+    pointer-events: none;
   }
 
   .day-ring-settings-btn {
@@ -146,12 +156,12 @@
 
   .day-ring-left {
     position: relative;
-    width: 168px;
-    height: 168px;
+    width: 240px;
+    height: 240px;
     flex: 0 0 auto;
   }
 
-  .day-ring-svg { width: 168px; height: 168px; }
+  .day-ring-svg { width: 240px; height: 240px; }
 
   .day-ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
 
@@ -178,7 +188,7 @@
 
   .day-ring-percent {
     font-family: var(--font-mono);
-    font-size: 40px;
+    font-size: 58px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.04em;
@@ -186,17 +196,17 @@
 
   .day-ring-phase {
     font-family: var(--font-mono);
-    font-size: 9.5px;
+    font-size: 11px;
     text-transform: uppercase;
     font-weight: 800;
     letter-spacing: 0.16em;
     color: var(--text-tertiary);
-    margin-top: 5px;
+    margin-top: 6px;
   }
 
   .day-ring-clock {
     font-family: var(--font-mono);
-    font-size: 10.5px;
+    font-size: 12px;
     color: var(--text-tertiary);
     margin-top: 4px;
   }
@@ -213,10 +223,73 @@
   .day-ring-hours { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
 
   @media (max-width: 480px) {
-    .day-ring-left, .day-ring-svg { width: 144px; height: 144px; }
-    .day-ring-percent { font-size: 32px; }
+    .day-ring-card { padding: 24px 16px; }
+    .day-ring-left, .day-ring-svg { width: 190px; height: 190px; }
+    .day-ring-percent { font-size: 44px; }
     .day-ring-status { font-size: 13px; }
   }
+
+  /* ---------- Component: Command Center cards ---------- */
+
+  .command-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  @media (min-width: 700px) {
+    .command-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .command-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 16px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 128px;
+    overflow: hidden;
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .command-card::before {
+    content: '';
+    position: absolute; inset: 0; border-radius: inherit;
+    background: radial-gradient(circle at 15% -10%, var(--command-glow, rgba(58, 150, 255, 0.16)), transparent 65%);
+    pointer-events: none;
+  }
+  .command-card:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.055); border-color: rgba(255, 255, 255, 0.14); }
+  .command-card:active { transform: translateY(0); }
+
+  .command-card.accent-health { --command-glow: rgba(107, 227, 164, 0.18); }
+  .command-card.accent-finance { --command-glow: rgba(58, 150, 255, 0.18); }
+  .command-card.accent-mental { --command-glow: rgba(242, 192, 99, 0.18); }
+  .command-card.accent-agenda { --command-glow: rgba(58, 150, 255, 0.18); }
+
+  .command-card-header { display: flex; align-items: center; gap: 7px; position: relative; z-index: 1; }
+  .command-card-icon { font-size: 15px; line-height: 1; }
+  .command-card-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  .command-card-stat {
+    font-family: var(--font-mono); font-size: 25px; font-weight: 800;
+    color: var(--text-primary); letter-spacing: -0.02em;
+    position: relative; z-index: 1;
+  }
+  .command-card-stat.is-good { color: var(--success); }
+  .command-card-stat.is-ok { color: var(--warning); }
+  .command-card-stat.is-bad { color: var(--danger); }
+  .command-card-sub {
+    font-size: 11px; color: var(--text-secondary);
+    position: relative; z-index: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .command-card-sparkline { width: 100%; height: 26px; margin-top: auto; position: relative; z-index: 1; }
+  .command-card-sparkline-path { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
   /* ---------- Component: Agenda ---------- */
 
@@ -295,14 +368,12 @@
   .agenda-status.is-error { color: var(--danger); }
   .agenda-status:empty { display: none; }
 
-  .agenda-compact-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .agenda-compact-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
-  .agenda-expand-btn, .agenda-collapse-btn {
+  .agenda-collapse-btn {
     font-size: 11px; font-weight: 700; color: var(--accent-blue);
     background: none; border: none; cursor: pointer; padding: 0;
+    margin-top: 12px;
   }
-  .agenda-expand-btn:hover, .agenda-collapse-btn:hover { color: var(--text-primary); }
-  .agenda-collapse-btn { margin-top: 12px; }
+  .agenda-collapse-btn:hover { color: var(--text-primary); }
 
   .section { display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; }
 
@@ -323,16 +394,17 @@
     flex: 1; min-width: 110px;
     display: flex; flex-direction: column; align-items: center; gap: 8px;
     padding: 18px 12px;
-    border-radius: 16px;
+    border-radius: 18px;
     background: rgba(255, 255, 255, 0.035);
     border: 1.5px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.2s;
   }
   .habit-tile:hover { background: rgba(255, 255, 255, 0.06); }
   .habit-tile.is-done {
     background: rgba(107, 227, 164, 0.10);
     border-color: rgba(107, 227, 164, 0.32);
+    box-shadow: 0 0 18px rgba(107, 227, 164, 0.12);
   }
   .habit-tile-icon { font-size: 28px; }
   .habit-tile-name { font-size: 12.5px; font-weight: 700; color: var(--text-primary); }
@@ -364,11 +436,12 @@
     flex: none; width: 64px; height: 64px; border-radius: 50%;
     border: none; cursor: pointer;
     background: rgba(58, 150, 255, 0.12);
+    box-shadow: 0 0 20px rgba(58, 150, 255, 0.14);
     display: flex; align-items: center; justify-content: center;
     font-size: 30px;
-    transition: transform 0.15s, background 0.15s;
+    transition: transform 0.15s, background 0.15s, box-shadow 0.2s;
   }
-  .water-drop-btn:hover { background: rgba(58, 150, 255, 0.2); }
+  .water-drop-btn:hover { background: rgba(58, 150, 255, 0.2); box-shadow: 0 0 26px rgba(58, 150, 255, 0.22); }
   .water-drop-btn:active { transform: scale(0.92); }
   .water-info { flex: 1; min-width: 0; }
   .water-summary { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
@@ -473,22 +546,6 @@
   .quad-area-gym { grid-area: gym; }
   .quad-area-weight { grid-area: weight; }
   .quad-area-sleep { grid-area: sleep; }
-
-  .quad-grid-dash-top { grid-template-areas: "dayring" "habits"; }
-  @media (min-width: 860px) {
-    .quad-grid-dash-top { grid-template-areas: "dayring habits"; }
-  }
-  .quad-area-dayring { grid-area: dayring; }
-  .quad-area-habits { grid-area: habits; }
-
-  .quad-grid-dash-main { grid-template-areas: "future-main-0" "agenda" "future-main-1" "future-main-2"; }
-  @media (min-width: 860px) {
-    .quad-grid-dash-main { grid-template-areas: "future-main-0 agenda" "future-main-1 future-main-2"; }
-  }
-  .quad-area-future-main-0 { grid-area: future-main-0; }
-  .quad-area-agenda { grid-area: agenda; }
-  .quad-area-future-main-1 { grid-area: future-main-1; }
-  .quad-area-future-main-2 { grid-area: future-main-2; }
 
   .dash-placeholder-card { min-height: 120px; display: flex; align-items: center; justify-content: center; }
 
@@ -1008,160 +1065,154 @@
 
   <h1 class="dash-title">Quincy's Dashboard</h1>
 
-  <div class="quad-grid quad-grid-dash-top">
-
-    <div class="quad-section quad-area-dayring">
-      <div class="card day-ring-card" id="dayRingCard">
-        <button class="day-ring-settings-btn" id="dayRingSettingsBtn" type="button" aria-label="Wek- en slaaptijd instellen">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-        </button>
-        <div class="day-ring-left">
-          <svg class="day-ring-svg" viewBox="0 0 120 120">
-            <defs>
-              <filter id="ringGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="2.2" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
-            <circle class="day-ring-track" cx="60" cy="60" r="52"></circle>
-            <circle class="day-ring-fill" id="dayRingFill" cx="60" cy="60" r="52" filter="url(#ringGlow)"></circle>
-          </svg>
-          <div class="day-ring-overlay">
-            <div class="day-ring-percent" id="dayRingPercent">—</div>
-            <div class="day-ring-phase" id="dayRingPhase">SLEEPING</div>
-            <div class="day-ring-clock" id="dayRingClock">--:--</div>
-          </div>
-        </div>
-        <div class="day-ring-right">
-          <div class="day-ring-status" id="dayRingStatus">😴 Still sleeping</div>
-          <div class="day-ring-remaining" id="dayRingRemaining">—</div>
-          <div class="day-ring-hours" id="dayRingHours">8:00 AM – 12:00 AM</div>
-        </div>
-
-        <div class="day-ring-settings-panel" id="dayRingSettingsPanel" style="display:none">
-          <div class="day-ring-settings-fields">
-            <label>Wektijd
-              <input type="time" id="wakeTimeInput">
-            </label>
-            <label>Slaaptijd
-              <input type="time" id="sleepTimeInput">
-            </label>
-          </div>
-          <div class="day-ring-settings-actions">
-            <button type="button" id="daySettingsSaveBtn" class="day-settings-save-btn">Opslaan</button>
-            <button type="button" id="daySettingsCancelBtn" class="day-settings-cancel-btn">Annuleren</button>
-          </div>
-          <div class="day-settings-status" id="daySettingsStatus"></div>
-        </div>
+  <div class="card day-ring-card" id="dayRingCard">
+    <button class="day-ring-settings-btn" id="dayRingSettingsBtn" type="button" aria-label="Wek- en slaaptijd instellen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+    <div class="day-ring-left">
+      <svg class="day-ring-svg" viewBox="0 0 120 120">
+        <defs>
+          <filter id="ringGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <circle class="day-ring-track" cx="60" cy="60" r="52"></circle>
+        <circle class="day-ring-fill" id="dayRingFill" cx="60" cy="60" r="52" filter="url(#ringGlow)"></circle>
+      </svg>
+      <div class="day-ring-overlay">
+        <div class="day-ring-percent" id="dayRingPercent">—</div>
+        <div class="day-ring-phase" id="dayRingPhase">SLEEPING</div>
+        <div class="day-ring-clock" id="dayRingClock">--:--</div>
       </div>
     </div>
-
-    <div class="quad-section quad-area-habits">
-      <div class="section-title">Habits</div>
-
-      <div class="card">
-        <div class="habit-tiles" id="habitTiles"></div>
-      </div>
-
-      <div class="card water-card">
-        <button type="button" class="water-drop-btn" id="waterDropBtn" aria-label="Voeg 890 ml toe">💧</button>
-        <div class="water-info">
-          <div class="water-summary-row">
-            <div class="water-summary" id="waterSummary">0 keer · 0,00 L</div>
-            <button type="button" class="water-goal-btn" id="waterGoalBtn" aria-label="Dagdoel aanpassen">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
-              </svg>
-            </button>
-          </div>
-          <div class="water-progress-track"><div class="water-progress-fill" id="waterProgressFill" style="width:0%"></div></div>
-          <div class="water-progress-label" id="waterProgressLabel">Doel: 2,5 L</div>
-          <div class="water-goal-edit" id="waterGoalEdit" style="display:none">
-            <input type="number" id="waterGoalInput" class="finance-input" placeholder="Doel in ml" style="flex:1">
-            <button type="button" id="waterGoalSaveBtn" class="journal-save-btn">Opslaan</button>
-          </div>
-          <div class="journal-status" id="waterGoalStatus"></div>
-        </div>
-      </div>
+    <div class="day-ring-right">
+      <div class="day-ring-status" id="dayRingStatus">😴 Still sleeping</div>
+      <div class="day-ring-remaining" id="dayRingRemaining">—</div>
+      <div class="day-ring-hours" id="dayRingHours">8:00 AM – 12:00 AM</div>
     </div>
 
+    <div class="day-ring-settings-panel" id="dayRingSettingsPanel" style="display:none">
+      <div class="day-ring-settings-fields">
+        <label>Wektijd
+          <input type="time" id="wakeTimeInput">
+        </label>
+        <label>Slaaptijd
+          <input type="time" id="sleepTimeInput">
+        </label>
+      </div>
+      <div class="day-ring-settings-actions">
+        <button type="button" id="daySettingsSaveBtn" class="day-settings-save-btn">Opslaan</button>
+        <button type="button" id="daySettingsCancelBtn" class="day-settings-cancel-btn">Annuleren</button>
+      </div>
+      <div class="day-settings-status" id="daySettingsStatus"></div>
+    </div>
   </div>
 
-  <div class="quad-grid quad-grid-dash-main">
-
-    <div class="quad-section quad-area-future-main-0">
-      <div class="section-title">Gereserveerd</div>
-      <div class="card dash-placeholder-card">
-        <div class="health-empty health-empty-static">Ruimte voor een toekomstige sectie.</div>
+  <div class="command-grid">
+    <div class="command-card accent-health" id="cardHealth">
+      <div class="command-card-header">
+        <span class="command-card-icon">💚</span>
+        <span class="command-card-label">Health</span>
       </div>
+      <div class="command-card-stat" id="cardHealthStat">—</div>
+      <div class="command-card-sub" id="cardHealthSub">Laden…</div>
+      <svg class="command-card-sparkline" id="cardHealthSparkline" viewBox="0 0 100 26" preserveAspectRatio="none"></svg>
     </div>
 
-    <div class="quad-section quad-area-agenda">
-      <div class="section-title">Agenda</div>
-
-      <div class="card" id="agendaReconnectCard" style="display:none">
-        <div class="coach-intro">De koppeling met Google Calendar is verlopen. Koppel opnieuw om je agenda weer te zien.</div>
-        <button type="button" id="agendaReconnectBtn" class="journal-save-btn">Koppel Google Calendar opnieuw</button>
-        <div class="journal-status" id="agendaReconnectStatus"></div>
+    <div class="command-card accent-finance" id="cardFinance">
+      <div class="command-card-header">
+        <span class="command-card-icon">💰</span>
+        <span class="command-card-label">Finance</span>
       </div>
-
-      <div class="card agenda-compact-card" id="agendaCompactCard">
-        <div class="agenda-compact-header">
-          <div class="agenda-compact-title">Vandaag</div>
-          <button class="agenda-expand-btn" id="agendaExpandBtn" type="button">Volledige agenda ›</button>
-        </div>
-        <div class="agenda-legend">
-          <div class="agenda-legend-item"><span class="agenda-legend-dot cal-primary"></span>Hoofdagenda</div>
-          <div class="agenda-legend-item"><span class="agenda-legend-dot cal-school"></span>School</div>
-        </div>
-        <div class="agenda-body" id="agendaCompactBody"></div>
-      </div>
-
-      <div class="card agenda-card" id="agendaCard" style="display:none">
-        <div class="agenda-header">
-          <div class="agenda-nav">
-            <button class="agenda-nav-btn" id="agendaPrevBtn" type="button" aria-label="Vorige">‹</button>
-            <div class="agenda-range" id="agendaRange">…</div>
-            <button class="agenda-nav-btn" id="agendaNextBtn" type="button" aria-label="Volgende">›</button>
-          </div>
-          <div class="agenda-controls">
-            <button class="agenda-today-btn" id="agendaTodayBtn" type="button">Vandaag</button>
-            <div class="agenda-view-toggle">
-              <button class="agenda-view-btn is-active" id="agendaWeekBtn" type="button">Week</button>
-              <button class="agenda-view-btn" id="agendaMonthBtn" type="button">Maand</button>
-            </div>
-          </div>
-        </div>
-        <div class="agenda-legend">
-          <div class="agenda-legend-item"><span class="agenda-legend-dot cal-primary"></span>Hoofdagenda</div>
-          <div class="agenda-legend-item"><span class="agenda-legend-dot cal-school"></span>School</div>
-        </div>
-        <div class="agenda-body" id="agendaBody"></div>
-        <div class="agenda-status" id="agendaStatus">Laden…</div>
-        <button class="agenda-collapse-btn" id="agendaCollapseBtn" type="button">‹ Inklappen</button>
-      </div>
+      <div class="command-card-stat" id="cardFinanceStat">—</div>
+      <div class="command-card-sub" id="cardFinanceSub">Laden…</div>
+      <svg class="command-card-sparkline" id="cardFinanceSparkline" viewBox="0 0 100 26" preserveAspectRatio="none"></svg>
     </div>
 
-    <div class="quad-section quad-area-future-main-1">
-      <div class="section-title">Gereserveerd</div>
-      <div class="card dash-placeholder-card">
-        <div class="health-empty health-empty-static">Ruimte voor een toekomstige sectie.</div>
+    <div class="command-card accent-mental" id="cardMental">
+      <div class="command-card-header">
+        <span class="command-card-icon">🧠</span>
+        <span class="command-card-label">Mental Health</span>
       </div>
+      <div class="command-card-stat" id="cardMentalStat">—</div>
+      <div class="command-card-sub" id="cardMentalSub">Laden…</div>
+      <svg class="command-card-sparkline" id="cardMentalSparkline" viewBox="0 0 100 26" preserveAspectRatio="none"></svg>
     </div>
 
-    <div class="quad-section quad-area-future-main-2">
-      <div class="section-title">Gereserveerd</div>
-      <div class="card dash-placeholder-card">
-        <div class="health-empty health-empty-static">Ruimte voor een toekomstige sectie.</div>
+    <div class="command-card accent-agenda" id="cardAgenda">
+      <div class="command-card-header">
+        <span class="command-card-icon">📅</span>
+        <span class="command-card-label">Agenda</span>
+      </div>
+      <div class="command-card-stat" id="cardAgendaStat">—</div>
+      <div class="command-card-sub" id="cardAgendaSub">Laden…</div>
+    </div>
+  </div>
+
+  <div class="card" id="agendaReconnectCard" style="display:none">
+    <div class="coach-intro">De koppeling met Google Calendar is verlopen. Koppel opnieuw om je agenda weer te zien.</div>
+    <button type="button" id="agendaReconnectBtn" class="journal-save-btn">Koppel Google Calendar opnieuw</button>
+    <div class="journal-status" id="agendaReconnectStatus"></div>
+  </div>
+
+  <div class="card agenda-card" id="agendaCard" style="display:none">
+    <div class="agenda-header">
+      <div class="agenda-nav">
+        <button class="agenda-nav-btn" id="agendaPrevBtn" type="button" aria-label="Vorige">‹</button>
+        <div class="agenda-range" id="agendaRange">…</div>
+        <button class="agenda-nav-btn" id="agendaNextBtn" type="button" aria-label="Volgende">›</button>
+      </div>
+      <div class="agenda-controls">
+        <button class="agenda-today-btn" id="agendaTodayBtn" type="button">Vandaag</button>
+        <div class="agenda-view-toggle">
+          <button class="agenda-view-btn is-active" id="agendaWeekBtn" type="button">Week</button>
+          <button class="agenda-view-btn" id="agendaMonthBtn" type="button">Maand</button>
+        </div>
       </div>
     </div>
+    <div class="agenda-legend">
+      <div class="agenda-legend-item"><span class="agenda-legend-dot cal-primary"></span>Hoofdagenda</div>
+      <div class="agenda-legend-item"><span class="agenda-legend-dot cal-school"></span>School</div>
+    </div>
+    <div class="agenda-body" id="agendaBody"></div>
+    <div class="agenda-status" id="agendaStatus">Laden…</div>
+    <button class="agenda-collapse-btn" id="agendaCollapseBtn" type="button">‹ Inklappen</button>
+  </div>
 
+  <div class="section">
+    <div class="section-title">Habits</div>
+
+    <div class="card">
+      <div class="habit-tiles" id="habitTiles"></div>
+    </div>
+
+    <div class="card water-card">
+      <button type="button" class="water-drop-btn" id="waterDropBtn" aria-label="Voeg 890 ml toe">💧</button>
+      <div class="water-info">
+        <div class="water-summary-row">
+          <div class="water-summary" id="waterSummary">0 keer · 0,00 L</div>
+          <button type="button" class="water-goal-btn" id="waterGoalBtn" aria-label="Dagdoel aanpassen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="water-progress-track"><div class="water-progress-fill" id="waterProgressFill" style="width:0%"></div></div>
+        <div class="water-progress-label" id="waterProgressLabel">Doel: 2,5 L</div>
+        <div class="water-goal-edit" id="waterGoalEdit" style="display:none">
+          <input type="number" id="waterGoalInput" class="finance-input" placeholder="Doel in ml" style="flex:1">
+          <button type="button" id="waterGoalSaveBtn" class="journal-save-btn">Opslaan</button>
+        </div>
+        <div class="journal-status" id="waterGoalStatus"></div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -1824,6 +1875,7 @@
         }
       });
       renderHabitTiles();
+      renderDashboardMentalCard();
     } catch (e) {
       console.error('Habits laden mislukt', e);
     }
@@ -2205,6 +2257,147 @@
         saveBtn.disabled = false;
       });
   });
+
+  /* ---------- dashboard: command cards ---------- */
+
+  function buildSparklinePath(values, width, height, padding) {
+    padding = padding == null ? 2 : padding;
+    if (values.length < 2) return '';
+    const min = Math.min.apply(null, values);
+    const max = Math.max.apply(null, values);
+    const range = Math.max(max - min, 0.0001);
+    const stepX = (width - padding * 2) / (values.length - 1);
+    return values.map(function (v, i) {
+      const x = padding + stepX * i;
+      const y = padding + (height - padding * 2) * (1 - (v - min) / range);
+      return (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+  }
+
+  function renderSparkline(svgId, values, color) {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    svg.innerHTML = '';
+    if (values.length < 2) return;
+    const path = buildSparklinePath(values, 100, 26);
+    svg.appendChild(svgEl('path', { d: path, class: 'command-card-sparkline-path', stroke: color }));
+  }
+
+  async function loadDashboardHealthCard() {
+    const statEl = document.getElementById('cardHealthStat');
+    const subEl = document.getElementById('cardHealthSub');
+    try {
+      const [recoveryRes, sleepRes] = await Promise.all([
+        supabaseClient.from('whoop_recovery').select('*').order('recorded_at', { ascending: false }).limit(7),
+        supabaseClient.from('whoop_sleep').select('*').order('start_time', { ascending: false }).limit(1)
+      ]);
+      if (recoveryRes.error) console.error('Dashboard health card laden mislukt', recoveryRes.error);
+      if (sleepRes.error) console.error('Dashboard health card laden mislukt', sleepRes.error);
+
+      const recoveryRows = recoveryRes.data || [];
+      const latest = recoveryRows[0];
+
+      if (!latest || latest.recovery_score == null) {
+        statEl.textContent = '—';
+        statEl.className = 'command-card-stat';
+        subEl.textContent = 'Nog geen WHOOP-data';
+        renderSparkline('cardHealthSparkline', [], null);
+        return;
+      }
+
+      const score = Math.round(Number(latest.recovery_score));
+      const band = score >= 67 ? 'good' : score >= 34 ? 'ok' : 'bad';
+      statEl.textContent = score + '%';
+      statEl.className = 'command-card-stat is-' + band;
+
+      const sleep = (sleepRes.data || [])[0];
+      subEl.textContent = sleep && sleep.sleep_performance_percentage != null
+        ? 'Slaap ' + Math.round(Number(sleep.sleep_performance_percentage)) + '%'
+        : 'Recovery';
+
+      const color = band === 'good' ? 'var(--success)' : band === 'ok' ? 'var(--warning)' : 'var(--danger)';
+      const trend = recoveryRows.slice().reverse().map(function (r) { return Number(r.recovery_score) || 0; });
+      renderSparkline('cardHealthSparkline', trend, color);
+    } catch (e) {
+      console.error('Dashboard health card laden mislukt', e);
+    }
+  }
+
+  async function loadDashboardFinanceCard() {
+    const statEl = document.getElementById('cardFinanceStat');
+    const subEl = document.getElementById('cardFinanceSub');
+
+    if (!financeSession) {
+      statEl.textContent = '🔒';
+      statEl.className = 'command-card-stat';
+      subEl.textContent = 'Log in bij Finance';
+      renderSparkline('cardFinanceSparkline', [], null);
+      return;
+    }
+
+    try {
+      const weekAgo = toISODate(new Date(Date.now() - 7 * 24 * 3600 * 1000));
+      const [snapshotRes, txRes] = await Promise.all([
+        supabaseClient.from('net_worth_snapshots').select('*').order('snapshot_date', { ascending: false }).limit(7),
+        supabaseClient.from('bank_transactions').select('*').lt('amount', 0).gte('booking_date', weekAgo)
+      ]);
+      if (snapshotRes.error) console.error('Dashboard finance card laden mislukt', snapshotRes.error);
+      if (txRes.error) console.error('Dashboard finance card laden mislukt', txRes.error);
+
+      const rows = snapshotRes.data || [];
+      const latest = rows[0];
+
+      if (!latest) {
+        statEl.textContent = '—';
+        statEl.className = 'command-card-stat';
+        subEl.textContent = 'Nog geen net worth data';
+        renderSparkline('cardFinanceSparkline', [], null);
+        return;
+      }
+
+      statEl.textContent = formatEuro(latest.total);
+      statEl.className = 'command-card-stat';
+
+      const txRows = txRes.data || [];
+      const weekSpend = txRows.reduce(function (sum, t) { return sum + Math.abs(Number(t.amount)); }, 0);
+      subEl.textContent = txRows.length ? formatEuro(weekSpend) + ' uitgegeven deze week' : 'Net worth';
+
+      const trend = rows.slice().reverse().map(function (r) { return Number(r.total) || 0; });
+      renderSparkline('cardFinanceSparkline', trend, 'var(--accent-blue)');
+    } catch (e) {
+      console.error('Dashboard finance card laden mislukt', e);
+    }
+  }
+
+  function renderDashboardMentalCard() {
+    const statEl = document.getElementById('cardMentalStat');
+    const subEl = document.getElementById('cardMentalSub');
+    if (!statEl || !subEl) return;
+
+    const journalStreak = (habitState.journal && habitState.journal.streak) || 0;
+    statEl.textContent = journalStreak + ' 🔥';
+    statEl.className = 'command-card-stat';
+
+    const todayStr = toISODate(new Date());
+    const todayMood = moodEntries.filter(function (m) { return m.entry_date === todayStr; })[0];
+    subEl.textContent = todayMood
+      ? 'Stemming ' + MOOD_EMOJI[todayMood.score] + ' ' + MOOD_LABELS[todayMood.score]
+      : 'Journal streak';
+
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dStr = toISODate(d);
+      const entry = moodEntries.filter(function (m) { return m.entry_date === dStr; })[0];
+      if (entry) days.push(Number(entry.score));
+    }
+    renderSparkline('cardMentalSparkline', days, 'var(--warning)');
+  }
+
+  document.getElementById('cardHealth').addEventListener('click', function () { showTab('health'); });
+  document.getElementById('cardFinance').addEventListener('click', function () { showTab('finance'); });
+  document.getElementById('cardMental').addEventListener('click', function () { showTab('mental'); });
 
   /* ---------- tabs ---------- */
 
@@ -3109,18 +3302,24 @@
     return row;
   }
 
-  function renderAgendaCompact() {
-    const body = document.getElementById('agendaCompactBody');
-    body.innerHTML = '';
-    const todayEvents = eventsForDay(new Date());
-    if (!todayEvents.length) {
-      const empty = document.createElement('div');
-      empty.className = 'agenda-week-empty';
-      empty.textContent = 'Geen afspraken vandaag';
-      body.appendChild(empty);
+  function renderDashboardAgendaCard() {
+    const statEl = document.getElementById('cardAgendaStat');
+    const subEl = document.getElementById('cardAgendaSub');
+    if (!statEl || !subEl) return;
+
+    const now = new Date();
+    const upcoming = eventsForDay(now)
+      .filter(function (e) { return e.allDay || new Date(e.end) > now; })
+      .sort(function (a, b) { return new Date(a.start) - new Date(b.start); });
+
+    if (!upcoming.length) {
+      statEl.textContent = '—';
+      subEl.textContent = 'Geen afspraken meer vandaag';
       return;
     }
-    todayEvents.forEach(function (e) { body.appendChild(buildEventRow(e)); });
+    const next = upcoming[0];
+    statEl.textContent = formatEventTime(next);
+    subEl.textContent = next.summary + (upcoming.length > 1 ? ' · +' + (upcoming.length - 1) + ' meer' : '');
   }
 
   function renderAgendaWeek() {
@@ -3234,7 +3433,7 @@
     renderAgendaRangeLabel();
     if (agendaViewMode === 'week') renderAgendaWeek();
     else renderAgendaMonth();
-    renderAgendaCompact();
+    renderDashboardAgendaCard();
   }
 
   function updateAgendaViewButtons() {
@@ -3326,13 +3525,12 @@
     loadAgenda();
   });
 
-  document.getElementById('agendaExpandBtn').addEventListener('click', function () {
-    document.getElementById('agendaCompactCard').style.display = 'none';
-    document.getElementById('agendaCard').style.display = '';
+  document.getElementById('cardAgenda').addEventListener('click', function () {
+    const detail = document.getElementById('agendaCard');
+    detail.style.display = detail.style.display === 'none' ? '' : 'none';
   });
   document.getElementById('agendaCollapseBtn').addEventListener('click', function () {
     document.getElementById('agendaCard').style.display = 'none';
-    document.getElementById('agendaCompactCard').style.display = '';
     agendaAnchor = new Date();
     agendaViewMode = 'week';
     updateAgendaViewButtons();
@@ -3367,6 +3565,7 @@
       renderJournalUI();
       renderMoodUI();
       renderGratitudeUI();
+      renderDashboardMentalCard();
     } catch (e) {
       console.error('Mental health data laden mislukt', e);
     }
@@ -4034,8 +4233,10 @@
     supabaseClient.auth.onAuthStateChange(function (_event, session) {
       financeSession = session;
       renderFinanceGate();
+      loadDashboardFinanceCard();
     });
     renderFinanceGate();
+    loadDashboardFinanceCard();
   }
 
   function renderFinanceGate() {
@@ -4719,6 +4920,7 @@
   loadWhoopData();
   loadHabitsData();
   loadWaterData();
+  loadDashboardHealthCard();
 })();
 </script>
 </body>
